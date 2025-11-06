@@ -164,6 +164,15 @@ if (!$canDb && !$tipos) {
   const preselectedCiudad = <?= json_encode($filters['ciudad']) ?>;
 
   async function getProvincias() {
+    // 0) JSON local principal (ar_localidades.json) — ya existe en assets/data
+    try {
+      const res = await fetch(`${BASE_URL}/assets/data/ar_localidades.json`);
+      if (res.ok) {
+        const data = await res.json();
+        const provs = (data.provincias||[]).map(p => p.nombre).filter(Boolean);
+        if (provs.length) return provs;
+      }
+    } catch(_) {}
     // 1) Intentar JSON local opcional (si existiera ar_provincias.json)
     try {
       const res = await fetch(`${BASE_URL}/assets/data/ar_provincias.json`);
@@ -189,9 +198,9 @@ if (!$canDb && !$tipos) {
 
   async function getCiudades(prov) {
     if (!prov) return [];
-    // 1) Intentar JSON local completo (si existiera ar_localidades_full.json)
+    // 1) Intentar JSON local disponible (ar_localidades.json)
     try {
-      const res = await fetch(`${BASE_URL}/assets/data/ar_localidades_full.json`);
+      const res = await fetch(`${BASE_URL}/assets/data/ar_localidades.json`);
       if (res.ok) {
         const data = await res.json();
         const p = (data.provincias||[]).find(x => x.nombre === prov);
