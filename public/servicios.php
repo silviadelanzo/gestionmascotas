@@ -45,18 +45,35 @@ if ($canDb) {
   try {
       require_once __DIR__.'/includes/db.php';
       $pdo = db();
-      // Detectar columna de tipo: preferimos 'rubro'; si no existe, usamos 'tipo'
+      // Detectar columna de tipo ('rubro' o 'tipo') y armar expresiones robustas
       $colCheck = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'servicios' AND COLUMN_NAME = :col");
       $colCheck->execute([':col' => 'rubro']);
       $hasRubro = (int)$colCheck->fetchColumn() > 0;
       $colCheck->execute([':col' => 'tipo']);
       $hasTipo = (int)$colCheck->fetchColumn() > 0;
 
-      $tipoExpr = $hasRubro ? 'rubro' : ($hasTipo ? 'tipo' : 'NULL');
+      // Para mostrar, preferir no-vacío entre rubro y tipo
+      if ($hasRubro && $hasTipo) {
+        $tipoDisplayExpr = "COALESCE(NULLIF(rubro,''), NULLIF(tipo,''))";
+      } elseif ($hasRubro) {
+        $tipoDisplayExpr = 'rubro';
+      } elseif ($hasTipo) {
+        $tipoDisplayExpr = 'tipo';
+      } else {
+        $tipoDisplayExpr = 'NULL';
+      }
 
-      // Tipos para filtro (si existe alguna columna válida)
-      if ($tipoExpr !== 'NULL') {
-        $tipos = $pdo->query("SELECT DISTINCT $tipoExpr AS tipo FROM servicios WHERE $tipoExpr IS NOT NULL AND $tipoExpr<>'' ORDER BY $tipoExpr ASC")->fetchAll(PDO::FETCH_COLUMN) ?: [];
+      // Tipos para filtro (unión de columnas presentes, solo no vacíos)
+      if ($hasRubro && $hasTipo) {
+        $sqlTipos = "(SELECT DISTINCT rubro AS tipo FROM servicios WHERE rubro IS NOT NULL AND rubro<>'')
+                     UNION
+                     (SELECT DISTINCT tipo AS tipo FROM servicios WHERE tipo IS NOT NULL AND tipo<>'')
+                     ORDER BY tipo ASC";
+        $tipos = $pdo->query($sqlTipos)->fetchAll(PDO::FETCH_COLUMN) ?: [];
+      } elseif ($hasRubro) {
+        $tipos = $pdo->query("SELECT DISTINCT rubro AS tipo FROM servicios WHERE rubro IS NOT NULL AND rubro<>'' ORDER BY rubro ASC")->fetchAll(PDO::FETCH_COLUMN) ?: [];
+      } elseif ($hasTipo) {
+        $tipos = $pdo->query("SELECT DISTINCT tipo AS tipo FROM servicios WHERE tipo IS NOT NULL AND tipo<>'' ORDER BY tipo ASC")->fetchAll(PDO::FETCH_COLUMN) ?: [];
       }
 
       $where = [];
@@ -65,11 +82,19 @@ if ($canDb) {
       if ($filters['provincia'] !== '') { $where[] = 'provincia = :provincia'; $params[':provincia'] = $filters['provincia']; }
       if ($filters['ciudad'] !== '') { $where[] = 'ciudad = :ciudad'; $params[':ciudad'] = $filters['ciudad']; }
       if ($filters['tipo'] !== '') {
-        if ($hasRubro) { $where[] = 'rubro = :tipo'; $params[':tipo'] = $filters['tipo']; }
-        elseif ($hasTipo) { $where[] = 'tipo = :tipo'; $params[':tipo'] = $filters['tipo']; }
+        if ($hasRubro && $hasTipo) {
+          $where[] = '(rubro = :tipo OR tipo = :tipo)';
+          $params[':tipo'] = $filters['tipo'];
+        } elseif ($hasRubro) {
+          $where[] = 'rubro = :tipo';
+          $params[':tipo'] = $filters['tipo'];
+        } elseif ($hasTipo) {
+          $where[] = 'tipo = :tipo';
+          $params[':tipo'] = $filters['tipo'];
+        }
       }
 
-      $sql = 'SELECT id,nombre,' . ($tipoExpr !== 'NULL' ? "$tipoExpr AS tipo" : "NULL AS tipo") . ',ciudad,provincia,direccion,latitud,longitud FROM servicios';
+  $sql = 'SELECT id,nombre,' . ($tipoDisplayExpr !== 'NULL' ? "$tipoDisplayExpr AS tipo" : "NULL AS tipo") . ',ciudad,provincia,direccion,latitud,longitud FROM servicios';
       if ($where) { $sql .= ' WHERE '.implode(' AND ', $where); }
       $sql .= ' ORDER BY id DESC LIMIT 200';
       $stmt = $pdo->prepare($sql);
