@@ -12,10 +12,7 @@ function db(): PDO {
         ]);
     } catch (Throwable $e) {
         // Degradar sin romper la página; mensaje opcional según flag
-        // Evitar cambiar headers si ya hubo salida (p. ej., header.php ya imprimió HTML)
-        if (!headers_sent()) {
-            http_response_code(200);
-        }
+        // Evitamos modificar headers aquí para no generar warnings si ya hubo salida
         if (defined('SHOW_DB_WARNING') && SHOW_DB_WARNING) {
             echo '<div style="background:#fff3cd;color:#664d03;padding:8px;border:1px solid #ffecb5;">Aviso: No se pudo conectar a la base de datos. Algunas funciones pueden no estar disponibles.</div>';
         }
