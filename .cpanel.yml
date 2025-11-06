@@ -1,13 +1,13 @@
 ---
 deployment:
   tasks:
-    # Deploy ONLY when the checked-out branch is 'prod'
-    - 'BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")"; if [ "$BRANCH" != "prod" ]; then echo "[cpanel] Skip deploy (branch=$BRANCH)"; exit 0; fi'
+    # Deploy when branch is prod (preferido) o main (permite entornos que aún trackean main)
+    - 'BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")"; case "$BRANCH" in prod|origin/prod|main|origin/main) echo "[cpanel] Deploy on branch=$BRANCH";; *) echo "[cpanel] Skip deploy (branch=$BRANCH)"; exit 0;; esac'
 
     # Destination directory (document root)
     - 'DEPLOY_DIR="${HOME}/public_html"; mkdir -p "$DEPLOY_DIR"'
 
-    # Sync public/ into document root, excluding server-side config.php
-    - 'if command -v rsync >/dev/null 2>&1; then rsync -az --delete --exclude "includes/config.php" public/ "$DEPLOY_DIR"/; else /bin/cp -Rfp public/* "$DEPLOY_DIR"/; fi'
+  # Sync public/ into document root, excluding server-side config.php
+  - 'if command -v rsync >/dev/null 2>&1; then rsync -az --delete --exclude "includes/config.php" public/ "$DEPLOY_DIR"/; else /bin/cp -Rfp public/* "$DEPLOY_DIR"/; /bin/rm -f "$DEPLOY_DIR"/includes/config.php || true; fi'
 
-    - 'echo "[cpanel] Deployed public/ to $DEPLOY_DIR (branch=$BRANCH)"'
+  - 'echo "[cpanel] Deployed public/ to $DEPLOY_DIR (branch=$BRANCH)"'
