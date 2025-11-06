@@ -106,6 +106,7 @@ if (!$canDb && !$tipos) {
     <select class="form-select" name="ciudad" id="ciudad" <?= $filters['provincia'] ? '' : 'disabled' ?>>
       <option value="">Ciudad</option>
     </select>
+    <div id="ciudad-status" class="form-text text-muted"></div>
   </div>
   <div class="col-6 col-md-2">
     <select class="form-select" name="tipo">
@@ -201,11 +202,12 @@ if (!$canDb && !$tipos) {
     try {
       const url = `${API_GEO_BASE}/localidades?provincia=${encodeURIComponent(prov)}&campos=nombre&max=5000`;
       const res = await fetch(url);
-      if (res.ok) {
-        const json = await res.json();
-        return (json.localidades||[]).map(c => c.nombre).sort((a,b)=> a.localeCompare(b));
-      }
-    } catch(_) {}
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      return (json.localidades||[]).map(c => c.nombre).sort((a,b)=> a.localeCompare(b));
+    } catch(err) {
+      console.error('[ciudades][api] error', err);
+    }
     // 3) Fallback vacío
     return [];
   }
@@ -213,6 +215,8 @@ if (!$canDb && !$tipos) {
   async function initUbicacionSelectors(){
     const provSel = document.getElementById('provincia');
     const ciudadSel = document.getElementById('ciudad');
+    const ciudadStatus = document.getElementById('ciudad-status');
+    const setCiudadStatus = (msg) => { if (ciudadStatus) ciudadStatus.textContent = msg || ''; };
 
     // Provincias
     const provincias = await getProvincias();
@@ -226,7 +230,10 @@ if (!$canDb && !$tipos) {
 
     async function fillCities(pName){
       ciudadSel.innerHTML = '<option value="">Ciudad</option>';
-      if (!pName){ ciudadSel.disabled = true; return; }
+      setCiudadStatus('');
+      if (!pName){ ciudadSel.disabled = true; setCiudadStatus('Seleccioná una provincia'); return; }
+      ciudadSel.disabled = false;
+      setCiudadStatus('Cargando ciudades…');
       const ciudades = await getCiudades(pName);
       ciudades.forEach(c => {
         const opt = document.createElement('option');
@@ -235,11 +242,14 @@ if (!$canDb && !$tipos) {
         ciudadSel.appendChild(opt);
       });
       ciudadSel.disabled = ciudades.length === 0;
+      setCiudadStatus(ciudades.length ? `Ciudades cargadas: ${ciudades.length}` : 'No se encontraron ciudades');
     }
 
     provSel.addEventListener('change', (e)=> fillCities(e.target.value||''));
     if (preselectedProvincia) {
       await fillCities(preselectedProvincia);
+    } else {
+      setCiudadStatus('Seleccioná una provincia');
     }
   }
 
