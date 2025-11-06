@@ -86,7 +86,7 @@ if (!$canDb && !$tipos) {
   $tipos = ['Veterinaria','Peluquería','Paseo','Guardería','Adiestramiento','Pet Shop'];
 }
 ?>
-<h1 class="h4 mb-3">Servicios por zona</h1>
+<h1 class="h4 mb-3">Servicios por zona <span class="small text-muted" style="font-weight:normal">· v-ciudades-1.1</span></h1>
 <form class="row g-2 mb-3" method="get" action="">
   <div class="col-6 col-md-3">
     <select class="form-select" name="pais" id="pais">

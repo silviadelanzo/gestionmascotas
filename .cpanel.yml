@@ -4,10 +4,16 @@ deployment:
     # Deploy when branch is prod (preferido) o main (permite entornos que aún trackean main)
     - 'BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")"; case "$BRANCH" in prod|origin/prod|main|origin/main) echo "[cpanel] Deploy on branch=$BRANCH";; *) echo "[cpanel] Skip deploy (branch=$BRANCH)"; exit 0;; esac'
 
+    # Log repo path and HEAD commit for diagnostics
+    - 'set -e; REPO_DIR="$(pwd)"; HEAD="$(git rev-parse HEAD 2>/dev/null || echo "")"; echo "[cpanel] Repo=$REPO_DIR HEAD=$HEAD"'
+
     # Destination directory (document root)
     - 'DEPLOY_DIR="${HOME}/public_html"; mkdir -p "$DEPLOY_DIR"'
 
     # Sync public/ into document root, excluding server-only files
-    - 'if command -v rsync >/dev/null 2>&1; then rsync -az --delete --exclude "includes/config.php" --exclude "db_test.php" public/ "$DEPLOY_DIR"/; else /bin/cp -Rfp public/* "$DEPLOY_DIR"/; /bin/rm -f "$DEPLOY_DIR"/includes/config.php "$DEPLOY_DIR"/db_test.php || true; fi'
+  - 'if command -v rsync >/dev/null 2>&1; then rsync -az --delete --exclude "includes/config.php" --exclude "db_test.php" public/ "$DEPLOY_DIR"/; else /bin/cp -Rfp public/* "$DEPLOY_DIR"/; /bin/rm -f "$DEPLOY_DIR"/includes/config.php "$DEPLOY_DIR"/db_test.php || true; fi'
 
-    - 'echo "[cpanel] Deployed public/ to $DEPLOY_DIR (branch=$BRANCH)"'
+  # Write deployment info file in document root
+  - 'echo "branch=$BRANCH" > "$DEPLOY_DIR/.deploy-info"; echo "head=$HEAD" >> "$DEPLOY_DIR/.deploy-info"; date "+%F %T %z" >> "$DEPLOY_DIR/.deploy-info"'
+
+  - 'echo "[cpanel] Deployed public/ to $DEPLOY_DIR (branch=$BRANCH, head=$HEAD)"'
