@@ -7,7 +7,7 @@ deployment:
     # Destination directory (document root)
     - 'DEPLOY_DIR="${HOME}/public_html"; mkdir -p "$DEPLOY_DIR"'
 
-  # Sync public/ into document root, excluding server-side config.php
-  - 'if command -v rsync >/dev/null 2>&1; then rsync -az --delete --exclude "includes/config.php" public/ "$DEPLOY_DIR"/; else /bin/cp -Rfp public/* "$DEPLOY_DIR"/; /bin/rm -f "$DEPLOY_DIR"/includes/config.php || true; fi'
+    # Sync public/ into document root, excluding server-only files
+    - 'if command -v rsync >/dev/null 2>&1; then rsync -az --delete --exclude "includes/config.php" --exclude "db_test.php" public/ "$DEPLOY_DIR"/; else /bin/cp -Rfp public/* "$DEPLOY_DIR"/; /bin/rm -f "$DEPLOY_DIR"/includes/config.php "$DEPLOY_DIR"/db_test.php || true; fi'
 
-  - 'echo "[cpanel] Deployed public/ to $DEPLOY_DIR (branch=$BRANCH)"'
+    - 'echo "[cpanel] Deployed public/ to $DEPLOY_DIR (branch=$BRANCH)"'
