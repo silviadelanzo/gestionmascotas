@@ -1,0 +1,100 @@
+{
+  "provincias": [
+    {
+      "nombre": "Buenos Aires",
+      "localidades": ["La Plata", "Mar del Plata", "Bahía Blanca", "Quilmes", "Lanús", "Lomas de Zamora", "Avellaneda", "San Isidro", "Tigre", "Morón"]
+    },
+    {
+      "nombre": "Ciudad Autónoma de Buenos Aires",
+      "localidades": ["CABA"]
+    },
+    {
+      "nombre": "Córdoba",
+      "localidades": ["Córdoba", "Villa Carlos Paz", "Río Cuarto", "Villa María"]
+    },
+    {
+      "nombre": "Santa Fe",
+      "localidades": ["Rosario", "Santa Fe", "Rafaela", "Venado Tuerto"]
+    },
+    {
+      "nombre": "Mendoza",
+      "localidades": ["Mendoza", "Godoy Cruz", "Guaymallén", "San Rafael"]
+    },
+    {
+      "nombre": "Catamarca",
+      "localidades": ["San Fernando del Valle de Catamarca"]
+    },
+    {
+      "nombre": "Chaco",
+      "localidades": ["Resistencia", "Barranqueras"]
+    },
+    {
+      "nombre": "Chubut",
+      "localidades": ["Rawson", "Trelew", "Comodoro Rivadavia"]
+    },
+    {
+      "nombre": "Corrientes",
+      "localidades": ["Corrientes", "Goya"]
+    },
+    {
+      "nombre": "Entre Ríos",
+      "localidades": ["Paraná", "Concordia", "Gualeguaychú"]
+    },
+    {
+      "nombre": "Formosa",
+      "localidades": ["Formosa"]
+    },
+    {
+      "nombre": "Jujuy",
+      "localidades": ["San Salvador de Jujuy", "Palpalá"]
+    },
+    {
+      "nombre": "La Pampa",
+      "localidades": ["Santa Rosa", "General Pico"]
+    },
+    {
+      "nombre": "La Rioja",
+      "localidades": ["La Rioja"]
+    },
+    {
+      "nombre": "Misiones",
+      "localidades": ["Posadas", "Oberá"]
+    },
+    {
+      "nombre": "Neuquén",
+      "localidades": ["Neuquén", "San Martín de los Andes"]
+    },
+    {
+      "nombre": "Río Negro",
+      "localidades": ["Viedma", "General Roca", "Bariloche"]
+    },
+    {
+      "nombre": "Salta",
+      "localidades": ["Salta", "San Ramón de la Nueva Orán"]
+    },
+    {
+      "nombre": "San Juan",
+      "localidades": ["San Juan"]
+    },
+    {
+      "nombre": "San Luis",
+      "localidades": ["San Luis", "Villa Mercedes"]
+    },
+    {
+      "nombre": "Santa Cruz",
+      "localidades": ["Río Gallegos", "Caleta Olivia"]
+    },
+    {
+      "nombre": "Santiago del Estero",
+      "localidades": ["Santiago del Estero", "La Banda"]
+    },
+    {
+      "nombre": "Tierra del Fuego, Antártida e Islas del Atlántico Sur",
+      "localidades": ["Ushuaia", "Río Grande"]
+    },
+    {
+      "nombre": "Tucumán",
+      "localidades": ["San Miguel de Tucumán", "Tafí Viejo"]
+    }
+  ]
+}

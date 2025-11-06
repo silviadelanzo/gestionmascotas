@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Bloquear rutas internas si hiciera falta
+# Disallow: /includes/
+
+Sitemap: https://mascotasymimos.com/sitemap.xml

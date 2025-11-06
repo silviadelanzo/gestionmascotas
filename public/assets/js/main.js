@@ -1,0 +1,1 @@
+// JS global del sitio
