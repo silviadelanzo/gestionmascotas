@@ -1,6 +1,11 @@
 <?php require_once __DIR__.'/includes/header.php'; ?>
 <?php
-// Intentar cargar servicios desde DB; si no hay config local, evitar conexión y no mostrar aviso
+/**
+ * SERVICIOS - Versión simplificada que usa directamente los datos de la DB
+ * Asume que la tabla tiene columnas: tipo, provincia, ciudad normalizadas
+ */
+
+// Inicializar variables
 $items = [];
 $total = 0;
 $filters = [
@@ -10,108 +15,114 @@ $filters = [
   'ciudad' => trim($_GET['ciudad'] ?? ''),
   'tipo' => trim($_GET['tipo'] ?? ''),
 ];
+
+// Listas desde DB
+$provincias = [];
+$ciudades = [];
 $tipos = [];
+$errorMsg = '';
 
-// Provincias de Argentina (estático para local)
-$provinciasAR = [
-  'Buenos Aires',
-  'Ciudad Autónoma de Buenos Aires',
-  'Catamarca',
-  'Chaco',
-  'Chubut',
-  'Córdoba',
-  'Corrientes',
-  'Entre Ríos',
-  'Formosa',
-  'Jujuy',
-  'La Pampa',
-  'La Rioja',
-  'Mendoza',
-  'Misiones',
-  'Neuquén',
-  'Río Negro',
-  'Salta',
-  'San Juan',
-  'San Luis',
-  'Santa Cruz',
-  'Santa Fe',
-  'Santiago del Estero',
-  'Tierra del Fuego, Antártida e Islas del Atlántico Sur',
-  'Tucumán',
-];
-
-$canDb = defined('DB_NAME') && DB_NAME !== '' && defined('DB_USER') && DB_USER !== '';
-if ($canDb) {
-  try {
-      require_once __DIR__.'/includes/db.php';
-      $pdo = db();
-      // Detectar columna de tipo ('rubro' o 'tipo') y armar expresiones robustas
-      $colCheck = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'servicios' AND COLUMN_NAME = :col");
-      $colCheck->execute([':col' => 'rubro']);
-      $hasRubro = (int)$colCheck->fetchColumn() > 0;
-      $colCheck->execute([':col' => 'tipo']);
-      $hasTipo = (int)$colCheck->fetchColumn() > 0;
-
-      // Para mostrar, preferir no-vacío entre rubro y tipo
-      if ($hasRubro && $hasTipo) {
-        $tipoDisplayExpr = "COALESCE(NULLIF(rubro,''), NULLIF(tipo,''))";
-      } elseif ($hasRubro) {
-        $tipoDisplayExpr = 'rubro';
-      } elseif ($hasTipo) {
-        $tipoDisplayExpr = 'tipo';
-      } else {
-        $tipoDisplayExpr = 'NULL';
-      }
-
-      // Tipos para filtro (unión de columnas presentes, solo no vacíos)
-      if ($hasRubro && $hasTipo) {
-        $sqlTipos = "(SELECT DISTINCT rubro AS tipo FROM servicios WHERE rubro IS NOT NULL AND rubro<>'')
-                     UNION
-                     (SELECT DISTINCT tipo AS tipo FROM servicios WHERE tipo IS NOT NULL AND tipo<>'')
-                     ORDER BY tipo ASC";
-        $tipos = $pdo->query($sqlTipos)->fetchAll(PDO::FETCH_COLUMN) ?: [];
-      } elseif ($hasRubro) {
-        $tipos = $pdo->query("SELECT DISTINCT rubro AS tipo FROM servicios WHERE rubro IS NOT NULL AND rubro<>'' ORDER BY rubro ASC")->fetchAll(PDO::FETCH_COLUMN) ?: [];
-      } elseif ($hasTipo) {
-        $tipos = $pdo->query("SELECT DISTINCT tipo AS tipo FROM servicios WHERE tipo IS NOT NULL AND tipo<>'' ORDER BY tipo ASC")->fetchAll(PDO::FETCH_COLUMN) ?: [];
-      }
-
-      $where = [];
-      $params = [];
-      if ($filters['q'] !== '') { $where[] = '(nombre LIKE :q OR ciudad LIKE :q OR provincia LIKE :q)'; $params[':q'] = '%'.$filters['q'].'%'; }
-      if ($filters['provincia'] !== '') { $where[] = 'provincia = :provincia'; $params[':provincia'] = $filters['provincia']; }
-      if ($filters['ciudad'] !== '') { $where[] = 'ciudad = :ciudad'; $params[':ciudad'] = $filters['ciudad']; }
-      if ($filters['tipo'] !== '') {
-        if ($hasRubro && $hasTipo) {
-          $where[] = '(rubro = :tipo OR tipo = :tipo)';
-          $params[':tipo'] = $filters['tipo'];
-        } elseif ($hasRubro) {
-          $where[] = 'rubro = :tipo';
-          $params[':tipo'] = $filters['tipo'];
-        } elseif ($hasTipo) {
-          $where[] = 'tipo = :tipo';
-          $params[':tipo'] = $filters['tipo'];
-        }
-      }
-
-  $sql = 'SELECT id,nombre,' . ($tipoDisplayExpr !== 'NULL' ? "$tipoDisplayExpr AS tipo" : "NULL AS tipo") . ',ciudad,provincia,direccion,latitud,longitud FROM servicios';
-      if ($where) { $sql .= ' WHERE '.implode(' AND ', $where); }
-      $sql .= ' ORDER BY id DESC LIMIT 200';
-      $stmt = $pdo->prepare($sql);
-      $stmt->execute($params);
-      $items = $stmt->fetchAll();
-      $total = count($items);
-  } catch (Throwable $e) {
-      $items = [];
-      $total = 0;
-  }
+// Conexión a DB
+try {
+    require_once __DIR__.'/includes/db.php';
+    $pdo = db();
+    
+    // Obtener provincias ÚNICAS desde la DB
+    $stmt = $pdo->query("SELECT DISTINCT provincia FROM servicios WHERE provincia IS NOT NULL AND provincia != '' ORDER BY provincia ASC");
+    $provincias = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    
+    // Si hay provincia seleccionada, obtener ciudades de esa provincia
+    if ($filters['provincia']) {
+        $stmt = $pdo->prepare("SELECT DISTINCT ciudad FROM servicios WHERE provincia = :prov AND ciudad IS NOT NULL AND ciudad != '' ORDER BY ciudad ASC");
+        $stmt->execute([':prov' => $filters['provincia']]);
+        $ciudades = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+    
+    // Obtener tipos ÚNICOS desde la DB
+    $stmt = $pdo->query("SELECT DISTINCT tipo FROM servicios WHERE tipo IS NOT NULL AND tipo != '' ORDER BY tipo ASC");
+    $tipos = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    
+    // Construir query de servicios con filtros
+    $where = [];
+    $params = [];
+    
+    if ($filters['q']) {
+        $where[] = '(nombre LIKE :q OR ciudad LIKE :q OR provincia LIKE :q)';
+        $params[':q'] = '%' . $filters['q'] . '%';
+    }
+    if ($filters['provincia']) {
+        $where[] = 'provincia = :provincia';
+        $params[':provincia'] = $filters['provincia'];
+    }
+    if ($filters['ciudad']) {
+        $where[] = 'ciudad = :ciudad';
+        $params[':ciudad'] = $filters['ciudad'];
+    }
+    if ($filters['tipo']) {
+        $where[] = 'tipo = :tipo';
+        $params[':tipo'] = $filters['tipo'];
+    }
+    
+    // Query principal
+    $sql = 'SELECT id, nombre, tipo, ciudad, provincia, direccion, latitud, longitud FROM servicios';
+    if ($where) {
+        $sql .= ' WHERE ' . implode(' AND ', $where);
+    }
+    $sql .= ' ORDER BY id DESC LIMIT 200';
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $total = count($items);
+    
+} catch (Exception $e) {
+    $errorMsg = 'Error al cargar servicios: ' . $e->getMessage();
+    // Fallback: listas vacías
+    $provincias = [];
+    $tipos = [];
 }
-// Fallback de tipos si no hay DB
-if (!$canDb && !$tipos) {
-  $tipos = ['Veterinaria','Peluquería','Paseo','Guardería','Adiestramiento','Pet Shop'];
+
+// Si no hay provincias en DB, usar lista estática
+if (empty($provincias)) {
+    $provincias = [
+        'Buenos Aires',
+        'Ciudad Autónoma de Buenos Aires',
+        'Catamarca',
+        'Chaco',
+        'Chubut',
+        'Córdoba',
+        'Corrientes',
+        'Entre Ríos',
+        'Formosa',
+        'Jujuy',
+        'La Pampa',
+        'La Rioja',
+        'Mendoza',
+        'Misiones',
+        'Neuquén',
+        'Río Negro',
+        'Salta',
+        'San Juan',
+        'San Luis',
+        'Santa Cruz',
+        'Santa Fe',
+        'Santiago del Estero',
+        'Tierra del Fuego, Antártida e Islas del Atlántico Sur',
+        'Tucumán',
+    ];
+}
+
+// Si no hay tipos en DB, usar lista estática
+if (empty($tipos)) {
+    $tipos = ['Veterinaria', 'Peluquería', 'Paseo', 'Guardería', 'Adiestramiento', 'Pet Shop', 'Refugio', 'Transporte'];
 }
 ?>
-<h1 class="h4 mb-3">Servicios por zona <span class="small text-muted" style="font-weight:normal">· v-COALESCE-2.0 📝</span></h1>
+
+<?php if ($errorMsg): ?>
+<div class="alert alert-warning"><?= htmlspecialchars($errorMsg) ?></div>
+<?php endif; ?>
+
+<h1 class="h4 mb-3">Servicios por zona <span class="small text-muted" style="font-weight:normal">· v-DB-SIMPLE-3.0 🎯</span></h1>
 <form class="row g-2 mb-3" method="get" action="">
   <div class="col-6 col-md-3">
     <select class="form-select" name="pais" id="pais">
@@ -120,23 +131,28 @@ if (!$canDb && !$tipos) {
     </select>
   </div>
   <div class="col-6 col-md-3">
-    <select class="form-select" name="provincia" id="provincia">
-      <option value="">Provincia</option>
-      <?php foreach ($provinciasAR as $prov): $sel = ($filters['provincia'] === $prov) ? 'selected' : ''; ?>
+    <select class="form-select" name="provincia" id="provincia" onchange="this.form.submit()">
+      <option value="">Todas las provincias</option>
+      <?php foreach ($provincias as $prov): 
+        $sel = ($filters['provincia'] === $prov) ? 'selected' : ''; ?>
         <option value="<?= htmlspecialchars($prov) ?>" <?= $sel ?>><?= htmlspecialchars($prov) ?></option>
       <?php endforeach; ?>
     </select>
   </div>
   <div class="col-6 col-md-3">
-    <select class="form-select" name="ciudad" id="ciudad" <?= $filters['provincia'] ? '' : 'disabled' ?>>
-      <option value="">Ciudad</option>
+    <select class="form-select" name="ciudad" id="ciudad" <?= empty($ciudades) ? 'disabled' : '' ?> onchange="this.form.submit()">
+      <option value="">Todas las ciudades</option>
+      <?php foreach ($ciudades as $c): 
+        $sel = ($filters['ciudad'] === $c) ? 'selected' : ''; ?>
+        <option value="<?= htmlspecialchars($c) ?>" <?= $sel ?>><?= htmlspecialchars($c) ?></option>
+      <?php endforeach; ?>
     </select>
-    <div id="ciudad-status" class="form-text text-muted"></div>
   </div>
   <div class="col-6 col-md-2">
-    <select class="form-select" name="tipo">
-      <option value="">Tipo</option>
-      <?php foreach ($tipos as $t): $sel = ($filters['tipo']===$t)?'selected':''; ?>
+    <select class="form-select" name="tipo" onchange="this.form.submit()">
+      <option value="">Todos los tipos</option>
+      <?php foreach ($tipos as $t): 
+        $sel = ($filters['tipo'] === $t) ? 'selected' : ''; ?>
         <option value="<?= htmlspecialchars($t) ?>" <?= $sel ?>><?= htmlspecialchars($t) ?></option>
       <?php endforeach; ?>
     </select>
@@ -183,129 +199,59 @@ if (!$canDb && !$tipos) {
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  const BASE_URL = <?= json_encode(APP_URL) ?>;
-  const API_GEO_BASE = 'https://apis.datos.gob.ar/georef/api';
-  const preselectedProvincia = <?= json_encode($filters['provincia']) ?>;
-  const preselectedCiudad = <?= json_encode($filters['ciudad']) ?>;
-
-  async function getProvincias() {
-    // 0) JSON local principal (ar_localidades.json) — ya existe en assets/data
-    try {
-      const res = await fetch(`${BASE_URL}/assets/data/ar_localidades.json`);
-      if (res.ok) {
-        const data = await res.json();
-        const provs = (data.provincias||[]).map(p => p.nombre).filter(Boolean);
-        if (provs.length) return provs;
-      }
-    } catch(_) {}
-    // 1) Intentar JSON local opcional (si existiera ar_provincias.json)
-    try {
-      const res = await fetch(`${BASE_URL}/assets/data/ar_provincias.json`);
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data)) return data;
-        if (Array.isArray(data.provincias)) return data.provincias.map(p => p.nombre || p);
-      }
-    } catch(_) {}
-    // 2) API oficial
-    try {
-      const res = await fetch(`${API_GEO_BASE}/provincias?campos=nombre&max=100`);
-      if (res.ok) {
-        const json = await res.json();
-        return (json.provincias||[]).map(p => p.nombre);
-      }
-    } catch(_) {}
-    // 3) Fallback estático
-    return [
-      'Buenos Aires','Ciudad Autónoma de Buenos Aires','Catamarca','Chaco','Chubut','Córdoba','Corrientes','Entre Ríos','Formosa','Jujuy','La Pampa','La Rioja','Mendoza','Misiones','Neuquén','Río Negro','Salta','San Juan','San Luis','Santa Cruz','Santa Fe','Santiago del Estero','Tierra del Fuego, Antártida e Islas del Atlántico Sur','Tucumán'
-    ];
-  }
-
-  async function getCiudades(prov) {
-    if (!prov) return [];
-    // 1) Intentar JSON local disponible (ar_localidades.json)
-    try {
-      const res = await fetch(`${BASE_URL}/assets/data/ar_localidades.json`);
-      if (res.ok) {
-        const data = await res.json();
-        const p = (data.provincias||[]).find(x => x.nombre === prov);
-        if (p && Array.isArray(p.localidades)) return p.localidades;
-      }
-    } catch(_) {}
-    // 2) API oficial (máximo alto para cubrir la mayoría)
-    try {
-      const url = `${API_GEO_BASE}/localidades?provincia=${encodeURIComponent(prov)}&campos=nombre&max=5000`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-      return (json.localidades||[]).map(c => c.nombre).sort((a,b)=> a.localeCompare(b));
-    } catch(err) {
-      console.error('[ciudades][api] error', err);
-    }
-    // 3) Fallback vacío
-    return [];
-  }
-
-  async function initUbicacionSelectors(){
-    const provSel = document.getElementById('provincia');
-    const ciudadSel = document.getElementById('ciudad');
-    const ciudadStatus = document.getElementById('ciudad-status');
-    const setCiudadStatus = (msg) => { if (ciudadStatus) ciudadStatus.textContent = msg || ''; };
-
-    // Provincias
-    const provincias = await getProvincias();
-    provSel.innerHTML = '<option value="">Provincia</option>';
-    provincias.forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p; opt.textContent = p;
-      if (p === preselectedProvincia) opt.selected = true;
-      provSel.appendChild(opt);
-    });
-
-    async function fillCities(pName){
-      ciudadSel.innerHTML = '<option value="">Ciudad</option>';
-      setCiudadStatus('');
-      if (!pName){ ciudadSel.disabled = true; setCiudadStatus('Seleccioná una provincia'); return; }
-      ciudadSel.disabled = false;
-      setCiudadStatus('Cargando ciudades…');
-      const ciudades = await getCiudades(pName);
-      ciudades.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c; opt.textContent = c;
-        if (c === preselectedCiudad) opt.selected = true;
-        ciudadSel.appendChild(opt);
-      });
-      ciudadSel.disabled = ciudades.length === 0;
-      setCiudadStatus(ciudades.length ? `Ciudades cargadas: ${ciudades.length}` : 'No se encontraron ciudades');
-    }
-
-    provSel.addEventListener('change', (e)=> fillCities(e.target.value||''));
-    if (preselectedProvincia) {
-      await fillCities(preselectedProvincia);
-    } else {
-      setCiudadStatus('Seleccioná una provincia');
-    }
-  }
-
+  // Mapa de Leaflet con los servicios
   const items = <?= json_encode($items, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) ?>;
   let map, group;
+  
   function initMap(){
-    map = L.map('map').setView([-34.6037, -58.3816], 11);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap contrib.' }).addTo(map);
+    // Crear mapa centrado en Argentina
+    map = L.map('map').setView([-34.6037, -58.3816], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
+      maxZoom: 18, 
+      attribution: '&copy; OpenStreetMap' 
+    }).addTo(map);
+    
+    // Grupo de marcadores
     group = L.featureGroup().addTo(map);
+    
+    // Añadir marcadores
     items.forEach(s => {
-      const lat = parseFloat(s.latitud), lng = parseFloat(s.longitud);
+      const lat = parseFloat(s.latitud);
+      const lng = parseFloat(s.longitud);
       if(!isFinite(lat) || !isFinite(lng)) return;
-      const m = L.marker([lat, lng]).bindPopup(`<strong>${s.nombre||'Servicio'}</strong><br>${s.tipo||''}<br>${s.ciudad||''}, ${s.provincia||''}`);
-      group.addLayer(m);
+      
+      const popup = `
+        <div style="min-width:200px;">
+          <strong>${s.nombre || 'Servicio'}</strong><br>
+          <span style="color:#666;">${s.tipo || ''}</span><br>
+          ${s.ciudad || ''}, ${s.provincia || ''}<br>
+          ${s.direccion ? '📍 ' + s.direccion : ''}
+        </div>
+      `;
+      
+      const marker = L.marker([lat, lng]).bindPopup(popup);
+      group.addLayer(marker);
     });
-    if(group.getLayers().length){ map.fitBounds(group.getBounds().pad(0.25)); }
+    
+    // Ajustar vista a los marcadores
+    if(group.getLayers().length){ 
+      map.fitBounds(group.getBounds().pad(0.1)); 
+    }
   }
+  
   function focusMarker(lat, lng, label){
-    if(!map){ return; }
+    if(!map) return;
     map.setView([lat, lng], 15);
+    // Abrir popup del marcador más cercano
+    group.eachLayer(function(layer) {
+      const pos = layer.getLatLng();
+      if(Math.abs(pos.lat - lat) < 0.0001 && Math.abs(pos.lng - lng) < 0.0001) {
+        layer.openPopup();
+      }
+    });
   }
+  
+  // Inicializar mapa cuando carga la página
   document.addEventListener('DOMContentLoaded', initMap);
-  document.addEventListener('DOMContentLoaded', initUbicacionSelectors);
 </script>
 <?php require_once __DIR__.'/includes/footer.php'; ?>
