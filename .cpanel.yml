@@ -1,19 +1,29 @@
 ---
 deployment:
   tasks:
-    # Always deploy (cPanel a veces usa HEAD detached); sólo logueamos la rama detectada
-    - 'set -e; BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo HEAD)"; echo "[cpanel] Deploy (branch=$BRANCH)"'
+    # Log context
+    - 'BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo HEAD)"; echo "[cpanel] Deploy (branch=$BRANCH)"'
+    - 'HEAD="$(git rev-parse HEAD 2>/dev/null || echo unknown)"; echo "[cpanel] HEAD=$HEAD"'
 
-    # Log repo path and HEAD commit for diagnostics
-    - 'REPO_DIR="$(pwd)"; HEAD="$(git rev-parse HEAD 2>/dev/null || echo "")"; echo "[cpanel] Repo=$REPO_DIR HEAD=$HEAD"'
+    # Destination directory
+    - 'DEPLOY_DIR="${HOME}/public_html"; mkdir -p "$DEPLOY_DIR/includes"'
 
-    # Destination directory (document root)
-    - 'DEPLOY_DIR="${HOME}/public_html"; mkdir -p "$DEPLOY_DIR"'
+    # BACKUP config.php si existe (para protegerlo del rsync --delete)
+    - 'if [ -f "$DEPLOY_DIR/includes/config.php" ]; then cp "$DEPLOY_DIR/includes/config.php" "$DEPLOY_DIR/includes/config.php.backup"; echo "[cpanel] Backup config.php creado"; fi'
 
-    # Sync public/ into document root, excluding server-only files
-    - 'if command -v rsync >/dev/null 2>&1; then rsync -rlD --delete --exclude "includes/config.php" --exclude "db_test.php" --exclude "diag_servicios.php" public/ "$DEPLOY_DIR"/; else /bin/cp -Rf public/* "$DEPLOY_DIR"/; /bin/rm -f "$DEPLOY_DIR"/includes/config.php "$DEPLOY_DIR"/db_test.php "$DEPLOY_DIR"/diag_servicios.php || true; fi'
+    # Sync public/ (SIN includes/ para evitar borrar config.php)
+    - 'if command -v rsync >/dev/null 2>&1; then rsync -rlD --delete --exclude "includes/" --exclude "db_test.php" --exclude "diag_servicios.php" public/ "$DEPLOY_DIR"/; else /bin/cp -Rf public/* "$DEPLOY_DIR"/; fi'
 
-    # Write deployment info file in document root
+    # Sync SOLO includes/*.php EXCEPTO config.php (sin --delete para preservar)
+    - 'if command -v rsync >/dev/null 2>&1; then rsync -rlD --exclude "config.php" public/includes/ "$DEPLOY_DIR/includes/"; else for f in public/includes/*.php; do [ "$(basename "$f")" != "config.php" ] && /bin/cp -f "$f" "$DEPLOY_DIR/includes/"; done; fi'
+
+    # RESTAURAR config.php desde backup
+    - 'if [ -f "$DEPLOY_DIR/includes/config.php.backup" ]; then cp "$DEPLOY_DIR/includes/config.php.backup" "$DEPLOY_DIR/includes/config.php"; rm "$DEPLOY_DIR/includes/config.php.backup"; echo "[cpanel] config.php restaurado"; fi'
+
+    # Si NO existe config.php, avisar
+    - 'if [ ! -f "$DEPLOY_DIR/includes/config.php" ]; then echo "[cpanel] WARNING: config.php no existe, debe crearse manualmente"; fi'
+
+    # Write deployment info
     - 'echo "branch=$BRANCH" > "$DEPLOY_DIR/.deploy-info"; echo "head=$HEAD" >> "$DEPLOY_DIR/.deploy-info"; date "+%F %T %z" >> "$DEPLOY_DIR/.deploy-info"'
 
-    - 'echo "[cpanel] Deployed public/ to $DEPLOY_DIR (branch=$BRANCH, head=$HEAD)"'
+    - 'echo "[cpanel] Deployed public/ to $DEPLOY_DIR (config.php protegido)"'
