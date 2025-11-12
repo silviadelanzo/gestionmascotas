@@ -1,0 +1,26 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "sqltools.connections": [
+            {
+                "mysqlOptions": {
+                    "authProtocol": "default",
+                    "enableSsl": "Disabled"
+                },
+                "ssh": "Disabled",
+                "previewLimit": 50,
+                "server": "45.143.162.54",
+                "port": 3306,
+                "driver": "MariaDB",
+                "name": "45.143.162.54",
+                "database": "mascotasmimoos_app",
+                "username": "mascotasmimoos_app",
+                "password": "(?gygC8wgQr+l^MPO'"
+            }
+        ]
+    }
+}

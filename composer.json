@@ -1,0 +1,12 @@
+{
+    "name": "mascotas/app",
+    "description": "Mascotas y Mimos",
+    "authors": [
+        {
+            "name": "Carlos"
+        }
+    ],
+    "require": {
+        "phpmailer/phpmailer": "^7.0"
+    }
+}

@@ -1,0 +1,306 @@
+Formato de cada entrada:
+Nombre de archivo (ruta relativa)
+Tamaño
+Prompt
+Negative
+
+Usar nombres con guiones bajos (sin guiones medios). Generar en WebP.
+
+==================== HERO ====================
+public/images/hero.webp
+1920x800
+perro y gato junto a su dueña sonriente en exterior, clínica veterinaria genérica desenfocada al fondo, estilo fotográfico natural, hora dorada, luz suave, paleta pastel, encuadre panorámico con espacio negativo a la izquierda para texto, enfoque nítido en las mascotas
+sin texto, sin logos, sin marcas, sin watermark, sin celebridades, sin señalética legible
+
+
+public/images/hero_mobile.webp
+1080x1440
+versión vertical 4:5 del hero: dueña con perro y gato, fondo urbano suave, espacio negativo arriba para texto, luz cálida natural, paleta pastel, enfoque claro en las mascotas
+sin texto, sin logos, sin marcas, sin watermark, sin señalética legible
+
+
+public/images/hero_illustration.webp
+1920x800
+ilustración vectorial plana de dueña con perro y gato, estilo limpio y moderno, paleta pastel (azul, coral, teal), fondo con formas abstractas suaves, composición con espacio negativo a la izquierda
+sin texto, sin logos, sin marcas, no realismo fotográfico
+
+
+public/images/hero_illustration_mobile.webp
+1080x1440
+misma ilustración vectorial en 4:5 reencuadrada para mobile, espacio arriba para texto, paleta pastel consistente
+sin texto, sin logos, sin marcas, no realismo fotográfico
+
+
+==================== BENEFICIOS (CARDS 1200x800) ====================
+public/images/landing/beneficio_mapa.webp
+1200x800
+ilustración plana de mapa con pin en forma de huella de mascota, estilo vector moderno, colores pastel, fondo claro
+sin texto, sin logos, sin marcas
+
+
+public/images/landing/beneficio_contacto.webp
+1200x800
+ilustración plana de burbujas de chat y teléfono genérico junto a una huella de mascota, estilo vector limpio, paleta pastel
+sin texto, sin logos, sin marcas
+
+
+public/images/landing/beneficio_album.webp
+1200x800
+ilustración plana de galería con fotos de mascotas (perros y gatos), tarjetas con bordes redondeados, estilo minimalista, colores cálidos
+sin texto, sin logos, sin marcas
+
+
+public/images/landing/beneficio_libreta.webp
+1200x800
+ilustración plana de libreta/app con lista de vacunas (íconos genéricos), calendario y tilde, estilo amigable, paleta pastel
+sin texto, sin logos, sin marcas, sin marcas específicas de vacunas
+
+
+==================== CÓMO FUNCIONA — PACIENTE ====================
+public/images/landing/paciente_paso1.webp
+1200x800
+ilustración plana de persona registrándose en app con perfil de mascota (perro y/o gato), estilo vector pastel, fondo claro
+sin texto, sin logos, sin marcas
+
+
+public/images/landing/paciente_paso2.webp
+1200x800
+ilustración plana de calendario y ficha médica simple con íconos genéricos de vacuna y notas, estilo limpio
+sin texto, sin logos, sin marcas
+
+
+public/images/landing/paciente_paso3.webp
+1200x800
+ilustración plana de campanita de notificación, calendario y huella, colores pastel
+sin texto, sin logos, sin marcas
+
+
+public/images/landing/paciente_paso4.webp
+1200x800
+ilustración plana de mapa con pines y botón de contacto, estilo moderno minimal, paleta pastel
+sin texto, sin logos, sin marcas
+
+
+==================== CÓMO FUNCIONA — PRESTADOR ====================
+public/images/landing/prestador_paso1.webp
+1200x800
+ilustración plana de profesional usando laptop para registrarse como prestador, look confiable, paleta pastel
+sin texto, sin logos, sin marcas
+
+
+public/images/landing/prestador_paso2.webp
+1200x800
+ilustración plana de formulario de servicios (campos genéricos) y badge de destacado sin texto, estilo vector moderno
+sin texto, sin logos, sin marcas
+
+
+public/images/landing/prestador_paso3.webp
+1200x800
+ilustración plana de pin de mapa brillante, estrella y burbuja de mensaje, estilo vector, paleta pastel
+sin texto, sin logos, sin marcas
+
+
+==================== SERVICIOS (BANNERS 1600x900) ====================
+public/images/servicios/clinica_veterinaria.webp
+1600x900
+foto horizontal de consultorio veterinario moderno, instrumental difuminado, profesional genérico sin logos, perro mediano sobre camilla, luz suave
+sin texto, sin logos, sin marcas, sin cirugía explícita
+
+
+public/images/servicios/guardia_24h.webp
+1600x900
+foto de clínica veterinaria con guardia nocturna, iluminación interior cálida, recepción genérica sin marcas, sin pacientes identificables
+sin texto, sin logos, sin marcas
+
+
+public/images/servicios/peluqueria_canina.webp
+1600x900
+foto de peluquería canina moderna, perro pequeño en grooming, interior neutro, luz natural
+sin texto, sin logos, sin marcas
+
+
+public/images/servicios/guarderia.webp
+1600x900
+foto de guardería de mascotas con perros jugando en área segura interior con luz natural, ambiente alegre
+sin texto, sin logos, sin marcas
+
+
+public/images/servicios/paseadores.webp
+1600x900
+foto de paseador con 2_3 perros en parque urbano, luz dorada, enfoque natural
+sin texto, sin logos, sin marcas
+
+
+public/images/servicios/adiestradores.webp
+1600x900
+foto de entrenamiento básico con perro y entrenador en exterior, postura positiva
+sin texto, sin logos, sin marcas
+
+
+public/images/servicios/cuidadores_domicilio.webp
+1600x900
+foto acogedora en hogar con cuidador y gato o perro pequeño relajado, luz cálida
+sin texto, sin logos, sin marcas
+
+
+public/images/servicios/teleconsulta.webp
+1600x900
+ilustración plana de videollamada veterinaria genérica (ícono cámara), estilo vector, paleta pastel
+sin texto, sin logos, sin interfaces reconocibles
+
+
+==================== GALERÍA (1600x900) ====================
+public/images/gallery/clinica_interior.webp
+1600x900
+foto de interior de clínica veterianaria minimalista, ordenada, luz blanca suave
+sin texto, sin logos, sin marcas
+
+
+public/images/gallery/peluqueria_closeup.webp
+1600x900
+foto close_up de grooming a perro pequeño, tijeras desenfocadas, ambiente limpio
+sin texto, sin logos, sin marcas
+
+
+public/images/gallery/guarderia_actividad.webp
+1600x900
+foto de varios perros jugando en área segura, colores alegres
+sin texto, sin logos, sin marcas
+
+
+public/images/gallery/paseo_parque.webp
+1600x900
+foto de paseo con perro con correa en parque, luz natural
+sin texto, sin logos, sin marcas
+
+
+public/images/gallery/adiestramiento_accion.webp
+1600x900
+foto de sesión de obediencia con premio, entrenador con postura positiva
+sin texto, sin logos, sin marcas
+
+
+public/images/gallery/ninos_mascotas.webp
+1600x900
+foto hogareña con niño o niña y mascota en pose segura, ambiente cálido y cuidado, luz suave, enfoque en vínculo afectivo
+sin texto, sin logos, sin marcas, sin situaciones inseguras
+
+
+==================== AVATARES (512x512) ====================
+public/images/avatars/avatar_1.webp
+512x512
+retrato cuadrado 512x512, niña latina de 8 años con gato atigrado en living hogareño, luz cálida de tarde, sonrisa suave, pose segura, acariciando al gato; fondo con bokeh, estilo fotográfico realista 50mm f/2.8, colores cálidos, ropa lisa
+sin texto, sin logos, sin marcas, sin marcas de agua, sin situaciones inseguras
+
+
+public/images/avatars/avatar_2.webp
+512x512
+retrato cuadrado 512x512, niño afrodescendiente de 7 años con perrito mestizo pequeño en cocina hogareña, luz natural de ventana cálida, abrazo cuidadoso, pose segura; fondo con bokeh, fotografía 35mm, tonos cálidos, ropa básica
+sin texto, sin logos, sin marcas, sin marcas de agua, sin situaciones inseguras
+
+
+public/images/avatars/avatar_3.webp
+512x512
+retrato cuadrado 512x512, niña asiática de 9 años con gato blanco en dormitorio con estantería, luz dorada, el gato en su regazo, gesto cariñoso, pose segura; bokeh suave, colores pastel, ropa sin logos
+sin texto, sin logos, sin marcas, sin marcas de agua, sin situaciones inseguras
+
+
+public/images/avatars/avatar_4.webp
+512x512
+retrato cuadrado 512x512, niño caucásico de 6 años con perra golden retriever joven sobre alfombra del living, luz cálida de tarde, mano sobre el lomo, ambos mirando a cámara, sonrisa discreta, pose segura; bokeh suave, 50mm
+sin texto, sin logos, sin marcas, sin marcas de agua, sin situaciones inseguras
+
+
+public/images/avatars/avatar_5.webp
+512x512
+retrato cuadrado 512x512, niña de rasgos árabes de 8 años con perro salchicha en sillón junto a planta interior, luz suave cálida, colores cálidos, gesto amable, pose segura; bokeh, f/1.8, ropa modesta
+sin texto, sin logos, sin marcas, sin marcas de agua, sin situaciones inseguras
+
+
+public/images/avatars/avatar_6.webp
+512x512
+retrato cuadrado 512x512, niño indígena de 7 años con gato negro cerca de ventana con cortinas claras, hogar acogedor, gesto cariñoso, pose segura; bokeh, 45mm, balance cálido, ropa sin logos
+sin texto, sin logos, sin marcas, sin marcas de agua, sin situaciones inseguras
+
+
+==================== PLANES / ÍCONOS / BANNERS ====================
+public/images/planes/paciente_free.webp
+512x512
+ícono de huella de mascota con escudo simple, estilo flat, paleta pastel, fondo claro
+sin texto, sin logos, sin marcas
+
+
+public/images/planes/paciente_abonado.webp
+512x512
+ícono de huella de mascota con una estrella dorada integrada, estilo flat minimalista, colores cálidos (ámbar/dorado sobre fondo claro), composición centrada, bordes limpios, sombreado sutil
+sin texto, sin logos, sin marcas, sin marcas de agua, no fotográfico
+
+
+public/images/planes/prestador_simple.webp
+512x512
+ícono de tarjeta o aviso básico con borde suave y una banda sutil, estilo flat, paleta pastel (beige/azul claro), fondo limpio uniforme, líneas nítidas
+sin texto, sin logos, sin marcas
+
+
+public/images/planes/prestador_pro.webp
+512x512
+ícono de pin de mapa con borde sutilmente brillante y una estrella en el centro, estilo flat moderno, colores cálidos y contrastados, fondo claro uniforme, contornos definidos
+sin texto, sin logos, sin marcas, sin efectos 3D exagerados
+
+
+public/images/planes/prestador_premium.webp
+512x512
+ícono de corona elegante sobre un pin de mapa, estilo flat, colores vivos (dorado con acentos), fondo claro uniforme, bordes limpios
+sin texto, sin logos, sin marcas, no realismo fotográfico
+
+
+public/images/planes/banner.webp
+1600x900
+banner ilustrado ancho con varias tarjetas de plan alineadas (simple, pro, premium) en perspectiva suave, fondo abstracto pastel limpio, estilo flat/ilustración vectorial, buena separación visual
+sin texto embebido, sin logos, sin marcas, sin ruido visual
+
+
+public/images/planes/upsell_map.webp
+1600x900
+banner ilustrado con mapa simplificado y un pin destacado, una mascota feliz y un profesional a un costado, estilo ilustración plana, paleta pastel, composición clara para “mejorar plan”
+sin texto embebido, sin logos, sin marcas, sin exceso de detalle
+
+
+==================== BACKGROUNDS ====================
+public/images/bg/patrones_huellas.webp
+1600x900
+patrón sutil y repetible (seamless) de huellas de mascota en semitransparencia, fondo cálido #FFF7ED, estilo minimal y suave, contraste bajo
+sin texto, sin logos, sin marcas, sin bordes duros en la repetición
+
+
+public/images/bg/abstracto_ondas.webp
+1600x900
+fondo abstracto con ondas suaves y fluidas en azul/coral/teal, estilo limpio y profesional, gradientes sutiles, sin ruido visual
+sin texto, sin logos, sin marcas
+
+
+==================== CAMPAÑAS ====================
+public/images/campanas/vacunas.webp
+1200x800
+ilustración plana de un calendario con ícono de vacuna genérico (jeringa simple estilizada), estilo amigable y pastel, fondo claro, mensaje de salud preventiva implícito
+sin marcas de fármacos, sin texto, sin logos, sin marcas de agua
+
+
+==================== EXTRAS RECOMENDADOS ====================
+public/images/og_default_1200x630.webp
+1200x630
+imagen OG por defecto: composición limpia con huella de mascota y formas abstractas pastel, marca muy sutil sin texto, centro claro para previsualización en redes
+sin texto, sin logos, sin marcas, sin watermark
+
+
+public/images/placeholders/placeholder_card_1200x800.webp
+1200x800
+placeholder genérico para tarjetas: mosaico suave de formas pastel con ícono pequeño de huella al centro, estilo minimal
+sin texto, sin logos, sin marcas
+
+
+public/images/empty_states/no_results_1200x800.webp
+1200x800
+estado vacío: ilustración de lupa con huella y carita amigable, fondo claro pastel, estilo vector, mensaje implícito de “sin resultados” (sin texto)
+sin texto, sin logos, sin marcas
+

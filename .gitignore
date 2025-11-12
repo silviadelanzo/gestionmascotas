@@ -1,0 +1,24 @@
+# Ignore server-specific config (kept only on each environment)
+/public/includes/config.php
+
+# Common OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Archives and local zips
+*.zip
+/site-php.zip
+
+# Dependency/build directories (do not commit)
+/vendor/
+/node_modules/
+/laravel/vendor/
+/laravel/node_modules/
+/laravel/public/build/
+/laravel/
+
+# Environment files
+/.env
+/laravel/.env

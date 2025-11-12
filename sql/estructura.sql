@@ -1,0 +1,2 @@
+-- Colocá aquí la DDL real de tus tablas (usuarios, mascotas, prestadores, etc.).
+-- Ya cargaste provincias/localidades en tu BD.
