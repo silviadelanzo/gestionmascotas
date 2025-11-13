@@ -1,0 +1,54 @@
+.carousel-slide{position:absolute;inset:0;background-repeat:no-repeat;background-size:contain;background-position:50% 20%;opacity:0;transition:opacity 1000ms ease-in-out}
+/* En pantallas grandes mantener contain para evitar recortes */
+@media (min-width:768px){.carousel-slide{background-size:contain}}
+.carousel-slide.active{opacity:1}
+
+/* Background position tuning per slide */
+.slide-hero{background-position:50% 35%}
+.slide-beneficio1{background-position:50% 45%}
+.slide-beneficio2{background-position:50% 50%}
+.slide-relajacion{background-position:50% 55%}
+.slide-adopcion{background-position:50% 45%}
+.slide-belleza{background-position:50% 50%}
+.slide-comunidad{background-position:50% 50%}
+.slide-veterinario{background-position:50% 40%}
+.slide-paseador{background-position:50% 50%}
+.slide-footer{background-position:50% 60%}
+
+/* Brand and UI helpers */
+:root{--brand-brown:#A97155}
+.text-brand{color:var(--brand-brown)}
+.border-brand{border-color:var(--brand-brown)}
+.font-brand{font-family:'Baloo 2','Poppins',ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"}
+
+/* Text panels */
+.panel-blur{background-color:#ffffffb0;backdrop-filter:blur(8px);transition:all 300ms ease;border:1px solid var(--brand-brown);border-radius:1rem;color:#6B3F24;text-align:center;box-shadow:0 10px 25px rgba(0,0,0,.08)}
+.panel-blur:hover{background-color:rgba(255,255,255,0.75);box-shadow:0 10px 25px rgba(0,0,0,.12)}
+
+/* Logo badge */
+.logo-badge{background-color:#ffffffcc;border-radius:1rem;box-shadow:0 8px 20px rgba(0,0,0,.12);padding:.5rem .75rem}
+
+/* Simple fade utility for rotating text */
+.fade-swap{transition:opacity 400ms ease-in-out}
+.fade-hidden{opacity:0}
+
+/* Button pastel orange */
+.btn-sub{background-color:#FFA15A;color:#fff}
+.btn-sub:hover{background-color:#FF8C42}
+
+/* Soft shadow helper */
+.shadow-soft{box-shadow:0 10px 25px rgba(0,0,0,.08)}
+
+/* Fade-in animation */
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.animate-fade-in{animation:fadeIn 1s ease both}
+
+/* Card images and map styles */
+.card-images{display:flex;flex-direction:column;align-items:center;gap:.8rem;margin-top:1rem}
+.card-images img{width:220px;max-width:100%;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.1);transition:transform .3s ease}
+.card-images img:hover{transform:scale(1.05)}
+.map-container{width:90%;max-width:280px;margin-top:1rem;filter:drop-shadow(0 2px 8px rgba(0,0,0,.1))}
+@media (max-width:768px){.card-images img{width:150px}.map-container{max-width:90%}}
+
+/* Site logo styling */
+.site-logo{width:220px;max-width:90%;margin:0 auto 1rem;display:block;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.15)}

@@ -2,6 +2,11 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/includes/helpers.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception as MailException;
+require_once __DIR__ . '/../lib/PHPMailer/PHPMailer.php';
+require_once __DIR__ . '/../lib/PHPMailer/SMTP.php';
+require_once __DIR__ . '/../lib/PHPMailer/Exception.php';
 
 header('Content-Type: text/html; charset=utf-8');
 
@@ -43,13 +48,45 @@ try {
         fecha_alta DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-    $stmt = $pdo->prepare('INSERT INTO suscripciones (nombre, email, tipo, autorizacion, fecha_alta) VALUES (?, ?, ?, ?, NOW())');
-    $stmt->execute([
-        $nombre !== '' ? $nombre : null,
-        $email,
-        'usuario',
-        $autorizacion,
-    ]);
+  $stmt = $pdo->prepare('INSERT INTO suscripciones (nombre, email, tipo, autorizacion, fecha_alta) VALUES (?, ?, ?, ?, NOW())');
+  $stmt->execute([
+      $nombre !== '' ? $nombre : null,
+      $email,
+      'usuario',
+      $autorizacion,
+  ]);
+    // Enviar correo de agradecimiento
+    $mailCfg = require __DIR__ . '/../config/mail.php';
+    $m = new PHPMailer(true);
+    try {
+        $m->isSMTP();
+        $m->Host = $mailCfg['host'];
+        $m->SMTPAuth = true;
+        $m->Username = $mailCfg['username'];
+        $m->Password = $mailCfg['password'];
+        $m->SMTPSecure = $mailCfg['encryption']; // 'ssl' o 'tls'
+        $m->Port = (int)$mailCfg['port'];
+        $m->CharSet = 'UTF-8';
+        $m->setFrom($mailCfg['from_email'], $mailCfg['from_name']);
+        $m->addAddress($email, $nombre ?: '');
+        $m->isHTML(true);
+        $m->Subject = 'Gracias por suscribirte a Mascotas y Mimos';
+        $embedLogo = __DIR__ . '/assets/logo/logo.png';
+        if (file_exists($embedLogo)) {
+            $m->AddEmbeddedImage($embedLogo, 'logoimg', 'logo.png', 'base64', 'image/png');
+        }
+        $html = '<div style="font-family:Poppins, sans-serif;text-align:center;color:#A97155;">'
+            . '<img src="cid:logoimg" width="150" style="margin-bottom:20px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.15);">'
+            . '<h2>¡Gracias por suscribirte a <strong>Mascotas y Mimos</strong>!</h2>'
+            . '<p>Sitio dedicado a cuidar y mimar a nuestros mejores compañeros.</p>'
+            . '<p><a href="https://mascotasymimos.com" style="color:#A97155;text-decoration:none;font-weight:bold;">Visitanos en mascotasymimos.com</a></p>'
+            . '</div>';
+        $m->Body = $html;
+        $m->AltBody = 'Gracias por suscribirte a Mascotas y Mimos. Visitá mascotasymimos.com';
+        $m->send();
+    } catch (MailException $e) {
+        // Log opcional: error de email, pero no impedir confirmación al usuario
+    }
 
     respond('¡Gracias por suscribirte!', 'Te avisaremos cuando el sitio esté disponible.');
 } catch (PDOException $e) {
@@ -59,4 +96,3 @@ try {
     }
     respond('Error', 'No pudimos guardar tu suscripción. Intenta más tarde.');
 }
-

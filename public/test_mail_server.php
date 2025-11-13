@@ -14,11 +14,11 @@ try {
     $mail->SMTPAuth = true;
     $mail->Username = 'no-responder@mascotasymimos.com';
     $mail->Password = 'O!,xi7lOTcfla[%K';
-    $mail->SMTPSecure = 'ssl';
-    $mail->Port = 587;
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+    $mail->Port = 465;
 
     $mail->setFrom('no-responder@mascotasymimos.com', 'Sistema Mascotas');
-    $mail->addAddress('contacto@mascotasymimos.com'); // destinatario de prueba
+    $mail->addAddress('contactos@mascotasymimos.com'); // destinatario de prueba
 
     $mail->Subject = 'Prueba PHPMailer';
     $mail->Body = 'Email enviado correctamente desde test_email.php';

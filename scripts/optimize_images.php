@@ -94,6 +94,12 @@ $images = [
     'veterinario.png',
     'paseador.png',
     'logo.png',
+    // nuevas imágenes de tarjetas y mapa
+    'agenda_vacunas.png',
+    'agenda_vacunas.jpg',
+    'recordatorio_mail.png',
+    'veterinario_consultorio.png',
+    'mapa_prestadores.png',
 ];
 
 foreach ($images as $file) {
@@ -103,16 +109,23 @@ foreach ($images as $file) {
         $alt = $imgDir . DIRECTORY_SEPARATOR . 'comunidad.png.png';
         if (file_exists($alt)) { $path = $alt; }
     }
+    if (!file_exists($path) && $file === 'recordatorio_mail.png') {
+        $alt = $imgDir . DIRECTORY_SEPARATOR . 'recordatorio_mail..png';
+        if (file_exists($alt)) { $path = $alt; }
+    }
+    if (!file_exists($path) && $file === 'agenda_vacunas.png') {
+        $alt = $imgDir . DIRECTORY_SEPARATOR . 'agenda_vacunas.jpg';
+        if (file_exists($alt)) { $path = $alt; }
+    }
     optimize_png($path);
 }
 
-// Ensure site logo at assets/logo/logo.png (copy from img if needed) and optimize
+// Ensure site logo at assets/logo/logo.png (copy from img if needed) and optimize at 220px width
 $siteLogo = $logoDir . DIRECTORY_SEPARATOR . 'logo.png';
 $imgLogo = $imgDir . DIRECTORY_SEPARATOR . 'logo.png';
 if (!file_exists($siteLogo) && file_exists($imgLogo)) {
     @copy($imgLogo, $siteLogo);
 }
-optimize_png($siteLogo);
+optimize_png($siteLogo, 180);
 
 echo "Done.\n";
-

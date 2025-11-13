@@ -2,7 +2,10 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+// Carga PHPMailer desde la copia local (sin Composer)
+require __DIR__ . '/../lib/PHPMailer/PHPMailer.php';
+require __DIR__ . '/../lib/PHPMailer/SMTP.php';
+require __DIR__ . '/../lib/PHPMailer/Exception.php';
 
 $cfg = require __DIR__ . '/../config/mail.php';
 
