@@ -11,6 +11,22 @@ on:
         options:
           - app
           - root
+      protocol:
+        description: "Protocolo (ftps o ftp)"
+        required: true
+        default: "ftps"
+        type: choice
+        options:
+          - ftps
+          - ftp
+      serverDirApp:
+        description: "Ruta servidor APP (relativa al login)"
+        required: true
+        default: "public_html/gestionmascotas/public/"
+      serverDirRoot:
+        description: "Ruta servidor ROOT (relativa al login)"
+        required: true
+        default: "public_html/"
   push:
     branches:
       - main
@@ -35,9 +51,9 @@ jobs:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
+          protocol: ${{ github.event_name == 'workflow_dispatch' && inputs.protocol || 'ftps' }}
           port: 21
-          server-dir: "/home/mascotasmimoos/public_html/gestionmascotas/public/"
+          server-dir: ${{ github.event_name == 'workflow_dispatch' && inputs.serverDirApp || 'public_html/gestionmascotas/public/' }}
           local-dir: "public"
           exclude: |
             **/.git*
@@ -63,9 +79,9 @@ jobs:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
+          protocol: ${{ inputs.protocol }}
           port: 21
-          server-dir: "/home/mascotasmimoos/public_html/"
+          server-dir: ${{ inputs.serverDirRoot }}
           local-dir: "."
           exclude: |
             **
