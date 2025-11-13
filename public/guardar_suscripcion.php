@@ -25,7 +25,7 @@ function respond(string $title, string $message, bool $ok = true): void {
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    respond('Suscripción', 'Método no permitido', false);
+    respond('Suscripci�n', 'Método no permitido', false);
 }
 
 $nombre = isset($_POST['nombre']) ? trim((string)$_POST['nombre']) : null;
@@ -33,7 +33,7 @@ $email = isset($_POST['email']) ? trim((string)$_POST['email']) : '';
 $autorizacion = isset($_POST['autorizacion']) ? 1 : 0;
 
 if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    respond('Suscripción', 'Email inválido. Por favor intenta nuevamente.', false);
+    respond('Suscripci�n', 'Email inv�lido. Por favor intenta nuevamente.', false);
 }
 
 try {
@@ -64,8 +64,16 @@ try {
         $m->SMTPAuth = true;
         $m->Username = $mailCfg['username'];
         $m->Password = $mailCfg['password'];
-        $m->SMTPSecure = $mailCfg['encryption']; // 'ssl' o 'tls'
-        $m->Port = (int)$mailCfg['port'];
+        // Selecci�n robusta de cifrado/puerto
+        // Selecci�n robusta de cifrado/puerto
+        $enc = strtolower((string)($mailCfg['encryption'] ?? 'tls'));
+        if ($enc === 'ssl' || ((int)($mailCfg['port'] ?? 0)) === 465) {
+            $m->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            $m->Port = (int)($mailCfg['port'] ?? 465);
+        } else {
+            $m->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $m->Port = (int)($mailCfg['port'] ?? 587);
+        }
         $m->CharSet = 'UTF-8';
         $m->setFrom($mailCfg['from_email'], $mailCfg['from_name']);
         $m->addAddress($email, $nombre ?: '');
@@ -78,7 +86,7 @@ try {
         $html = '<div style="font-family:Poppins, sans-serif;text-align:center;color:#A97155;">'
             . '<img src="cid:logoimg" width="150" style="margin-bottom:20px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.15);">'
             . '<h2>¡Gracias por suscribirte a <strong>Mascotas y Mimos</strong>!</h2>'
-            . '<p>Sitio dedicado a cuidar y mimar a nuestros mejores compañeros.</p>'
+            . '<p>Sitio dedicado a cuidar y mimar a nuestros mejores compa�eros.</p>'
             . '<p><a href="https://mascotasymimos.com" style="color:#A97155;text-decoration:none;font-weight:bold;">Visitanos en mascotasymimos.com</a></p>'
             . '</div>';
         $m->Body = $html;
@@ -88,11 +96,16 @@ try {
         // Log opcional: error de email, pero no impedir confirmación al usuario
     }
 
-    respond('¡Gracias por suscribirte!', 'Te avisaremos cuando el sitio esté disponible.');
+    respond('¡�Gracias por suscribirte!', 'Te avisaremos cuando el sitio esté disponible.');
 } catch (PDOException $e) {
     // Manejo de duplicado
     if ((int)$e->getCode() === 23000 || str_contains(strtolower($e->getMessage()), 'duplicate')) {
-        respond('Ya estás suscrito', 'Tu email ya estaba registrado. ¡Gracias!');
+        respond('Ya est�s suscrito', 'Tu email ya estaba registrado. ¡Gracias!');
     }
-    respond('Error', 'No pudimos guardar tu suscripción. Intenta más tarde.');
+    respond('Error', 'No pudimos guardar tu Suscripci�n. Intenta más tarde.');
 }
+
+
+
+
+
