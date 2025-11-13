@@ -1,0 +1,73 @@
+name: Deploy via FTP
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Seleccionar destino de despliegue"
+        required: true
+        default: "app"
+        type: choice
+        options:
+          - app
+          - root
+  push:
+    branches:
+      - main
+    paths:
+      - "public/**"
+      - "index.html"
+      - ".htaccess"
+      - ".github/workflows/deploy.yml"
+
+jobs:
+  deploy-app:
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'app' ||
+          github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy app (public/) to /public_html/gestionmascotas/public
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          server-dir: "/home/mascotasmimoos/public_html/gestionmascotas/public/"
+          local-dir: "public"
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/node_modules/**
+            **/vendor/**
+            **/docs/**
+            **/sql/**
+            **/scripts/**
+            **/*.map
+            **/*.psd
+            **/*.ai
+
+  deploy-root:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'root' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy root (index.html, .htaccess) to /public_html
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          server-dir: "/home/mascotasmimoos/public_html/"
+          local-dir: "."
+          exclude: |
+            **
+            !index.html
+            !.htaccess
