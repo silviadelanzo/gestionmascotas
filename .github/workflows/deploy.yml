@@ -54,7 +54,7 @@ jobs:
           protocol: ${{ github.event_name == 'workflow_dispatch' && inputs.protocol || 'ftps' }}
           port: 21
           server-dir: ${{ github.event_name == 'workflow_dispatch' && inputs.serverDirApp || 'public_html/gestionmascotas/public/' }}
-          local-dir: "public"
+          local-dir: "public/"
           exclude: |
             **/.git*
             **/.github/**
@@ -82,7 +82,7 @@ jobs:
           protocol: ${{ inputs.protocol }}
           port: 21
           server-dir: ${{ inputs.serverDirRoot }}
-          local-dir: "."
+          local-dir: "./"
           exclude: |
             **
             !index.html
