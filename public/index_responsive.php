@@ -30,8 +30,13 @@
       <div class="rounded-2xl bg-white/90 backdrop-blur p-6 md:p-10 shadow">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-center">
           <div>
-            <h2 class="text-[clamp(1.5rem,5vw,2.25rem)] leading-tight font-bold mb-3">Cuidamos y mimamos a tus mejores amigos</h2>
-            <p class="text-base md:text-lg leading-relaxed mb-4">Historial médico por mascota, recordatorios por email/WhatsApp y prestadores con mejores calificaciones en toda la Argentina.</p>
+            <h2 class="text-[clamp(1.5rem,5vw,2.25rem)] leading-tight font-bold mb-3">Cuidamos y mimamos a tus mejores amigos - Gratis</h2>
+            <ul class="list-disc pl-5 space-y-1 text-base md:text-lg leading-relaxed mb-4">
+              <li>Historial médico por mascota</li>
+              <li>Agenda de tratamientos, vacunas y estudios por mascota</li>
+              <li>Recordatorios por Email o WhatsApp</li>
+              <li>Listado de prestadores con mejores calificaciones en toda la Argentina.</li>
+            </ul>
             <div class="flex flex-col sm:flex-row gap-3">
               <a href="#beneficios-duenos" class="min-h-[44px] inline-flex items-center justify-center rounded-lg bg-[#A97155] text-white px-5 py-3 hover:bg-[#8d5f47]">Soy Dueño de Mascotas</a>
               <a href="#beneficios-prestadores" class="min-h-[44px] inline-flex items-center justify-center rounded-lg bg-white text-[#A97155] border border-[#A97155]/30 px-5 py-3 hover:bg-[#fff2ea]">Soy Prestador</a>
@@ -46,7 +51,7 @@
 
     <!-- Beneficios Dueños -->
     <section id="beneficios-duenos" class="max-w-screen-xl mx-auto px-4 pb-8 md:pb-12">
-      <h3 class="text-[clamp(1.25rem,4vw,1.75rem)] font-semibold mb-4">Beneficios para Dueños</h3>
+      <h3 class="text-[clamp(1.25rem,4vw,1.75rem)] font-semibold mb-4">Beneficios para Dueños de una o más mascotas</h3>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         <article class="rounded-xl bg-white p-5 shadow">
           <h4 class="text-lg font-semibold mb-1">Historial por mascota</h4>
