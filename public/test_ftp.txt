@@ -2,3 +2,4 @@ Prueba de despliegue FTP
 Generado localmente: REEMPLAZAR_POR_FECHA_EN_RUNTIME
 Actualizado: 2025-11-13 19:53:02
 Reintento deploy: 2025-11-13 19:57:29
+Deploy trigger: 2025-11-14 09:52:51
