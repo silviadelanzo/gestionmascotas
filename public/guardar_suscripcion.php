@@ -48,10 +48,18 @@ try {
         fecha_alta DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
+    // Normalizar y evitar duplicados (case-insensitive)
+    $email = strtolower(trim($email));
+    $check = $pdo->prepare('SELECT 1 FROM suscripciones WHERE email = ? LIMIT 1');
+    $check->execute([$email]);
+    if ($check->fetch()) {
+        respond('Ya estás suscrito', 'Tu email ya estaba registrado. ¡Gracias!');
+    }
+
     $stmt = $pdo->prepare('INSERT INTO suscripciones (nombre, email, tipo, autorizacion, fecha_alta) VALUES (?, ?, ?, ?, NOW())');
     $stmt->execute([
-        $nombre !== '' ? $nombre : null,
-        $email,
+        ($nombre !== '' && $nombre !== null) ? trim($nombre) : null,
+        $email, // ya normalizado
         'usuario',
         $autorizacion,
     ]);
