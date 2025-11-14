@@ -38,15 +38,26 @@ if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
 try {
     $pdo = db();
-    // Asegurar tabla si no existe (no destructivo)
+    // Asegurar tabla y columnas si no existen (no destructivo)
     $pdo->exec("CREATE TABLE IF NOT EXISTS suscripciones (
         id INT AUTO_INCREMENT PRIMARY KEY,
         nombre VARCHAR(100) NULL,
         email VARCHAR(190) NOT NULL UNIQUE,
         tipo VARCHAR(30) NOT NULL DEFAULT 'usuario',
         autorizacion TINYINT(1) NOT NULL DEFAULT 1,
-        fecha_alta DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        activo TINYINT(1) NOT NULL DEFAULT 1,
+        fecha_alta DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        unsubscribe_token VARCHAR(64) NULL UNIQUE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+    // Si la tabla existía sin columnas nuevas, agregarlas de forma segura
+    $cols = $pdo->query("SHOW COLUMNS FROM suscripciones")->fetchAll(PDO::FETCH_COLUMN);
+    if (!in_array('activo', $cols, true)) {
+        $pdo->exec("ALTER TABLE suscripciones ADD COLUMN activo TINYINT(1) NOT NULL DEFAULT 1 AFTER autorizacion");
+    }
+    if (!in_array('unsubscribe_token', $cols, true)) {
+        $pdo->exec("ALTER TABLE suscripciones ADD COLUMN unsubscribe_token VARCHAR(64) NULL UNIQUE AFTER fecha_alta");
+    }
 
     // Normalizar y evitar duplicados (case-insensitive)
     $email = strtolower(trim($email));
@@ -56,13 +67,42 @@ try {
         respond('Ya estás suscrito', 'Tu email ya estaba registrado. ¡Gracias!');
     }
 
-    $stmt = $pdo->prepare('INSERT INTO suscripciones (nombre, email, tipo, autorizacion, fecha_alta) VALUES (?, ?, ?, ?, NOW())');
-    $stmt->execute([
-        ($nombre !== '' && $nombre !== null) ? trim($nombre) : null,
-        $email, // ya normalizado
-        'usuario',
-        $autorizacion,
-    ]);
+    // Generar token de desuscripción
+    $token = bin2hex(random_bytes(16));
+
+    // Intentar insertar incluyendo unsubscribe_token; si falla por esquema viejo, insertar sin él
+    $inserted = false;
+    try {
+        $stmt = $pdo->prepare('INSERT INTO suscripciones (nombre, email, tipo, autorizacion, fecha_alta, unsubscribe_token) VALUES (?, ?, ?, ?, NOW(), ?)');
+        $stmt->execute([
+            ($nombre !== '' && $nombre !== null) ? trim($nombre) : null,
+            $email,
+            'usuario',
+            $autorizacion,
+            $token,
+        ]);
+        $inserted = true;
+    } catch (PDOException $e) {
+        // Si la columna no existe, inserta sin token y luego intenta actualizar
+        if (stripos($e->getMessage(), 'unknown column') !== false) {
+            $stmt = $pdo->prepare('INSERT INTO suscripciones (nombre, email, tipo, autorizacion, fecha_alta) VALUES (?, ?, ?, ?, NOW())');
+            $stmt->execute([
+                ($nombre !== '' && $nombre !== null) ? trim($nombre) : null,
+                $email,
+                'usuario',
+                $autorizacion,
+            ]);
+            // Intento de setear token si la columna existe
+            try {
+                $pdo->prepare('UPDATE suscripciones SET unsubscribe_token = ? WHERE email = ?')->execute([$token, $email]);
+            } catch (PDOException $e2) {
+                // continuar sin token si no es posible
+            }
+            $inserted = true;
+        } else {
+            throw $e; // propagar otros errores
+        }
+    }
 
     // Enviar correo de agradecimiento (no bloquea la confirmación)
     $mailCfg = require __DIR__ . '/../config/mail.php';
@@ -93,11 +133,22 @@ try {
         if (file_exists($embedLogo)) {
             $m->AddEmbeddedImage($embedLogo, 'logoimg', 'logo.png', 'base64', 'image/png');
         }
+        $baseUrl = 'https://mascotasymimos.com/gestionmascotas/public';
+        $unsubscribeUrl = $baseUrl . '/desuscribir.php?token=' . urlencode($token);
+
+        // Headers de desuscripción
+        $m->addCustomHeader('List-Unsubscribe', '<' . $unsubscribeUrl . '>');
+        $m->addCustomHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
+
         $html = '<div style="font-family:Poppins, sans-serif;text-align:center;color:#A97155;">'
-              . '<img src="cid:logoimg" width="150" style="margin-bottom:20px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.15);">'
+              . '<a href="https://mascotasymimos.com" target="_blank" style="text-decoration:none">'
+              . '<img src="cid:logoimg" width="150" style="margin-bottom:20px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.15);" alt="Mascotas y Mimos">'
+              . '</a>'
               . '<h2>¡Gracias por suscribirte a <strong>Mascotas y Mimos</strong>!</h2>'
               . '<p>Sitio dedicado a cuidar y mimar a nuestros mejores compañeros.</p>'
               . '<p><a href="https://mascotasymimos.com" style="color:#A97155;text-decoration:none;font-weight:bold;">Visitanos en mascotasymimos.com</a></p>'
+              . '<p style="margin-top:16px;font-size:12px;color:#7a6a62">Si no querés recibir más estos avisos, '
+              . '<a href="' . htmlspecialchars($unsubscribeUrl, ENT_QUOTES, 'UTF-8') . '" style="color:#A97155">darte de baja</a>.</p>'
               . '</div>';
         $m->Body = $html;
         $m->AltBody = 'Gracias por suscribirte a Mascotas y Mimos. Visitá mascotasymimos.com';
