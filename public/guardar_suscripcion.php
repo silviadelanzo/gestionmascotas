@@ -14,10 +14,10 @@ function respond(string $title, string $message, bool $ok = true): void {
     echo '<!doctype html><html lang="es"><head><meta charset="utf-8">'
        . '<meta name="viewport" content="width=device-width, initial-scale=1">'
        . '<script src="https://cdn.tailwindcss.com"></script>'
-       . '<title>' . htmlspecialchars($title, ENT_QUOTES) . '</title></head><body class="min-h-screen flex items-center justify-center" style="background: linear-gradient(135deg,#FFD6A5 0%,#FAE0C3 100%);">'
+       . '<title>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</title></head><body class="min-h-screen flex items-center justify-center" style="background: linear-gradient(135deg,#FFD6A5 0%,#FAE0C3 100%);">'
        . '<div class="bg-white/90 backdrop-blur rounded-xl p-8 shadow w-full max-w-md text-center">'
        . '<img src="assets/logo/logo.png" alt="Mascotas y Mimos" class="w-20 h-20 object-contain mx-auto mb-4">'
-       . '<h1 class="text-xl font-semibold mb-2">' . htmlspecialchars($title, ENT_QUOTES) . '</h1>'
+       . '<h1 class="text-xl font-semibold mb-2">' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</h1>'
        . '<p class="text-gray-700">' . $message . '</p>'
        . '<a href="index.php" class="inline-block mt-6 text-orange-600 hover:text-orange-700">Volver</a>'
        . '</div></body></html>';
@@ -25,7 +25,7 @@ function respond(string $title, string $message, bool $ok = true): void {
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    respond('Suscripci�n', 'Método no permitido', false);
+    respond('Suscripción', 'Método no permitido', false);
 }
 
 $nombre = isset($_POST['nombre']) ? trim((string)$_POST['nombre']) : null;
@@ -33,7 +33,7 @@ $email = isset($_POST['email']) ? trim((string)$_POST['email']) : '';
 $autorizacion = isset($_POST['autorizacion']) ? 1 : 0;
 
 if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    respond('Suscripci�n', 'Email inv�lido. Por favor intenta nuevamente.', false);
+    respond('Suscripción', 'Email inválido. Por favor intenta nuevamente.', false);
 }
 
 try {
@@ -48,14 +48,15 @@ try {
         fecha_alta DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-  $stmt = $pdo->prepare('INSERT INTO suscripciones (nombre, email, tipo, autorizacion, fecha_alta) VALUES (?, ?, ?, ?, NOW())');
-  $stmt->execute([
-      $nombre !== '' ? $nombre : null,
-      $email,
-      'usuario',
-      $autorizacion,
-  ]);
-    // Enviar correo de agradecimiento
+    $stmt = $pdo->prepare('INSERT INTO suscripciones (nombre, email, tipo, autorizacion, fecha_alta) VALUES (?, ?, ?, ?, NOW())');
+    $stmt->execute([
+        $nombre !== '' ? $nombre : null,
+        $email,
+        'usuario',
+        $autorizacion,
+    ]);
+
+    // Enviar correo de agradecimiento (no bloquea la confirmación)
     $mailCfg = require __DIR__ . '/../config/mail.php';
     $m = new PHPMailer(true);
     try {
@@ -64,8 +65,8 @@ try {
         $m->SMTPAuth = true;
         $m->Username = $mailCfg['username'];
         $m->Password = $mailCfg['password'];
-        // Selecci�n robusta de cifrado/puerto
-        // Selecci�n robusta de cifrado/puerto
+
+        // Selección robusta de cifrado/puerto
         $enc = strtolower((string)($mailCfg['encryption'] ?? 'tls'));
         if ($enc === 'ssl' || ((int)($mailCfg['port'] ?? 0)) === 465) {
             $m->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
@@ -74,6 +75,7 @@ try {
             $m->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $m->Port = (int)($mailCfg['port'] ?? 587);
         }
+
         $m->CharSet = 'UTF-8';
         $m->setFrom($mailCfg['from_email'], $mailCfg['from_name']);
         $m->addAddress($email, $nombre ?: '');
@@ -84,28 +86,29 @@ try {
             $m->AddEmbeddedImage($embedLogo, 'logoimg', 'logo.png', 'base64', 'image/png');
         }
         $html = '<div style="font-family:Poppins, sans-serif;text-align:center;color:#A97155;">'
-            . '<img src="cid:logoimg" width="150" style="margin-bottom:20px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.15);">'
-            . '<h2>¡Gracias por suscribirte a <strong>Mascotas y Mimos</strong>!</h2>'
-            . '<p>Sitio dedicado a cuidar y mimar a nuestros mejores compa�eros.</p>'
-            . '<p><a href="https://mascotasymimos.com" style="color:#A97155;text-decoration:none;font-weight:bold;">Visitanos en mascotasymimos.com</a></p>'
-            . '</div>';
+              . '<img src="cid:logoimg" width="150" style="margin-bottom:20px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.15);">'
+              . '<h2>¡Gracias por suscribirte a <strong>Mascotas y Mimos</strong>!</h2>'
+              . '<p>Sitio dedicado a cuidar y mimar a nuestros mejores compañeros.</p>'
+              . '<p><a href="https://mascotasymimos.com" style="color:#A97155;text-decoration:none;font-weight:bold;">Visitanos en mascotasymimos.com</a></p>'
+              . '</div>';
         $m->Body = $html;
         $m->AltBody = 'Gracias por suscribirte a Mascotas y Mimos. Visitá mascotasymimos.com';
         $m->send();
     } catch (MailException $e) {
-        // Log opcional: error de email, pero no impedir confirmación al usuario
+        if (isset($_GET['debug'])) {
+            respond('Email no enviado', 'Detalle: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'), false);
+        }
     }
 
-    respond('¡�Gracias por suscribirte!', 'Te avisaremos cuando el sitio esté disponible.');
+    respond('¡Gracias por suscribirte!', 'Te avisaremos cuando el sitio esté disponible.');
 } catch (PDOException $e) {
     // Manejo de duplicado
-    if ((int)$e->getCode() === 23000 || str_contains(strtolower($e->getMessage()), 'duplicate')) {
-        respond('Ya est�s suscrito', 'Tu email ya estaba registrado. ¡Gracias!');
+    $msg = strtolower($e->getMessage());
+    if ((int)$e->getCode() === 23000 || str_contains($msg, 'duplicate') || str_contains($msg, 'uniq')) {
+        respond('Ya estás suscrito', 'Tu email ya estaba registrado. ¡Gracias!');
     }
-    respond('Error', 'No pudimos guardar tu Suscripci�n. Intenta más tarde.');
+    if (isset($_GET['debug'])) {
+        respond('Error DB', 'Detalle: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'), false);
+    }
+    respond('Error', 'No pudimos guardar tu suscripción. Intenta más tarde.');
 }
-
-
-
-
-
