@@ -151,7 +151,10 @@ try {
               . '<a href="' . htmlspecialchars($unsubscribeUrl, ENT_QUOTES, 'UTF-8') . '" style="color:#A97155">darte de baja</a>.</p>'
               . '</div>';
         $m->Body = $html;
-        $m->AltBody = 'Gracias por suscribirte a Mascotas y Mimos. Visitá mascotasymimos.com';
+        // AltBody con enlaces claros para clientes que muestran solo texto
+        $m->AltBody = "Gracias por suscribirte a Mascotas y Mimos.\n"
+                    . "Sitio: https://mascotasymimos.com\n"
+                    . (isset($unsubscribeUrl) ? ("Darte de baja: " . $unsubscribeUrl . "\n") : "");
         $m->send();
     } catch (MailException $e) {
         if (isset($_GET['debug'])) {
