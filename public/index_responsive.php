@@ -40,7 +40,7 @@
               <li>Recordatorios por Email o WhatsApp</li>
               <li>Listado de prestadores con mejores calificaciones en toda la Argentina.</li>
             </ul>
-            <div class="flex flex-col sm:flex-row gap-3">
+            <div class="flex flex-col sm:flex-row gap-3 items-center justify-center mt-2">
               <a href="#beneficios-duenos" class="min-h-[44px] inline-flex items-center justify-center rounded-lg bg-[#A97155] text-white px-5 py-3 hover:bg-[#8d5f47]">Soy Dueño de Mascotas</a>
               <a href="#beneficios-prestadores" class="min-h-[44px] inline-flex items-center justify-center rounded-lg bg-white text-[#A97155] border border-[#A97155]/30 px-5 py-3 hover:bg-[#fff2ea]">Soy Prestador</a>
             </div>
@@ -100,8 +100,8 @@
         <h3 class="text-[clamp(1.25rem,4vw,1.75rem)] font-semibold">¿Te avisamos cuando lancemos?</h3>
         <p class="text-sm md:text-base leading-relaxed">Elegí tu perfil y dejános tu email.</p>
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
-          <a href="#suscripcion" class="min-h-[44px] inline-flex items-center justify-center rounded-lg bg-[#A97155] text-white px-6 py-3 hover:bg-[#8d5f47]">Soy Dueño</a>
-          <a href="#suscripcion" class="min-h-[44px] inline-flex items-center justify-center rounded-lg bg-white text-[#A97155] border border-[#A97155]/30 px-6 py-3 hover:bg-[#fff2ea]">Soy Prestador</a>
+          <a href="#beneficios-duenos" class="min-h-[44px] inline-flex items-center justify-center rounded-lg bg-[#A97155] text-white px-6 py-3 hover:bg-[#8d5f47]">Soy Dueño</a>
+          <a href="#beneficios-prestadores" class="min-h-[44px] inline-flex items-center justify-center rounded-lg bg-white text-[#A97155] border border-[#A97155]/30 px-6 py-3 hover:bg-[#fff2ea]">Soy Prestador</a>
         </div>
       </div>
     </section>
