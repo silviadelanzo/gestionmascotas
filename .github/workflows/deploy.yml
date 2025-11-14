@@ -63,6 +63,7 @@ jobs:
             **/docs/**
             **/sql/**
             **/scripts/**
+            config/db.php
             **/*.map
             **/*.psd
             **/*.ai
