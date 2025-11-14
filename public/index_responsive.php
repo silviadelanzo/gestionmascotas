@@ -31,7 +31,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-center">
           <div>
             <h2 class="text-[clamp(1.5rem,5vw,2.25rem)] leading-tight font-bold mb-3">Cuidamos y mimamos a tus mejores amigos</h2>
-            <p class="text-base md:text-lg leading-relaxed">Pronto vas a poder gestionar turnos, descubrir prestadores y organizar el cuidado de tus mascotas desde un solo lugar.</p>
+            <p class="text-base md:text-lg leading-relaxed mb-4">Historial médico por mascota, recordatorios por email/WhatsApp y prestadores con mejores calificaciones en toda la Argentina.</p>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <a href="#beneficios-duenos" class="min-h-[44px] inline-flex items-center justify-center rounded-lg bg-[#A97155] text-white px-5 py-3 hover:bg-[#8d5f47]">Soy Dueño de Mascotas</a>
+              <a href="#beneficios-prestadores" class="min-h-[44px] inline-flex items-center justify-center rounded-lg bg-white text-[#A97155] border border-[#A97155]/30 px-5 py-3 hover:bg-[#fff2ea]">Soy Prestador</a>
+            </div>
           </div>
           <div>
             <img src="assets/img/hero.webp" onerror="this.src='assets/img/hero.png'" alt="Ilustración mascotas" class="w-full aspect-[4/3] object-cover rounded-xl shadow" />
@@ -40,29 +44,58 @@
       </div>
     </section>
 
-    <!-- Tarjetas / beneficios -->
-    <section class="max-w-screen-xl mx-auto px-4 pb-8 md:pb-12">
+    <!-- Beneficios Dueños -->
+    <section id="beneficios-duenos" class="max-w-screen-xl mx-auto px-4 pb-8 md:pb-12">
+      <h3 class="text-[clamp(1.25rem,4vw,1.75rem)] font-semibold mb-4">Beneficios para Dueños</h3>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         <article class="rounded-xl bg-white p-5 shadow">
-          <img src="assets/img/beneficio1.webp" onerror="this.src='assets/img/beneficio1.png'" alt="Agenda" class="w-full aspect-[4/3] object-cover rounded-lg mb-3" />
-          <h3 class="text-lg font-semibold mb-1">Agenda fácil</h3>
-          <p class="text-sm md:text-base leading-relaxed">Recordatorios y turnos para que nada se te pase.</p>
+          <h4 class="text-lg font-semibold mb-1">Historial por mascota</h4>
+          <p class="text-sm md:text-base leading-relaxed">Registra estudios, tratamientos y notas para cada mascota (perro, gato, loro…).</p>
         </article>
         <article class="rounded-xl bg-white p-5 shadow">
-          <img src="assets/img/beneficio2.webp" onerror="this.src='assets/img/beneficio2.png'" alt="Prestadores" class="w-full aspect-[4/3] object-cover rounded-lg mb-3" />
-          <h3 class="text-lg font-semibold mb-1">Prestadores cerca</h3>
-          <p class="text-sm md:text-base leading-relaxed">Encontrá veterinarias, paseadores y cuidadores.</p>
+          <h4 class="text-lg font-semibold mb-1">Recordatorios</h4>
+          <p class="text-sm md:text-base leading-relaxed">Alertas por email/WhatsApp para vacunas, baño o controles de Lolo y compañía.</p>
         </article>
         <article class="rounded-xl bg-white p-5 shadow">
-          <img src="assets/img/comunidad.png.webp" onerror="this.src='assets/img/comunidad.png.png'" alt="Comunidad" class="w-full aspect-[4/3] object-cover rounded-lg mb-3" />
-          <h3 class="text-lg font-semibold mb-1">Comunidad</h3>
-          <p class="text-sm md:text-base leading-relaxed">Consejos y bienestar para tus compañeros de vida.</p>
+          <h4 class="text-lg font-semibold mb-1">Mapa y calificaciones</h4>
+          <p class="text-sm md:text-base leading-relaxed">Buscá prestadores en tu zona en toda Argentina y elegí por reputación.</p>
         </article>
       </div>
     </section>
 
+    <!-- Beneficios Prestadores -->
+    <section id="beneficios-prestadores" class="max-w-screen-xl mx-auto px-4 pb-8 md:pb-12">
+      <h3 class="text-[clamp(1.25rem,4vw,1.75rem)] font-semibold mb-4">Beneficios para Prestadores</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <article class="rounded-xl bg-white p-5 shadow">
+          <h4 class="text-lg font-semibold mb-1">Presencia gratuita</h4>
+          <p class="text-sm md:text-base leading-relaxed">Aparecé en listados y mapa por provincia/localidad para que te contacten.</p>
+        </article>
+        <article class="rounded-xl bg-white p-5 shadow">
+          <h4 class="text-lg font-semibold mb-1">Reputación y alcance</h4>
+          <p class="text-sm md:text-base leading-relaxed">Reseñas de clientes y posicionamiento para llegar a más dueños.</p>
+        </article>
+        <article class="rounded-xl bg-white p-5 shadow">
+          <h4 class="text-lg font-semibold mb-1">Planes Pro</h4>
+          <p class="text-sm md:text-base leading-relaxed">Destacado con fotos y publicación de avisos para promociones.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- CTA doble -->
+    <section class="max-w-screen-md mx-auto px-4 pb-8 md:pb-12">
+      <div class="rounded-2xl bg-white/95 backdrop-blur p-6 md:p-8 shadow text-center space-y-3">
+        <h3 class="text-[clamp(1.25rem,4vw,1.75rem)] font-semibold">¿Te avisamos cuando lancemos?</h3>
+        <p class="text-sm md:text-base leading-relaxed">Elegí tu perfil y dejános tu email.</p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <a href="#suscripcion" class="min-h-[44px] inline-flex items-center justify-center rounded-lg bg-[#A97155] text-white px-6 py-3 hover:bg-[#8d5f47]">Soy Dueño</a>
+          <a href="#suscripcion" class="min-h-[44px] inline-flex items-center justify-center rounded-lg bg-white text-[#A97155] border border-[#A97155]/30 px-6 py-3 hover:bg-[#fff2ea]">Soy Prestador</a>
+        </div>
+      </div>
+    </section>
+
     <!-- Suscripción -->
-    <section class="max-w-screen-md mx-auto px-4 pb-12">
+    <section id="suscripcion" class="max-w-screen-md mx-auto px-4 pb-12">
       <div class="rounded-2xl bg-white/95 backdrop-blur p-6 md:p-8 shadow">
         <h3 class="text-[clamp(1.25rem,4vw,1.75rem)] font-semibold mb-2">¿Querés enterarte cuando lancemos?</h3>
         <p class="text-sm md:text-base leading-relaxed mb-4">Dejanos tu email y te avisamos. Podés darte de baja cuando quieras.</p>
@@ -100,4 +133,3 @@
   </script>
 </body>
 </html>
-
