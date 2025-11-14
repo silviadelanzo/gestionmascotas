@@ -29,8 +29,11 @@
     <section class="max-w-screen-xl mx-auto px-4 pt-4 pb-8 md:pt-8 md:pb-12">
       <div class="rounded-2xl bg-white/90 backdrop-blur p-6 md:p-10 shadow">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-center">
-          <div>
-            <h2 class="text-[clamp(1.5rem,5vw,2.25rem)] leading-tight font-bold mb-3">Cuidamos y mimamos a tus mejores amigos - Gratis</h2>
+          <div class="text-center">
+            <h2 class="text-[clamp(1.5rem,5vw,2.25rem)] leading-tight font-bold mb-1">
+              Cuidamos y mimamos a tus mejores amigos
+              <span class="block text-[#A97155] font-semibold">Gratuito para Dueños</span>
+            </h2>
             <ul class="list-disc pl-5 space-y-1 text-base md:text-lg leading-relaxed mb-4">
               <li>Historial médico por mascota</li>
               <li>Agenda de tratamientos, vacunas y estudios por mascota</li>
@@ -51,7 +54,9 @@
 
     <!-- Beneficios Dueños -->
     <section id="beneficios-duenos" class="max-w-screen-xl mx-auto px-4 pb-8 md:pb-12">
-      <h3 class="text-[clamp(1.25rem,4vw,1.75rem)] font-semibold mb-4">Beneficios para Dueños de una o más mascotas</h3>
+      <h3 class="text-[clamp(1.25rem,4vw,1.75rem)] font-semibold mb-4 text-center underline underline-offset-4 decoration-2 decoration-[#A97155]">
+        Beneficios para Dueños de una o más mascotas
+      </h3>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         <article class="rounded-xl bg-white p-5 shadow">
           <h4 class="text-lg font-semibold mb-1">Historial por mascota</h4>
@@ -70,7 +75,9 @@
 
     <!-- Beneficios Prestadores -->
     <section id="beneficios-prestadores" class="max-w-screen-xl mx-auto px-4 pb-8 md:pb-12">
-      <h3 class="text-[clamp(1.25rem,4vw,1.75rem)] font-semibold mb-4">Beneficios para Prestadores</h3>
+      <h3 class="text-[clamp(1.25rem,4vw,1.75rem)] font-semibold mb-4 text-center underline underline-offset-4 decoration-2 decoration-[#A97155]">
+        Beneficios para Prestadores
+      </h3>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         <article class="rounded-xl bg-white p-5 shadow">
           <h4 class="text-lg font-semibold mb-1">Presencia gratuita</h4>
@@ -101,7 +108,7 @@
 
     <!-- Suscripción -->
     <section id="suscripcion" class="max-w-screen-md mx-auto px-4 pb-12">
-      <div class="rounded-2xl bg-white/95 backdrop-blur p-6 md:p-8 shadow">
+      <div class="rounded-2xl bg-white/95 backdrop-blur p-6 md:p-8 shadow text-center">
         <h3 class="text-[clamp(1.25rem,4vw,1.75rem)] font-semibold mb-2">¿Querés enterarte cuando lancemos?</h3>
         <p class="text-sm md:text-base leading-relaxed mb-4">Dejanos tu email y te avisamos. Podés darte de baja cuando quieras.</p>
         <form class="space-y-4" method="post" action="guardar_suscripcion.php" onsubmit="return validateEmail()">
