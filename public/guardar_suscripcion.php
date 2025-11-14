@@ -67,7 +67,7 @@ try {
         respond('Ya estás suscrito', 'Tu email ya estaba registrado. ¡Gracias!');
     }
 
-    // Generar token de desuscripción
+    // Generar token de desuscripción (se confirmará contra DB más abajo)
     $token = bin2hex(random_bytes(16));
 
     // Intentar insertar incluyendo unsubscribe_token; si falla por esquema viejo, insertar sin él
@@ -104,6 +104,18 @@ try {
         }
     }
 
+    // Leer el token realmente almacenado en DB para evitar desajustes
+    try {
+        $tokStmt = $pdo->prepare('SELECT unsubscribe_token FROM suscripciones WHERE email = ? LIMIT 1');
+        $tokStmt->execute([$email]);
+        $dbToken = (string)$tokStmt->fetchColumn();
+        if (!empty($dbToken)) {
+            $token = $dbToken;
+        }
+    } catch (PDOException $e) {
+        // si falla, seguimos usando el token generado en memoria
+    }
+
     // Enviar correo de agradecimiento (no bloquea la confirmación)
     $mailCfg = require __DIR__ . '/../config/mail.php';
     $m = new PHPMailer(true);
@@ -134,7 +146,7 @@ try {
             $m->AddEmbeddedImage($embedLogo, 'logoimg', 'logo.png', 'base64', 'image/png');
         }
         $baseUrl = 'https://mascotasymimos.com/gestionmascotas/public';
-        $unsubscribeUrl = $baseUrl . '/desuscribir.php?token=' . urlencode($token);
+        $unsubscribeUrl = $baseUrl . '/desuscribir.php?token=' . urlencode($token ?? '');
 
         // Headers de desuscripción
         $m->addCustomHeader('List-Unsubscribe', '<' . $unsubscribeUrl . '>');
