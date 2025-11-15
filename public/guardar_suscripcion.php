@@ -33,7 +33,7 @@ $email = isset($_POST['email']) ? trim((string)$_POST['email']) : '';
 $autorizacion = isset($_POST['autorizacion']) ? 1 : 0;
 
 if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    respond('Suscripción', 'Email inválido. Por favor intenta nuevamente.', false);
+    respond('Suscripción', 'Email inválido. Por favor, intentá nuevamente.', false);
 }
 
 try {
@@ -59,64 +59,35 @@ try {
         $pdo->exec("ALTER TABLE suscripciones ADD COLUMN unsubscribe_token VARCHAR(64) NULL UNIQUE AFTER fecha_alta");
     }
 
-    // Normalizar y evitar duplicados (case-insensitive)
+    // Normalizar email (case-insensitive) y verificar existencia
     $email = strtolower(trim($email));
-    $check = $pdo->prepare('SELECT 1 FROM suscripciones WHERE email = ? LIMIT 1');
+    $check = $pdo->prepare('SELECT nombre FROM suscripciones WHERE email = ? LIMIT 1');
     $check->execute([$email]);
-    if ($check->fetch()) {
+    if ($row = $check->fetch(PDO::FETCH_ASSOC)) {
+        if (empty($nombre)) {
+            $nombre = isset($row['nombre']) && $row['nombre'] !== '' ? (string)$row['nombre'] : ($nombre ?? '');
+        }
+        // Email ya existente: no insertar ni enviar correo
         respond('Ya estás suscrito', 'Tu email ya estaba registrado. ¡Gracias!');
     }
 
-    // Generar token de desuscripción (se confirmará contra DB más abajo)
-    $token = bin2hex(random_bytes(16));
-
-    // Intentar insertar incluyendo unsubscribe_token; si falla por esquema viejo, insertar sin él
+    // Insertar nuevo registro (sin token de desuscripción)
     $inserted = false;
     try {
-        $stmt = $pdo->prepare('INSERT INTO suscripciones (nombre, email, tipo, autorizacion, fecha_alta, unsubscribe_token) VALUES (?, ?, ?, ?, NOW(), ?)');
+        $stmt = $pdo->prepare('INSERT INTO suscripciones (nombre, email, tipo, autorizacion, fecha_alta) VALUES (?, ?, ?, ?, NOW())');
         $stmt->execute([
             ($nombre !== '' && $nombre !== null) ? trim($nombre) : null,
             $email,
             'usuario',
             $autorizacion,
-            $token,
         ]);
         $inserted = true;
     } catch (PDOException $e) {
-        // Si la columna no existe, inserta sin token y luego intenta actualizar
-        if (stripos($e->getMessage(), 'unknown column') !== false) {
-            $stmt = $pdo->prepare('INSERT INTO suscripciones (nombre, email, tipo, autorizacion, fecha_alta) VALUES (?, ?, ?, ?, NOW())');
-            $stmt->execute([
-                ($nombre !== '' && $nombre !== null) ? trim($nombre) : null,
-                $email,
-                'usuario',
-                $autorizacion,
-            ]);
-            // Intento de setear token si la columna existe
-            try {
-                $pdo->prepare('UPDATE suscripciones SET unsubscribe_token = ? WHERE email = ?')->execute([$token, $email]);
-            } catch (PDOException $e2) {
-                // continuar sin token si no es posible
-            }
-            $inserted = true;
-        } else {
-            throw $e; // propagar otros errores
-        }
+        // Si falla por otra razón, propagar; la columna unsubscribe_token no se usa en el INSERT
+        throw $e;
     }
 
-    // Leer el token realmente almacenado en DB para evitar desajustes
-    try {
-        $tokStmt = $pdo->prepare('SELECT unsubscribe_token FROM suscripciones WHERE email = ? LIMIT 1');
-        $tokStmt->execute([$email]);
-        $dbToken = (string)$tokStmt->fetchColumn();
-        if (!empty($dbToken)) {
-            $token = $dbToken;
-        }
-    } catch (PDOException $e) {
-        // si falla, seguimos usando el token generado en memoria
-    }
-
-    // Enviar correo de agradecimiento (no bloquea la confirmación)
+    // Enviar correo de agradecimiento (solo para nuevas suscripciones)
     $mailCfg = require __DIR__ . '/../config/mail.php';
     $m = new PHPMailer(true);
     try {
@@ -126,7 +97,6 @@ try {
         $m->Username = $mailCfg['username'];
         $m->Password = $mailCfg['password'];
 
-        // Selección robusta de cifrado/puerto
         $enc = strtolower((string)($mailCfg['encryption'] ?? 'tls'));
         if ($enc === 'ssl' || ((int)($mailCfg['port'] ?? 0)) === 465) {
             $m->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
@@ -145,13 +115,6 @@ try {
         if (file_exists($embedLogo)) {
             $m->AddEmbeddedImage($embedLogo, 'logoimg', 'logo.png', 'base64', 'image/png');
         }
-        $baseUrl = 'https://mascotasymimos.com/gestionmascotas/public';
-        $unsubscribeUrl = $baseUrl . '/desuscribir.php?token=' . urlencode($token ?? '');
-
-        // Headers de desuscripción
-        $m->addCustomHeader('List-Unsubscribe', '<' . $unsubscribeUrl . '>');
-        $m->addCustomHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
-
         $html = '<div style="font-family:Poppins, sans-serif;text-align:center;color:#A97155;">'
               . '<a href="https://mascotasymimos.com" target="_blank" style="text-decoration:none">'
               . '<img src="cid:logoimg" width="150" style="margin-bottom:20px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.15);" alt="Mascotas y Mimos">'
@@ -159,14 +122,10 @@ try {
               . '<h2>¡Gracias por suscribirte a <strong>Mascotas y Mimos</strong>!</h2>'
               . '<p>Sitio dedicado a cuidar y mimar a nuestros mejores compañeros.</p>'
               . '<p><a href="https://mascotasymimos.com" style="color:#A97155;text-decoration:none;font-weight:bold;">Visitanos en mascotasymimos.com</a></p>'
-              . '<p style="margin-top:16px;font-size:12px;color:#7a6a62">Si no querés recibir más estos avisos, '
-              . '<a href="' . htmlspecialchars($unsubscribeUrl, ENT_QUOTES, 'UTF-8') . '" style="color:#A97155">darte de baja</a>.</p>'
               . '</div>';
         $m->Body = $html;
-        // AltBody con enlaces claros para clientes que muestran solo texto
         $m->AltBody = "Gracias por suscribirte a Mascotas y Mimos.\n"
-                    . "Sitio: https://mascotasymimos.com\n"
-                    . (isset($unsubscribeUrl) ? ("Darte de baja: " . $unsubscribeUrl . "\n") : "");
+                    . "Sitio: https://mascotasymimos.com\n";
         $m->send();
     } catch (MailException $e) {
         if (isset($_GET['debug'])) {
@@ -176,7 +135,7 @@ try {
 
     respond('¡Gracias por suscribirte!', 'Te avisaremos cuando el sitio esté disponible.');
 } catch (PDOException $e) {
-    // Manejo de duplicado
+    // Manejo de duplicado (condición de carrera): no enviar correo
     $msg = strtolower($e->getMessage());
     if ((int)$e->getCode() === 23000 || str_contains($msg, 'duplicate') || str_contains($msg, 'uniq')) {
         respond('Ya estás suscrito', 'Tu email ya estaba registrado. ¡Gracias!');
@@ -184,5 +143,6 @@ try {
     if (isset($_GET['debug'])) {
         respond('Error DB', 'Detalle: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'), false);
     }
-    respond('Error', 'No pudimos guardar tu suscripción. Intenta más tarde.');
+    respond('Error', 'No pudimos guardar tu suscripción. Intentá más tarde.');
 }
+
