@@ -152,3 +152,50 @@ Este documento consolida el trabajo realizado hasta hoy y define los próximos p
    - Acceso a contactos y documentos.
 
 Con esto, la primera versión ya entrega valor concreto a los dueños y deja preparado el terreno para vender visibilidad y planes Pro a prestadores una vez que exista masa crítica de mascotas registradas.
+
+## 11) Propuesta de home pública de mascotasymimos.com
+
+### 11.1 Objetivo de la home
+- Explicar rápidamente qué hace Mascotas y Mimos, diferenciando entre dueños y prestadores.
+- Invitar a los dueños a crear cuenta gratuita.
+- Presentar la propuesta de valor para prestadores sin distraer al dueño.
+
+### 11.2 Estructura general (por secciones)
+- Hero (lo primero que se ve):
+  - Título: “Tu agenda completa para la salud de tus mascotas”.
+  - Subtítulo: “Historial, recordatorios y contactos en un solo lugar. Gratis para dueños. Prestadores pueden destacarse donde están sus clientes.”
+  - Botones destacados:
+    - “Soy dueño/a de mascotas”.
+    - “Soy prestador/a de servicios”.
+  - Imagen/ilustración: personas con sus mascotas + captura de la app.
+
+- Bloque “Para dueños de mascotas”:
+  - Título: “Para dueños de mascotas”.
+  - Beneficios con iconos:
+    - Historial médico por mascota.
+    - Recordatorios de vacunas y tratamientos.
+    - Carpeta de documentos (carnet, estudios, certificados).
+    - Contactos importantes a un clic (vet, peluquería, paseador).
+  - CTA principal: “Crear mi cuenta gratis”.
+  - CTA secundario: “Ver cómo funciona”.
+
+- Bloque “Para veterinarias y prestadores”:
+  - Título: “Para veterinarias y prestadores”.
+  - Mensajes clave:
+    - “Llegá a dueños que ya organizan la salud de sus mascotas”.
+    - “Aparecé primero en tu ciudad o barrio”.
+    - “Mostrá tus servicios y fotos en tu ficha”.
+  - CTA: “Quiero aparecer como prestador”.
+
+- Bloque “Cómo funciona” en 3 pasos:
+  - Paso 1: “Creás tu cuenta y cargás tus mascotas”.
+  - Paso 2: “Guardás historial y contactos, activás recordatorios”.
+  - Paso 3: “Recibís avisos y, si querés, encontrás nuevos prestadores”.
+
+- Bloque de confianza / prueba social:
+  - Testimonios cortos de dueños (cuando existan).
+  - Mensaje de privacidad: “Tus datos y los de tus mascotas están protegidos. No compartimos tu información personal sin tu permiso.”
+
+- Footer:
+  - Enlaces: Sobre nosotros, Preguntas frecuentes, Términos y condiciones, Contacto.
+  - Datos de contacto y redes (Facebook, Instagram) cuando estén activos.
