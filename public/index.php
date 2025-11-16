@@ -174,6 +174,11 @@ $structuredData = [
         <h3 class="text-[clamp(1.25rem,4vw,1.75rem)] font-semibold mb-2">¿Querés enterarte cuando lancemos?</h3>
         <p class="text-sm md:text-base leading-relaxed mb-4">Dejanos tu email y te avisamos. Podés darte de baja cuando quieras.</p>
         <form class="space-y-4" method="post" action="guardar_suscripcion.php" onsubmit="return validateEmail()">
+          <!-- Honeypot: campo oculto para frenar bots -->
+          <div class="hidden" aria-hidden="true">
+            <label for="hp_telefono">No completar este campo</label>
+            <input id="hp_telefono" name="hp_telefono" type="text" autocomplete="off" tabindex="-1">
+          </div>
           <div>
             <label for="nombre" class="block text-sm mb-1">Nombre (opcional)</label>
             <input id="nombre" name="nombre" type="text" class="w-full rounded-lg border border-amber-200 focus:border-amber-400 focus:ring-amber-300 px-4 py-3" placeholder="Tu nombre" />
