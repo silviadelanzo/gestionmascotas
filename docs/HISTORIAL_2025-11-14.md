@@ -400,3 +400,70 @@ Esta lista sirve como base de selección rápida en la ficha de servicios del ve
 - Descripción del tratamiento/medicación/indicación.
 
 La validación final siempre la hace el dueño: ve quién emitió la receta (nombre, matrícula, dirección), y decide si confía o consulta a otro profesional.
+
+## 13) Pruebas de mapa de prestadores (Leaflet + OpenStreetMap)
+
+### 13.1 Página básica de mapa con marcadores
+
+- Archivo: `public/mapa_prestadores.php`.
+- Tecnologías:
+  - Librería de mapas: Leaflet (JS/CSS desde CDN).
+  - Tiles de mapa: OpenStreetMap (sin API key, sin Google).
+- Datos de prueba:
+  - Tres prestadores con nombre, dirección, teléfono, provincia y coordenadas lat/lng obtenidas mediante Nominatim (servicio de geocodificación de OpenStreetMap):
+    - Alberdi 487, Río Gallegos, Santa Cruz.
+    - Candioti 2357, Santo Tomé, Santa Fe.
+    - Av. Aconquija 2491, Yerba Buena, Tucumán.
+- Comportamiento:
+  - El mapa se centra inicialmente en un punto general de Argentina (`[-38, -63]`, zoom 4).
+  - Se generan marcadores para cada prestador con popup que muestra:
+    - Nombre.
+    - Dirección.
+    - Provincia.
+    - Teléfono.
+  - Se usan `fitBounds` con todos los marcadores para encuadrar automáticamente el país.
+
+URL local de prueba (ejemplo): `http://localhost/gestionmascotas/public/mapa_prestadores.php`.
+
+### 13.2 Mapa con enfoque por prestador
+
+- Archivo: `public/mapa_prestadores_focus.php`.
+- Objetivo: probar una UX donde el dueño ve una lista de prestadores y, al tocar uno, el mapa se centra y hace zoom fuerte en su zona (pensado para móvil).
+- Estructura:
+  - Encabezado con título y descripción breve.
+  - Lista horizontal de prestadores (botones tipo píldora) sobre el mapa.
+  - Mapa Leaflet debajo, con los mismos tres prestadores que en la página básica.
+- Comportamiento:
+  - Inicialmente se ajusta el mapa con todos los prestadores (igual que en la versión básica).
+  - Cada botón tiene un `data-id` que referencia al prestador en el array JavaScript.
+  - Función `focusPrestador(id)`:
+    - Busca el prestador por id.
+    - Centra el mapa en `[lat, lng]` con **zoom 16** (más cercano para pantallas de celular).
+    - Abre el popup del marcador correspondiente.
+- Resultado:
+  - Permite ver el país completo al inicio, pero al elegir un prestador se muestra su zona con mucho más detalle.
+
+### 13.3 Mapa con área de servicio (círculos)
+
+- Archivo: `public/mapa_prestadores_area.php`.
+- Objetivo: además del enfoque, mostrar gráficamente una “zona de servicio” alrededor de cada prestador.
+- Estructura:
+  - Similar a `mapa_prestadores_focus.php`: encabezado, lista de prestadores y mapa.
+- Comportamiento:
+  - Para cada prestador se agrega:
+    - Un marcador (como en los otros mapas).
+    - Un círculo Leaflet (`L.circle`) con:
+      - Centro en `[lat, lng]`.
+      - Radio **1.500 m** (1,5 km) como área de servicio aproximada.
+      - Color/relleno suave (`#ff7f50`, baja opacidad).
+  - Zoom:
+    - Se usa `fitBounds` con los centros para mostrar inicialmente el país.
+    - Al hacer clic en un prestador de la lista, `focusPrestador(id)`:
+      - Centra el mapa en `[lat, lng]` con **zoom 16**.
+      - Abre el popup del marcador.
+- Resultado:
+  - El usuario ve rápidamente qué área aproximada cubre cada prestador en el mapa y puede acercarse a cada uno con un toque.
+
+Notas:
+- Estas páginas son **demos internas** para validar la UX de mapas y geolocalización.
+- Para producción, los prestadores y coordenadas deberían salir de la base de datos y/o servicios de geocodificación, no de arrays hardcodeados.
