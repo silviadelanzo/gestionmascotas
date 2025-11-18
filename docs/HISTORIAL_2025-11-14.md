@@ -467,3 +467,94 @@ URL local de prueba (ejemplo): `http://localhost/gestionmascotas/public/mapa_pre
 Notas:
 - Estas páginas son **demos internas** para validar la UX de mapas y geolocalización.
 - Para producción, los prestadores y coordenadas deberían salir de la base de datos y/o servicios de geocodificación, no de arrays hardcodeados.
+
+## 14) Nueva home paralela `public/index_v2.php`
+
+Objetivo: implementar una home pública más completa (dueños + prestadores + planes) sin tocar el `index.php` actual ni las rutas de APIs, mail u otras carpetas sensibles. Todo se monta en `public/` reutilizando Tailwind y assets existentes.
+
+### 14.1 Características generales
+
+- Archivo: `public/index_v2.php`.
+- No reemplaza a `public/index.php`; se usa como versión de prueba local en `http://localhost/gestionmascotas/public/index_v2.php`.
+- Tecnologías:
+  - PHP mínimo para variables de meta/SEO.
+  - Tailwind CSS vía CDN (como el `index.php` actual).
+  - Fuente Poppins desde Google Fonts.
+  - Overrides existentes en `assets/css/style_tailwind_overrides.css`.
+- Paleta alineada con la landing actual:
+  - Fondo degradado `from-[#FFD6A5] to-[#FAE0C3]`.
+  - Color de marca `#A97155`.
+  - Texto principal `#5A3E36`.
+
+### 14.2 Estructura de la página
+
+- Header:
+  - Logo desde `assets/logo/logo.png`.
+  - Título "Mascotas y Mimos" + subtítulo "Agenda digital para familias con mascotas".
+  - Navegación desktop con anclas a secciones: "Para dueños", "Para prestadores", "Cómo funciona".
+
+- Hero:
+  - Título: "Tu agenda digital para la salud de tus mascotas".
+  - Subtítulo: "Gratis para dueños. Planes Free, Pro y Premium para veterinarias y prestadores...".
+  - Dos botones principales:
+    - "Soy dueño/a de mascotas" (`href="#registro-duenos"`).
+    - "Soy veterinario/a o prestador" (`href="#registro-prestadores"`).
+  - Imagen hero:
+    - `assets/img/hero.webp` con `onerror` a `assets/img/hero.png`.
+    - Se mantiene estilo `aspect-[4/3]` y bordes redondeados.
+
+- Bloque "Para dueños" (`#duenos`):
+  - Título: "Pensado para familias con mascotas".
+  - Texto explicativo sobre cuenta por familia (hasta 10 mascotas).
+  - Grid de 4 tarjetas con beneficios:
+    - Historial médico por mascota:
+      - Imagen: `assets/img/agenda_vacunas.(webp/jpg)`.
+    - Recordatorios automáticos:
+      - Imagen: `assets/img/recordatorio_mail..(webp/png)`.
+    - Carpeta de documentos:
+      - Imagen: `assets/img/veterinario_consultorio.(webp/png)`.
+    - Contactos de confianza:
+      - Imagen: `assets/img/mapa_prestadores.(webp/png)`.
+  - CTA de registro:
+    - Botón "Crear cuenta gratuita de dueño" (`href="#"` como placeholder).
+    - Nota: se aclara que la versión inicial se enfoca en Argentina.
+
+- Bloque "Para prestadores" (`#prestadores`):
+  - Título: "Más visibilidad donde están tus clientes".
+  - Texto que explica el valor para prestadores en función del uso real de los dueños.
+  - Tres tarjetas de planes:
+    - Plan Free:
+      - Listado general, ficha básica, contacto directo, pocas recetas PDF, sin estadísticas.
+    - Plan Pro:
+      - Mejor posición, ficha ampliada, más recetas PDF, estadísticas básicas.
+    - Plan Premium:
+      - Posición top, recetas con plantilla personalizada, más promos, estadísticas avanzadas.
+  - CTA:
+    - Botón "Quiero aparecer como prestador" (`href="#"` como placeholder).
+
+- Bloque "Cómo funciona" (`#como-funciona`):
+  - Título: "¿Cómo funciona?".
+  - Tres pasos:
+    1. Elegís tu rol (dueño o prestador).
+    2. Cargás tus datos (mascotas / ficha profesional).
+    3. Usás la agenda y los listados.
+  - Nota al pie:
+    - Indica que en próximas etapas se integrarán las pantallas de registro, tableros por rol y mapas de prestadores (conecta con secciones 10–13 del historial).
+
+- Footer:
+  - Texto: año actual y aclaración de que `index_v2.php` es una versión de prueba de la nueva home en entorno local.
+
+### 14.3 Alcance y próximos pasos
+
+- Alcance actual:
+  - Solo maquetación de home pública paralela.
+  - Botones de registro (`#`) aún no conectados con formularios reales.
+  - No se tocan:
+    - `public/index.php` (sigue siendo la landing actual).
+    - Rutas `public/api/*`.
+    - Scripts de mail o suscripción.
+    - `public/config/*`.
+- Próximas etapas posibles:
+  - Crear pantallas de registro para dueños y prestadores (`registro_duenos.php`, `registro_prestadores.php`) siguiendo el flujo definido en la sección 12.
+  - Integrar dashboards por rol.
+  - Unificar decisiones de diseño entre `index.php` e `index_v2.php` para un eventual reemplazo controlado del index principal.
