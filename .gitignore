@@ -22,3 +22,15 @@ Thumbs.db
 # Environment files
 /.env
 /laravel/.env
+
+# Carpetas y backups locales
+BACKUP_LOCAL/
+*.bak
+*.old
+
+# Docs informales o archivos de texto
+docs/*.pdf
+docs/*.txt
+
+# Backups de scripts
+scripts/*.bak
