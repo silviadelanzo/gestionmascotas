@@ -558,3 +558,12 @@ Objetivo: implementar una home pública más completa (dueños + prestadores + p
   - Crear pantallas de registro para dueños y prestadores (`registro_duenos.php`, `registro_prestadores.php`) siguiendo el flujo definido en la sección 12.
   - Integrar dashboards por rol.
   - Unificar decisiones de diseño entre `index.php` e `index_v2.php` para un eventual reemplazo controlado del index principal.
+
+## 15) Backup de estado estable (Git)
+
+- Fecha: **2025-11-24**.
+- Rama: `main`.
+- Descripción del commit: `backup estado estable 2025-11-24`.
+- Comentario:
+  - Este commit guarda un punto estable del proyecto (código funcionando en local y producción).
+  - Sirve como referencia para volver atrás en caso de que una rama de pruebas introduzca cambios problemáticos.
