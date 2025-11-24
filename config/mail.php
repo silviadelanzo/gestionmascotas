@@ -7,6 +7,8 @@ return [
     'password' => 'O!,xi7lOTcfla[%K',
     'encryption' => 'ssl',
     'from_email' => 'no-responder@mascotasymimos.com',
-    'from_name' => 'Mascotas y Mimos'
+    'from_name' => 'Mascotas y Mimos',
+    // Correo donde se recibe el aviso de nueva suscripción
+    'notify_email' => 'mascotasymimos@gmail.com',
 ];
 
