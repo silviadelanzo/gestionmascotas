@@ -201,3 +201,30 @@ Con este documento deberías poder:
 - Mantener el mismo estilo de colaboración entre Codex nube, Codex CLI, el repo local y GitHub.
 - Proteger archivos sensibles y el entorno de producción mientras el proyecto sigue creciendo.
 
+---
+
+## 10. Flujo nube → local → servidor
+
+Resumen del ciclo completo de trabajo:
+
+1. **Nube (Codex web + GitHub)**
+   - Trabajar siempre en una rama de desarrollo (por ejemplo `pruebas/index_responsive`).
+   - Codex propone cambios, tú confirmas y se hacen commits/push en esa rama.
+2. **Traer cambios a local**
+   - En tu PC:
+     ```bash
+     cd D:\xampp\htdocs\gestionmascotas
+     git checkout pruebas/index_responsive
+     git pull
+     ```
+3. **Probar en local**
+   - Probar las páginas relevantes en `http://localhost/gestionmascotas/public/...`.
+   - Si hay errores, corregir (en nube o local) y repetir el `git pull` hasta que todo funcione.
+4. **Deploy al servidor**
+   - Asegurar que los cambios estén en la rama correcta y, si aplica, mergear a `main` por PR.
+   - En GitHub Actions ejecutar el workflow **“Deploy via FTP”** con:
+     - `target = app` (para `public/`).
+     - `protocol = ftp` (o `ftps`).
+     - `serverDirApp = public_html/gestionmascotas/public/`.
+   - Revisar logs y validar en la URL pública correspondiente.
+
