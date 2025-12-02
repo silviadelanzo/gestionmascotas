@@ -1,6 +1,18 @@
 <?php
 require __DIR__ . '/includes/bootstrap.php';
 
+$envCfg = require __DIR__ . '/config/env.php';
+$baseUrl = rtrim((string)($envCfg['base_url'] ?? ''), '/');
+if ($baseUrl === '') {
+  $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+  $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+  $uriPath = parse_url($_SERVER['REQUEST_URI'] ?? '/public/verificar.php', PHP_URL_PATH);
+  $dir = trim(dirname($uriPath), '/');
+  $dir = $dir !== '' ? '/' . $dir : '';
+  $baseUrl = $scheme . '://' . $host . $dir;
+}
+$loginUrl = (parse_url($baseUrl, PHP_URL_SCHEME) !== null) ? ($baseUrl . '/login.php') : 'login.php';
+
 $token = $_GET['token'] ?? '';
 $message = '';
 $isSuccess = false;
@@ -12,7 +24,7 @@ if ($token === '') {
   try {
     $pdo = db();
 
-    $stmt = $pdo->prepare('SELECT user_id FROM email_verifications WHERE token = :token LIMIT 1');
+    $stmt = $pdo->prepare('SELECT user_id, expires_at, used_at FROM email_verifications_app WHERE token = :token LIMIT 1');
     $stmt->execute(['token' => $token]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -20,22 +32,30 @@ if ($token === '') {
       $message = 'Token inválido o expirado.';
     } else {
       $userId = (int)$row['user_id'];
+      $isExpired = !empty($row['expires_at']) && strtotime($row['expires_at']) < time();
 
-      $pdo->beginTransaction();
+      if (!empty($row['used_at'])) {
+        $message = 'Tu cuenta ya estaba verificada. Ahora puedes iniciar sesión.';
+        $isSuccess = true;
+      } elseif ($isExpired) {
+        $message = 'Token inválido o expirado.';
+      } else {
+        $pdo->beginTransaction();
 
-      $update = $pdo->prepare('UPDATE usuarios SET estado = :estado, email_verified_at = NOW() WHERE id = :id');
-      $update->execute([
-        'estado' => 'activo',
-        'id' => $userId,
-      ]);
+        $update = $pdo->prepare('UPDATE usuarios SET estado = :estado, email_verified_at = NOW() WHERE id = :id');
+        $update->execute([
+          'estado' => 'activo',
+          'id' => $userId,
+        ]);
 
-      $delete = $pdo->prepare('DELETE FROM email_verifications WHERE user_id = :id');
-      $delete->execute(['id' => $userId]);
+        $markUsed = $pdo->prepare('UPDATE email_verifications_app SET used_at = NOW(), expires_at = NOW() WHERE token = :token');
+        $markUsed->execute(['token' => $token]);
 
-      $pdo->commit();
+        $pdo->commit();
 
-      $isSuccess = true;
-      $message = '✅ Email verificado. Ya podés iniciar sesión.';
+        $isSuccess = true;
+        $message = 'Listo. Email verificado. Ya podés iniciar sesión.';
+      }
     }
   } catch (Throwable $e) {
     if ($pdo && $pdo->inTransaction()) {
@@ -97,11 +117,11 @@ require __DIR__ . '/includes/navbar.php';
 </style>
 <main class="verify-wrapper">
   <section class="verify-card">
-    <div class="status"><?= $isSuccess ? '🎉' : '⚠️' ?></div>
+    <div class="status"><?= $isSuccess ? '✅' : '⚠️' ?></div>
     <h1><?= $isSuccess ? '¡Listo!' : 'Ups...' ?></h1>
     <p><?= htmlspecialchars($message, ENT_QUOTES, 'UTF-8') ?></p>
     <?php if ($isSuccess): ?>
-      <a href="/public/login.php" class="btn">Ir a iniciar sesión</a>
+      <a href="<?= htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8') ?>" class="btn">Ir a iniciar sesión</a>
     <?php endif; ?>
   </section>
 </main>

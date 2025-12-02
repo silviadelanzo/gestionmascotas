@@ -1,15 +1,56 @@
 <?php
 require __DIR__ . '/includes/bootstrap.php';
-require_once __DIR__ . '/../config/db.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception as MailException;
+
+require_once __DIR__ . '/../lib/PHPMailer/PHPMailer.php';
+require_once __DIR__ . '/../lib/PHPMailer/SMTP.php';
+require_once __DIR__ . '/../lib/PHPMailer/Exception.php';
+
+$envCfg = require __DIR__ . '/config/env.php';
+$baseUrl = rtrim((string)($envCfg['base_url'] ?? ''), '/');
+if ($baseUrl === '') {
+  $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+  $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+  $uriPath = parse_url($_SERVER['REQUEST_URI'] ?? '/public/registro.php', PHP_URL_PATH);
+  $dir = trim(dirname($uriPath), '/');
+  $dir = $dir !== '' ? '/' . $dir : '';
+  $baseUrl = $scheme . '://' . $host . $dir;
+}
+$loginUrl = (parse_url($baseUrl, PHP_URL_SCHEME) !== null) ? ($baseUrl . '/login.php') : 'login.php';
 
 $errors = [];
 $successMessage = '';
 $shouldRedirect = false;
 
+function createMailerFromConfig(array $mailCfg): PHPMailer {
+  $mailer = new PHPMailer(true);
+  $mailer->isSMTP();
+  $mailer->Host = $mailCfg['host'];
+  $mailer->SMTPAuth = true;
+  $mailer->Username = $mailCfg['username'];
+  $mailer->Password = $mailCfg['password'];
+
+  $enc = strtolower((string)($mailCfg['encryption'] ?? 'tls'));
+  if ($enc === 'ssl' || ((int)($mailCfg['port'] ?? 0)) === 465) {
+    $mailer->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+    $mailer->Port = (int)($mailCfg['port'] ?? 465);
+  } else {
+    $mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+    $mailer->Port = (int)($mailCfg['port'] ?? 587);
+  }
+
+  $mailer->CharSet = 'UTF-8';
+  $mailer->setFrom($mailCfg['from_email'], $mailCfg['from_name']);
+  return $mailer;
+}
+
 $nombre = trim($_POST['nombre'] ?? '');
 $email = trim($_POST['email'] ?? '');
 $password = $_POST['password'] ?? '';
-$tipoUsuario = $_POST['tipo_usuario'] ?? 'dueño';
+$passwordConfirm = $_POST['password_confirm'] ?? '';
+$tipoUsuario = $_POST['tipo_usuario'] ?? 'dueno';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if ($nombre === '') {
@@ -28,7 +69,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors[] = 'La contraseña debe tener al menos 6 caracteres.';
   }
 
-  $allowedTypes = ['dueño', 'prestador'];
+  if ($passwordConfirm === '') {
+    $errors[] = 'Confirma la contraseña.';
+  } elseif ($password !== '' && $password !== $passwordConfirm) {
+    $errors[] = 'Las contraseñas no coinciden.';
+  }
+
+  $allowedTypes = ['dueno', 'prestador'];
   if ($tipoUsuario === '' || !in_array($tipoUsuario, $allowedTypes, true)) {
     $errors[] = 'Selecciona un tipo de usuario válido.';
   }
@@ -36,10 +83,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (empty($errors)) {
     try {
       $pdo = db();
+
+      // Verificar que no exista el usuario.
       $stmt = $pdo->prepare('SELECT id FROM usuarios WHERE email = :email LIMIT 1');
       $stmt->execute(['email' => $email]);
       if ($stmt->fetch()) {
         $errors[] = 'Ya existe una cuenta con ese email.';
+      } else {
+        // Si no está en suscripciones, lo agregamos.
+        try {
+          $subscriptionEmail = strtolower($email);
+          $subscriptionTipo = $tipoUsuario === 'prestador' ? 'prestador' : 'usuario';
+          $checkSubscription = $pdo->prepare('SELECT id FROM suscripciones WHERE email = :email LIMIT 1');
+          $checkSubscription->execute(['email' => $subscriptionEmail]);
+          if (!$checkSubscription->fetch()) {
+            $insertSubscription = $pdo->prepare(
+              'INSERT INTO suscripciones (nombre, email, tipo, autorizacion, fecha_alta)
+               VALUES (:nombre, :email, :tipo, 1, NOW())'
+            );
+            $insertSubscription->execute([
+              'nombre' => $nombre !== '' ? $nombre : null,
+              'email' => $subscriptionEmail,
+              'tipo' => $subscriptionTipo,
+            ]);
+          }
+        } catch (PDOException $subscriptionError) {
+          // No interrumpir el registro si hay un fallo en la tabla de suscripciones.
+        }
       }
     } catch (PDOException $e) {
       $errors[] = 'Ocurrió un error al validar el email. Intenta más tarde.';
@@ -51,48 +121,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if (!isset($pdo)) {
         $pdo = db();
       }
+      $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
       $stmt = $pdo->prepare(
-        'INSERT INTO usuarios (nombre, email, password, tipo_usuario, estado, creado_en)
-         VALUES (:nombre, :email, :password, :tipo_usuario, :estado, NOW())'
+        'INSERT INTO usuarios (nombre, email, password, rol, email_verified_at, estado, created_at, updated_at)
+         VALUES (:nombre, :email, :password, :rol, NULL, :estado, NOW(), NOW())'
       );
 
       $stmt->execute([
         'nombre' => $nombre,
         'email' => $email,
-        'password' => $password,
-        'tipo_usuario' => $tipoUsuario,
+        'password' => $hashedPassword,
+        'rol' => $tipoUsuario,
         'estado' => 'pendiente',
       ]);
 
       $newUserId = (int)$pdo->lastInsertId();
 
-      require_once __DIR__ . '/../lib/Mailer.php';
-
+      // Generar token de verificación y guardar
       $token = bin2hex(random_bytes(32));
-
-      $stmt = $pdo->prepare('INSERT INTO email_verifications (user_id, token) VALUES (:user_id, :token)');
-      $stmt->execute([
+      $exp = (new DateTimeImmutable('+2 days'))->format('Y-m-d H:i:s');
+      $stmtToken = $pdo->prepare(
+        'INSERT INTO email_verifications_app (user_id, token, expires_at) VALUES (:user_id, :token, :expires_at)'
+      );
+      $stmtToken->execute([
         'user_id' => $newUserId,
         'token' => $token,
+        'expires_at' => $exp,
       ]);
 
-      $verifyUrl = "https://mascotasymimos.com/public/verificar.php?token=$token";
+      // Enviar correo de verificación
+      try {
+        $mailCfg = require __DIR__ . '/../config/mail.php';
+        $mailer = createMailerFromConfig($mailCfg);
+        $mailer->addAddress($email, $nombre);
+        $mailer->isHTML(true);
+        $mailer->Subject = 'Verificación de cuenta - Mascotas y Mimos';
+        $verifyUrl = $baseUrl . '/verificar.php?token=' . urlencode($token);
+        $mailer->Body = '<p>Hola ' . htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8') . ',</p>'
+          . '<p>Gracias por registrarte. Haz clic en el siguiente enlace para activar tu cuenta:</p>'
+          . '<p><a href="' . $verifyUrl . '">' . $verifyUrl . '</a></p>'
+          . '<p>Si no te registraste, ignora este correo.</p>';
+        $mailer->AltBody = "Hola {$nombre},\n\n"
+          . "Gracias por registrarte. Activa tu cuenta aquí: {$verifyUrl}\n\n"
+          . "Si no te registraste, ignora este correo.";
+        $mailer->send();
+        $successMessage = 'Te enviamos un correo para verificar tu cuenta. Revisa tu bandeja.';
+      } catch (MailException $mailError) {
+        $successMessage = 'Tu cuenta fue creada. No pudimos enviar el correo de verificación, pero puedes volver a solicitarlo más tarde.';
+      }
 
-      $mail = new Mailer();
-      $mail->send(
-        $email,
-        'Verificación de Cuenta',
-        "<p>Hola,</p>
-    <p>Gracias por registrarte. Haz clic en el siguiente enlace para activar tu cuenta:</p>
-    <p><a href='$verifyUrl'>$verifyUrl</a></p>"
-      );
-
-      $successMessage = 'Tu cuenta fue creada. Te redirigiremos al inicio de sesión.';
       $shouldRedirect = true;
       $nombre = '';
       $email = '';
       $password = '';
-      $tipoUsuario = 'dueño';
+      $tipoUsuario = 'dueno';
     } catch (PDOException $e) {
       $errors[] = 'No pudimos crear tu cuenta. Intenta nuevamente.';
     }
@@ -100,11 +182,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if ($successMessage && $shouldRedirect) {
-  header('Refresh: 2; URL=/public/login.php');
+  header('Refresh: 3; URL=' . $loginUrl);
 }
 
 require __DIR__ . '/includes/header.php';
-require __DIR__ . '/includes/navbar.php';
 ?>
 <style>
   body {
@@ -172,6 +253,21 @@ require __DIR__ . '/includes/navbar.php';
     font-size: 1rem;
     background: #f8fafc;
     transition: border 0.2s ease, box-shadow 0.2s ease;
+  }
+  .password-group {
+    position: relative;
+  }
+  .password-group .password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0;
   }
   .auth-form input:focus,
   .auth-form select:focus {
@@ -262,18 +358,38 @@ require __DIR__ . '/includes/navbar.php';
 
       <label class="field" for="password">
         <span>Contraseña</span>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          required
-        >
+        <div class="password-group">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+          >
+          <button type="button" class="password-toggle" data-target="password" aria-label="Mostrar contraseña">
+            <span aria-hidden="true">👁</span>
+          </button>
+        </div>
+      </label>
+
+      <label class="field" for="password_confirm">
+        <span>Confirmar contraseña</span>
+        <div class="password-group">
+          <input
+            type="password"
+            id="password_confirm"
+            name="password_confirm"
+            required
+          >
+          <button type="button" class="password-toggle" data-target="password_confirm" aria-label="Mostrar contraseña confirmada">
+            <span aria-hidden="true">👁</span>
+          </button>
+        </div>
       </label>
 
       <label class="field" for="tipo_usuario">
         <span>Tipo de usuario</span>
         <select id="tipo_usuario" name="tipo_usuario" required>
-          <option value="dueño" <?= $tipoUsuario === 'dueño' ? 'selected' : '' ?>>Dueño</option>
+          <option value="dueno" <?= $tipoUsuario === 'dueno' ? 'selected' : '' ?>>Dueño</option>
           <option value="prestador" <?= $tipoUsuario === 'prestador' ? 'selected' : '' ?>>Prestador</option>
         </select>
       </label>
@@ -285,5 +401,23 @@ require __DIR__ . '/includes/navbar.php';
       ¿Ya tienes cuenta? <a href="/public/login.php">Inicia sesión</a>
     </div>
   </section>
-</main>
+  </main>
+  <script>
+    (function () {
+      const buttons = document.querySelectorAll('.password-toggle');
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-target');
+          const field = document.getElementById(targetId);
+          if (!field) return;
+          const isPassword = field.type === 'password';
+          field.type = isPassword ? 'text' : 'password';
+          btn.setAttribute('aria-label', isPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
+        });
+      });
+    })();
+  </script>
 <?php require __DIR__ . '/includes/footer.php'; ?>
+$envCfg = require __DIR__ . '/config/env.php';
+$baseUrl = rtrim((string)($envCfg['base_url'] ?? ''), '/');
+$baseUrl = $baseUrl !== '' ? $baseUrl : 'http://localhost/public';

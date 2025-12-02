@@ -10,5 +10,6 @@ require __DIR__ . '/includes/navbar.php';
     <label>Contraseña <input type="password" name="password" required></label><br>
     <button type="submit">Entrar</button>
   </form>
+  <p><a href="/public/olvide_password.php">¿Olvidaste tu contraseña?</a></p>
 </main>
 <?php require __DIR__ . '/includes/footer.php'; ?>

@@ -64,12 +64,12 @@ $ogImage = $siteUrl . 'assets/logo/logo.png';
               Gratis para dueños. Planes Free, Pro y Premium para veterinarias y prestadores que quieren estar donde están sus clientes.
             </p>
             <div class="flex flex-col sm:flex-row gap-3 items-center md:items-start justify-center md:justify-start mt-2">
-              <a href="#registro-duenos" class="min-h-[44px] inline-flex items-center justify-center rounded-lg bg-[#A97155] text-white px-5 py-3 hover:bg-[#8d5f47] w-full sm:w-auto">
+              <button type="button" data-register-role="dueno" class="min-h-[44px] inline-flex items-center justify-center rounded-lg bg-[#A97155] text-white px-5 py-3 hover:bg-[#8d5f47] w-full sm:w-auto">
                 Soy dueño/a de mascotas
-              </a>
-              <a href="#registro-prestadores" class="min-h-[44px] inline-flex items-center justify-center rounded-lg bg-white text-[#A97155] border border-[#A97155]/30 px-5 py-3 hover:bg-[#fff2ea] w-full sm:w-auto">
+              </button>
+              <button type="button" data-register-role="prestador" class="min-h-[44px] inline-flex items-center justify-center rounded-lg bg-white text-[#A97155] border border-[#A97155]/30 px-5 py-3 hover:bg-[#fff2ea] w-full sm:w-auto">
                 Soy veterinario/a o prestador
-              </a>
+              </button>
             </div>
           </div>
           <div>
@@ -118,9 +118,9 @@ $ogImage = $siteUrl . 'assets/logo/logo.png';
         </article>
       </div>
       <div id="registro-duenos" class="mt-6 text-center">
-        <a href="#" class="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-[#A97155] text-white px-6 py-3 hover:bg-[#8d5f47]">
+        <button type="button" data-register-role="dueno" class="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-[#A97155] text-white px-6 py-3 hover:bg-[#8d5f47]">
           Crear cuenta gratuita de dueño
-        </a>
+        </button>
         <p class="mt-2 text-xs md:text-sm opacity-80">En la versión inicial, el registro se enfocará en dueños de Argentina.</p>
       </div>
     </section>
@@ -166,9 +166,9 @@ $ogImage = $siteUrl . 'assets/logo/logo.png';
         </article>
       </div>
       <div id="registro-prestadores" class="mt-6 text-center">
-        <a href="#" class="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-white text-[#A97155] border border-[#A97155]/40 px-6 py-3 hover:bg-[#fff2ea]">
-          Quiero aparecer como prestador
-        </a>
+        <button type="button" data-register-role="prestador" class="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-[#A97155] text-white px-6 py-3 hover:bg-[#8d5f47]">
+          Crear cuenta gratuita de prestador
+        </button>
       </div>
     </section>
 
@@ -196,6 +196,188 @@ $ogImage = $siteUrl . 'assets/logo/logo.png';
       </p>
     </section>
   </main>
+
+  <div id="registro-modal" class="fixed inset-0 z-50 hidden" aria-hidden="true">
+    <div class="flex min-h-screen items-center justify-center px-4 py-6">
+      <div class="absolute inset-0 bg-black/50 backdrop-blur-sm z-0" data-modal-close></div>
+      <div class="relative z-10 w-full max-w-xl rounded-3xl bg-white px-5 py-6 shadow-2xl md:px-8 md:py-8">
+        <button type="button" data-modal-close class="absolute top-4 right-4 rounded-full bg-white/70 p-2 text-sm font-semibold text-[#5A3E36] transition hover:bg-white">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Cerrar formulario</span>
+        </button>
+        <div class="space-y-2">
+          <p class="text-xs uppercase tracking-[0.3em] text-[#A97155]">Mascotas y Mimos</p>
+          <h3 class="text-[clamp(1.4rem,4vw,1.8rem)] font-semibold text-[#5A3E36]" data-modal-title>Crear cuenta gratuita</h3>
+          <p class="text-sm md:text-base text-[#5A3E36]/80" data-modal-subtitle>
+            Completa tus datos, confirmá el email y comenzá a cuidar tus mascotas o mostrar tus servicios.
+          </p>
+        </div>
+        <form id="registro-modal-form" method="post" action="registro.php" class="mt-5 space-y-4">
+          <input type="hidden" name="tipo_usuario" id="registro-modal-role" value="dueño" />
+          <div class="space-y-1 text-sm">
+            <label for="registro-nombre" class="font-semibold text-[#5A3E36]">Nombre completo</label>
+            <input id="registro-nombre" name="nombre" type="text" required autocomplete="name" class="w-full rounded-2xl border border-[#5A3E36]/20 bg-[#fffaf5] px-4 py-3 text-sm text-[#5A3E36] focus:border-[#A97155] focus:ring-2 focus:ring-[#A97155]/30" placeholder="Como figura en tu DNI o cuenta" />
+          </div>
+          <div class="space-y-1 text-sm">
+            <label for="registro-email" class="font-semibold text-[#5A3E36]">Email</label>
+            <input id="registro-email" name="email" type="email" required autocomplete="email" class="w-full rounded-2xl border border-[#5A3E36]/20 bg-[#fffaf5] px-4 py-3 text-sm text-[#5A3E36] focus:border-[#A97155] focus:ring-2 focus:ring-[#A97155]/30" placeholder="nombre@dominio.com" />
+            <p class="text-xs text-[#5A3E36]/70">Te enviaremos un link para confirmar la cuenta.</p>
+          </div>
+          <div class="space-y-1 text-sm">
+            <label for="registro-password" class="font-semibold text-[#5A3E36]">Contraseña</label>
+            <div class="password-group">
+              <input id="registro-password" name="password" type="password" required autocomplete="new-password" minlength="6" class="w-full rounded-2xl border border-[#5A3E36]/20 bg-[#fffaf5] px-4 py-3 text-sm text-[#5A3E36] focus:border-[#A97155] focus:ring-2 focus:ring-[#A97155]/30" placeholder="Mínimo 6 caracteres" />
+              <button type="button" class="password-toggle" data-target="registro-password" aria-label="Mostrar contraseña">
+                <span aria-hidden="true">👁</span>
+              </button>
+            </div>
+            <p class="text-xs text-[#5A3E36]/70">Usá al menos 6 caracteres y combinaciones seguras.</p>
+          </div>
+          <div class="space-y-1 text-sm">
+            <label for="registro-password-confirm" class="font-semibold text-[#5A3E36]">Confirmar contraseña</label>
+            <div class="password-group">
+              <input id="registro-password-confirm" name="password_confirm" type="password" required autocomplete="new-password" class="w-full rounded-2xl border border-[#5A3E36]/20 bg-[#fffaf5] px-4 py-3 text-sm text-[#5A3E36] focus:border-[#A97155] focus:ring-2 focus:ring-[#A97155]/30" placeholder="Repite la contraseña" />
+              <button type="button" class="password-toggle" data-target="registro-password-confirm" aria-label="Mostrar contraseña confirmada">
+                <span aria-hidden="true">👁</span>
+              </button>
+            </div>
+          </div>
+          <div id="registro-modal-feedback" class="hidden rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert"></div>
+          <button type="submit" class="w-full rounded-2xl bg-gradient-to-r from-[#A97155] to-[#F27D4F] px-4 py-3 text-base font-semibold uppercase tracking-[0.1em] text-white shadow-lg transition hover:from-[#8d5f47] hover:to-[#b55b32]">Crear cuenta</button>
+          <p class="text-xs text-center text-[#5A3E36]/70">
+            Al registrarte aceptás nuestras políticas y recibirás novedades por email. Podés darte de baja cuando quieras.
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    #registro-modal .password-group {
+      position: relative;
+    }
+    #registro-modal .password-group .password-toggle {
+      position: absolute;
+      top: 50%;
+      right: 0.5rem;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      color: #5A3E36;
+      padding: 0;
+    }
+  </style>
+
+  <script>
+    (function () {
+      const modal = document.getElementById('registro-modal');
+      if (!modal) return;
+      const form = document.getElementById('registro-modal-form');
+      const roleInput = document.getElementById('registro-modal-role');
+      const titleEl = modal.querySelector('[data-modal-title]');
+      const subtitleEl = modal.querySelector('[data-modal-subtitle]');
+      const feedback = document.getElementById('registro-modal-feedback');
+      const password = document.getElementById('registro-password');
+      const passwordConfirm = document.getElementById('registro-password-confirm');
+      const triggers = document.querySelectorAll('[data-register-role]');
+      const copy = {
+        dueño: {
+          title: 'Crear cuenta gratuita de dueño/a',
+          subtitle: 'Registrate para guardar tus mascotas, historiales y recordatorios en una sola cuenta familiar.'
+        },
+        prestador: {
+          title: 'Crear cuenta gratuita de prestador/a',
+          subtitle: 'Armá tu ficha profesional, cargá servicios y empezá a recibir consultas de dueños que usan la agenda.'
+        }
+      };
+
+      const togglePasswordVisibility = (button) => {
+        const targetId = button.getAttribute('data-target');
+        const field = document.getElementById(targetId);
+        if (!field) return;
+        const isPassword = field.type === 'password';
+        field.type = isPassword ? 'text' : 'password';
+        button.setAttribute('aria-label', isPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
+      };
+
+      modal.querySelectorAll('.password-toggle').forEach((button) => {
+        button.addEventListener('click', () => togglePasswordVisibility(button));
+      });
+
+      const showFeedback = (message) => {
+        if (!feedback) return;
+        feedback.textContent = message;
+        feedback.classList.remove('hidden');
+      };
+
+      const hideFeedback = () => {
+        if (!feedback) return;
+        feedback.textContent = '';
+        feedback.classList.add('hidden');
+      };
+
+      const openModal = (role = 'dueño') => {
+        const copyData = copy[role] || copy['dueño'];
+        if (titleEl) titleEl.textContent = copyData.title;
+        if (subtitleEl) subtitleEl.textContent = copyData.subtitle;
+        if (form) form.reset();
+        if (roleInput) roleInput.value = role;
+        hideFeedback();
+        modal.classList.remove('hidden');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('overflow-hidden');
+      };
+
+      const closeModal = () => {
+        modal.classList.add('hidden');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('overflow-hidden');
+      };
+
+      triggers.forEach((btn) => {
+        btn.addEventListener('click', (event) => {
+          event.preventDefault();
+          const role = (btn.getAttribute('data-register-role') || 'dueño').toLowerCase();
+          openModal(role === 'prestador' ? 'prestador' : 'dueño');
+        });
+      });
+
+      modal.querySelectorAll('[data-modal-close]').forEach((btn) => {
+        btn.addEventListener('click', closeModal);
+      });
+
+      modal.addEventListener('click', (event) => {
+        if (event.target === modal) {
+          closeModal();
+        }
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+          closeModal();
+        }
+      });
+
+      if (form) {
+        form.addEventListener('submit', (event) => {
+          hideFeedback();
+          if (password && password.value.length < 6) {
+            event.preventDefault();
+            showFeedback('La contraseña debe tener al menos 6 caracteres.');
+            password.focus();
+            return;
+          }
+          if (password && passwordConfirm && password.value !== passwordConfirm.value) {
+            event.preventDefault();
+            showFeedback('Las contraseñas deben coincidir.');
+            passwordConfirm.focus();
+          }
+        });
+      }
+    })();
+  </script>
 
   <footer class="py-6 text-center text-xs md:text-sm opacity-80">
     © <?php echo date('Y'); ?> Mascotas y Mimos · Esta es una versión de prueba de la nueva home (index_v2.php) en entorno local.
