@@ -67,7 +67,7 @@ Alcance: estado actual, como correr localmente, deploy y pendientes inmediatos.
 - Home v2 (`public/index_v2.php`):
   - Eliminado el modal de registro duplicado; todos los CTAs (hero, bloque duenos, bloque prestadores) son enlaces directos a `registro.php?role=...`.
   - Se mantiene script ligero que redirige por `data-register-role` para degradar con JS, pero sin formularios embebidos.
-- Limpieza: se eliminaron variantes obsoletas `public/index_v2_1.php` y `public/guardar_suscripcion_R.php` para evitar confusion.
+- Se conserva la variante `public/index_v2_1.php` (landing extendida) ademas de `public/index_v2.php`.
 - Mapas: tres demos con Leaflet y datos hardcodeados para validar UX.
 
 ## 7) Roadmap corto
