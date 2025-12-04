@@ -1,5 +1,5 @@
 # Mascotas y Mimos — README operativo
-Version: 2025-11-26  
+Version: 2025-12-04  
 Alcance: estado actual, como correr localmente, deploy y pendientes inmediatos.
 
 ## 1) Vision rapida
@@ -11,7 +11,7 @@ Alcance: estado actual, como correr localmente, deploy y pendientes inmediatos.
 - Requisitos: PHP 8+, MySQL, extensiones PDO MySQL habilitadas; servidor local tipo XAMPP.
 - Config:
   - Copiar/crear `public/config/db.php` y `public/config/mail.php` con credenciales locales (no se versionan).
-  - `public/config/env.php` define `base_url` opcional; si falta, se infiere de la request.
+  - `public/config/env.php` deja `base_url` vacio por defecto; `app_base_url()` autodetecta host/carpeta y evita links a `localhost` en produccion.
 - Rutas de prueba:
   - Home actual: `http://localhost/gestionmascotas/public/index.php`
   - Home nueva (prueba): `http://localhost/gestionmascotas/public/index_v2.php`
@@ -51,14 +51,14 @@ Alcance: estado actual, como correr localmente, deploy y pendientes inmediatos.
   - Pendientes: usa columnas no documentadas (`email_verified_at`, `estado`), no guarda telefono/provincia/localidad ni crea fila en `prestadores` cuando el rol es prestador. Definir esquema y tabla de verificaciones o ajustar codigo.
 - Login (`public/login.php`):
   - Rediseño completo con fondo difuso, tarjeta, toggle de contrasena; envia a `/api/login.php`.
-  - Calcula `baseUrl` para entornos en subcarpetas y no usa navbar.
+  - Usa `app_base_url()` para redirecciones/links sin depender de `localhost`, funciona en subcarpetas o dominio final.
 - Launchpads tras login:
   - `public/api/login.php`: valida usuario/rol (dueno, prestador, admin) y redirige a `launchpad_dueno.php` o `launchpad_prestador.php`.
   - `public/launchpad_dueno.php`: tarjeta + modal con accesos rápidos (mis mascotas, agregar mascota, recordatorios, documentos, contactos, mapa prestadores).
   - `public/launchpad_prestador.php`: tarjeta + modal con accesos (ficha, fotos, publicar servicios, reservas, recetas PDF, estadísticas).
 - Verificacion (`public/verificar.php`):
   - Pagina autonoma sin navbar, mismo estilo que login/registro.
-  - Usa `baseUrl` para el boton de retorno a login; marca tokens en `email_verifications_app` y setea `estado`/`email_verified_at` en `usuarios` (mismas columnas pendientes de documentar).
+  - Usa `app_base_url()` para enlaces de verificacion/login sin romper en produccion; marca tokens en `email_verifications_app` y setea `estado`/`email_verified_at` en `usuarios` (mismas columnas pendientes de documentar).
 - Recupero de contrasena:
   - Solicitud: `public/olvide_password.php` (formulario) -> `public/api/password_forgot.php` genera token y envia email con enlace.
   - Token y expiracion en tabla `password_resets_app` (se crea si falta).
@@ -67,6 +67,7 @@ Alcance: estado actual, como correr localmente, deploy y pendientes inmediatos.
 - Home v2 (`public/index_v2.php`):
   - Eliminado el modal de registro duplicado; todos los CTAs (hero, bloque duenos, bloque prestadores) son enlaces directos a `registro.php?role=...`.
   - Se mantiene script ligero que redirige por `data-register-role` para degradar con JS, pero sin formularios embebidos.
+- Limpieza: se eliminaron variantes obsoletas `public/index_v2_1.php` y `public/guardar_suscripcion_R.php` para evitar confusion.
 - Mapas: tres demos con Leaflet y datos hardcodeados para validar UX.
 
 ## 7) Roadmap corto
