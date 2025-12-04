@@ -8,16 +8,7 @@ require_once __DIR__ . '/../lib/PHPMailer/PHPMailer.php';
 require_once __DIR__ . '/../lib/PHPMailer/SMTP.php';
 require_once __DIR__ . '/../lib/PHPMailer/Exception.php';
 
-$envCfg = require __DIR__ . '/config/env.php';
-$baseUrl = rtrim((string)($envCfg['base_url'] ?? ''), '/');
-if ($baseUrl === '') {
-  $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-  $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-  $uriPath = parse_url($_SERVER['REQUEST_URI'] ?? '/public/registro.php', PHP_URL_PATH);
-  $dir = trim(dirname($uriPath), '/');
-  $dir = $dir !== '' ? '/' . $dir : '';
-  $baseUrl = $scheme . '://' . $host . $dir;
-}
+$baseUrl = app_base_url();
 $loginUrl = (parse_url($baseUrl, PHP_URL_SCHEME) !== null) ? ($baseUrl . '/login.php') : 'login.php';
 
 $errors = [];
@@ -419,7 +410,7 @@ if ($successMessage && $shouldRedirect) {
       </form>
 
       <div class="login-link">
-        ¿Ya tienes cuenta? <a href="/public/login.php">Inicia sesion</a>
+        ¿Ya tienes cuenta? <a href="<?= htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8') ?>">Inicia sesion</a>
       </div>
     </section>
   </main>

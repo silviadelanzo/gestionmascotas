@@ -6,17 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   exit('Metodo no permitido');
 }
 
-$envCfg = require __DIR__ . '/../config/env.php';
-$baseUrl = rtrim((string)($envCfg['base_url'] ?? ''), '/');
-if ($baseUrl === '') {
-  $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-  $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-  $uriPath = parse_url($_SERVER['REQUEST_URI'] ?? '/public/api/login.php', PHP_URL_PATH);
-  $dir = trim(dirname($uriPath), '/');
-  $dir = $dir !== '' ? '/' . $dir : '';
-  $baseUrl = $scheme . '://' . $host . $dir;
-  $baseUrl = preg_replace('~/api$~', '', $baseUrl);
-}
+$baseUrl = app_base_url();
 
 $email = strtolower(trim($_POST['email'] ?? ''));
 $pass  = $_POST['password'] ?? '';
