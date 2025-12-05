@@ -340,7 +340,7 @@ if ($successMessage && $shouldRedirect) {
 <body>
   <?php if ($useVideoBg): ?>
     <div class="video-bg">
-      <video src="assets/videos/dueñoingresaando.mp4" autoplay loop muted playsinline poster="assets/img/hero.webp"></video>
+      <video src="assets/videos/dueno_ingresando.mp4" autoplay loop muted playsinline poster="assets/img/hero.webp"></video>
     </div>
     <div class="overlay"></div>
   <?php endif; ?>
