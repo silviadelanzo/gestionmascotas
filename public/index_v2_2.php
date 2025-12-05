@@ -121,7 +121,7 @@ $loginUrl = $baseUrl . '/login.php';
   <main class="text-white">
     <!-- Hero -->
     <section class="section pt-10 md:pt-16">
-      <div class="max-w-6xl mx-auto grid gap-8 md:grid-cols-[1.1fr,0.9fr] items-center">
+      <div class="max-w-3xl mx-auto">
         <div class="glass rounded-3xl p-6 md:p-8 shadow-2xl text-center">
           <h1 class="text-3xl md:text-4xl font-bold leading-tight mb-3">
             Un solo lugar para dueños y prestadores de mascotas.
@@ -138,7 +138,6 @@ $loginUrl = $baseUrl . '/login.php';
             <?php endif; ?>
           </div>
         </div>
-        <!-- Se remueve accesos rápidos para evitar confusión sin login -->
       </div>
     </section>
 
