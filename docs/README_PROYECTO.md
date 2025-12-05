@@ -4,7 +4,7 @@ Alcance: estado actual, como correr localmente, deploy y pendientes inmediatos.
 
 ## 1) Vision rapida
 - Que resuelve: agenda digital para familias con mascotas; prestadores ganan visibilidad en listados y recetas PDF futuras.
-- Estado: landing actual (`public/index.php`), home extendida de prueba (`public/index_v2_1.php`), mapas demo con Leaflet (`public/mapa_prestadores*.php`), suscripcion por correo con PHPMailer sin Composer, registro/login basico en `public/registro.php` y `public/login.php`.
+- Estado: landing actual (`public/index.php`), home extendida de prueba (`public/index_v2_1.php`), nueva variante con video de fondo (`public/index_c2_2.php`), mapas demo con Leaflet (`public/mapa_prestadores*.php`), suscripcion por correo con PHPMailer sin Composer, registro/login basico en `public/registro.php` y `public/login.php`.
 - Proximo hito: maquetar `public/index_responsive.php` (mobile-first) y alinear registro con el esquema real de BD.
 
 ## 2) Uso local rapido
@@ -15,6 +15,7 @@ Alcance: estado actual, como correr localmente, deploy y pendientes inmediatos.
 - Rutas de prueba:
   - Home actual: `http://localhost/gestionmascotas/public/index.php`
   - Home nueva (prueba): `http://localhost/gestionmascotas/public/index_v2_1.php`
+  - Home con video de fondo: `http://localhost/gestionmascotas/public/index_c2_2.php`
   - Registro: `http://localhost/gestionmascotas/public/registro.php`
   - Login: `http://localhost/gestionmascotas/public/login.php`
   - Suscripcion: `http://localhost/gestionmascotas/public/guardar_suscripcion.php`
