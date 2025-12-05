@@ -113,7 +113,7 @@ $loginUrl = $baseUrl . '/login.php';
       </nav>
       <div class="flex items-center gap-2">
         <a class="pill btn-secondary" href="<?= htmlspecialchars($isLogged ? $launchUrl : $loginUrl, ENT_QUOTES, 'UTF-8') ?>">Launchpad</a>
-        <a class="pill btn-primary" href="<?= htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8') ?>">Ingresar a mi cuenta</a>
+
       </div>
     </div>
   </header>
@@ -122,15 +122,15 @@ $loginUrl = $baseUrl . '/login.php';
     <!-- Hero -->
     <section class="section pt-10 md:pt-16">
       <div class="max-w-6xl mx-auto grid gap-8 md:grid-cols-[1.1fr,0.9fr] items-center">
-        <div class="glass rounded-3xl p-6 md:p-8 shadow-2xl text-center md:text-left">
+        <div class="glass rounded-3xl p-6 md:p-8 shadow-2xl text-center">
           <h1 class="text-3xl md:text-4xl font-bold leading-tight mb-3">
             Un solo lugar para dueños y prestadores de mascotas.
           </h1>
           <p class="text-white/80 text-base md:text-lg mb-6">
             Gratis para dueños (agenda y recordatorios). Planes escalables para veterinarias y prestadores que quieren visibilidad y organización.
           </p>
-          <div class="flex flex-wrap gap-3 justify-center md:justify-start">
-            <a class="pill btn-primary" href="<?= htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8') ?>">👤 Ingresar a mi cuenta</a>
+          <div class="flex flex-wrap gap-3 justify-center">
+
             <a class="pill btn-brown" href="<?= htmlspecialchars($registroDueno, ENT_QUOTES, 'UTF-8') ?>">Crear cuenta dueño/a</a>
             <a class="pill btn-brown" href="<?= htmlspecialchars($registroPrestador, ENT_QUOTES, 'UTF-8') ?>">Crear cuenta prestador/a</a>
             <?php if ($isLogged): ?>
@@ -146,12 +146,11 @@ $loginUrl = $baseUrl . '/login.php';
     <section id="duenos" class="section">
       <div class="max-w-6xl mx-auto glass rounded-3xl p-6 md:p-8">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
-          <div>
+          <div class="w-full text-center md:text-left">
             <p class="badge mb-2">Para dueños</p>
             <h2 class="text-2xl md:text-3xl font-bold">Agenda y tranquilidad para tus mascotas</h2>
             <p class="text-white/75 mt-2">Recordatorios, documentos y contactos en un solo lugar.</p>
           </div>
-          <a class="pill btn-primary" href="<?= htmlspecialchars($registroDueno, ENT_QUOTES, 'UTF-8') ?>">Crear cuenta de dueño</a>
         </div>
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <?php
@@ -175,12 +174,11 @@ $loginUrl = $baseUrl . '/login.php';
     <section id="prestadores" class="section">
       <div class="max-w-6xl mx-auto glass rounded-3xl p-6 md:p-8">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
-          <div>
+          <div class="w-full text-center md:text-left">
             <p class="badge mb-2">Para prestadores</p>
             <h2 class="text-2xl md:text-3xl font-bold">Visibilidad y organización en el mismo lugar</h2>
             <p class="text-white/75 mt-2">Tu ficha, servicios y reservas listos para dueños que ya usan la agenda.</p>
           </div>
-          <a class="pill btn-secondary" href="<?= htmlspecialchars($registroPrestador, ENT_QUOTES, 'UTF-8') ?>">Crear cuenta de prestador</a>
         </div>
         <div class="grid gap-4 md:grid-cols-3">
           <?php
