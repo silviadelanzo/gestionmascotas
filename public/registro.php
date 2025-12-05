@@ -40,6 +40,7 @@ function createMailerFromConfig(array $mailCfg): PHPMailer {
 // Preseleccionar rol desde GET (?role=dueno|prestador) o POST
 $defaultRole = $_GET['role'] ?? ($_POST['tipo_usuario'] ?? 'dueno');
 $tipoUsuario = in_array($defaultRole, ['dueno', 'prestador'], true) ? $defaultRole : 'dueno';
+$useVideoBg = ($tipoUsuario === 'dueno');
 
 $nombre = trim($_POST['nombre'] ?? '');
 $email = trim($_POST['email'] ?? '');
@@ -185,6 +186,26 @@ if ($successMessage && $shouldRedirect) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    <?php if ($useVideoBg): ?>
+    .video-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      overflow: hidden;
+    }
+    .video-bg video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.75);
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(15, 12, 12, 0.45), rgba(15, 12, 12, 0.35));
+      z-index: -1;
+    }
+    <?php endif; ?>
     :root {
       --brand: #A97155;
       --brand-dark: #8d5f47;
@@ -202,6 +223,7 @@ if ($successMessage && $shouldRedirect) {
       position: relative;
       overflow: hidden;
     }
+    <?php if (!$useVideoBg): ?>
     body::before {
       content: '';
       position: absolute;
@@ -211,6 +233,7 @@ if ($successMessage && $shouldRedirect) {
       opacity: 0.3;
       z-index: 0;
     }
+    <?php endif; ?>
     main {
       position: relative;
       z-index: 1;
@@ -315,6 +338,12 @@ if ($successMessage && $shouldRedirect) {
   </style>
 </head>
 <body>
+  <?php if ($useVideoBg): ?>
+    <div class="video-bg">
+      <video src="assets/videos/dueñoingresaando.mp4" autoplay loop muted playsinline poster="assets/img/hero.webp"></video>
+    </div>
+    <div class="overlay"></div>
+  <?php endif; ?>
   <main>
     <section class="auth-card" aria-labelledby="register-title">
       <h1 id="register-title">Crear cuenta</h1>
