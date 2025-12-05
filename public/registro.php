@@ -40,10 +40,8 @@ function createMailerFromConfig(array $mailCfg): PHPMailer {
 
 // Preseleccionar rol desde GET (?role=dueno|prestador) o POST
 $defaultRole = $_GET['role'] ?? ($_POST['tipo_usuario'] ?? 'dueno');
+$roleLocked = isset($_GET['role']) && in_array($_GET['role'], ['dueno', 'prestador'], true);
 $tipoUsuario = in_array($defaultRole, ['dueno', 'prestador'], true) ? $defaultRole : 'dueno';
-$switchRoleUrl = $tipoUsuario === 'dueno'
-  ? $baseUrl . '/registro.php?role=prestador'
-  : $baseUrl . '/registro.php?role=dueno';
 $videoBg = null;
 if ($tipoUsuario === 'dueno') {
   $videoBg = 'assets/videos/dueno_ingresando.mp4';
@@ -355,12 +353,6 @@ if ($successMessage && $shouldRedirect) {
   <?php endif; ?>
   <main>
     <section class="auth-card" aria-labelledby="register-title">
-      <div style="display:flex; gap:0.6rem; margin-bottom:1rem; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-        <a href="<?= htmlspecialchars($homeUrl, ENT_QUOTES, 'UTF-8') ?>" class="pill-link" style="padding:0.65rem 0.95rem; border-radius:999px; background:#f3e5dd; color:#4a332b; text-decoration:none; font-weight:600; border:1px solid rgba(0,0,0,0.05);">← Volver al home</a>
-        <a href="<?= htmlspecialchars($switchRoleUrl, ENT_QUOTES, 'UTF-8') ?>" class="pill-link" style="padding:0.65rem 0.95rem; border-radius:999px; background:#A97155; color:#fff; text-decoration:none; font-weight:700; border:1px solid rgba(255,255,255,0.12);">
-          Cambiar a rol <?= $tipoUsuario === 'dueno' ? 'prestador' : 'dueño' ?>
-        </a>
-      </div>
       <h1 id="register-title">Crear cuenta</h1>
       <p>Guardalo todo en una sola cuenta. Gratis para duenos y prestadores.</p>
 
@@ -444,10 +436,17 @@ if ($successMessage && $shouldRedirect) {
 
         <div class="form-field">
           <label for="tipo_usuario">Tipo de usuario</label>
-          <select id="tipo_usuario" name="tipo_usuario" class="form-control" required>
-            <option value="dueno" <?= $tipoUsuario === 'dueno' ? 'selected' : '' ?>>Dueno</option>
-            <option value="prestador" <?= $tipoUsuario === 'prestador' ? 'selected' : '' ?>>Prestador</option>
-          </select>
+          <?php if ($roleLocked): ?>
+            <select id="tipo_usuario" name="tipo_usuario" class="form-control" required disabled>
+              <option value="<?= htmlspecialchars($tipoUsuario, ENT_QUOTES, 'UTF-8') ?>" selected><?= $tipoUsuario === 'dueno' ? 'Dueno' : 'Prestador' ?></option>
+            </select>
+            <input type="hidden" name="tipo_usuario" value="<?= htmlspecialchars($tipoUsuario, ENT_QUOTES, 'UTF-8') ?>">
+          <?php else: ?>
+            <select id="tipo_usuario" name="tipo_usuario" class="form-control" required>
+              <option value="dueno" <?= $tipoUsuario === 'dueno' ? 'selected' : '' ?>>Dueno</option>
+              <option value="prestador" <?= $tipoUsuario === 'prestador' ? 'selected' : '' ?>>Prestador</option>
+            </select>
+          <?php endif; ?>
         </div>
 
         <button type="submit" class="cta-button">Crear cuenta</button>
@@ -455,6 +454,9 @@ if ($successMessage && $shouldRedirect) {
 
       <div class="login-link">
         ¿Ya tienes cuenta? <a href="<?= htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8') ?>">Inicia sesion</a>
+      </div>
+      <div class="login-link" style="margin-top:0.5rem;">
+        <a href="<?= htmlspecialchars($homeUrl, ENT_QUOTES, 'UTF-8') ?>">← Volver al home</a>
       </div>
     </section>
   </main>
