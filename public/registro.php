@@ -40,7 +40,12 @@ function createMailerFromConfig(array $mailCfg): PHPMailer {
 // Preseleccionar rol desde GET (?role=dueno|prestador) o POST
 $defaultRole = $_GET['role'] ?? ($_POST['tipo_usuario'] ?? 'dueno');
 $tipoUsuario = in_array($defaultRole, ['dueno', 'prestador'], true) ? $defaultRole : 'dueno';
-$useVideoBg = ($tipoUsuario === 'dueno');
+$videoBg = null;
+if ($tipoUsuario === 'dueno') {
+  $videoBg = 'assets/videos/dueno_ingresando.mp4';
+} elseif ($tipoUsuario === 'prestador') {
+  $videoBg = 'assets/videos/RegistroPrestador.mp4';
+}
 
 $nombre = trim($_POST['nombre'] ?? '');
 $email = trim($_POST['email'] ?? '');
@@ -186,7 +191,7 @@ if ($successMessage && $shouldRedirect) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    <?php if ($useVideoBg): ?>
+    <?php if ($videoBg): ?>
     .video-bg {
       position: fixed;
       inset: 0;
@@ -223,7 +228,7 @@ if ($successMessage && $shouldRedirect) {
       position: relative;
       overflow: hidden;
     }
-    <?php if (!$useVideoBg): ?>
+    <?php if (!$videoBg): ?>
     body::before {
       content: '';
       position: absolute;
@@ -338,9 +343,9 @@ if ($successMessage && $shouldRedirect) {
   </style>
 </head>
 <body>
-  <?php if ($useVideoBg): ?>
+  <?php if ($videoBg): ?>
     <div class="video-bg">
-      <video src="assets/videos/dueno_ingresando.mp4" autoplay loop muted playsinline poster="assets/img/hero.webp"></video>
+      <video src="<?= htmlspecialchars($videoBg, ENT_QUOTES, 'UTF-8') ?>" autoplay loop muted playsinline poster="assets/img/hero.webp"></video>
     </div>
     <div class="overlay"></div>
   <?php endif; ?>
