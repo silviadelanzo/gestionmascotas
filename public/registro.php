@@ -9,6 +9,7 @@ require_once __DIR__ . '/../lib/PHPMailer/SMTP.php';
 require_once __DIR__ . '/../lib/PHPMailer/Exception.php';
 
 $baseUrl = app_base_url();
+$homeUrl = $baseUrl . '/index_v2_2.php';
 $loginUrl = (parse_url($baseUrl, PHP_URL_SCHEME) !== null) ? ($baseUrl . '/login.php') : 'login.php';
 
 $errors = [];
@@ -40,6 +41,9 @@ function createMailerFromConfig(array $mailCfg): PHPMailer {
 // Preseleccionar rol desde GET (?role=dueno|prestador) o POST
 $defaultRole = $_GET['role'] ?? ($_POST['tipo_usuario'] ?? 'dueno');
 $tipoUsuario = in_array($defaultRole, ['dueno', 'prestador'], true) ? $defaultRole : 'dueno';
+$switchRoleUrl = $tipoUsuario === 'dueno'
+  ? $baseUrl . '/registro.php?role=prestador'
+  : $baseUrl . '/registro.php?role=dueno';
 $videoBg = null;
 if ($tipoUsuario === 'dueno') {
   $videoBg = 'assets/videos/dueno_ingresando.mp4';
@@ -351,6 +355,12 @@ if ($successMessage && $shouldRedirect) {
   <?php endif; ?>
   <main>
     <section class="auth-card" aria-labelledby="register-title">
+      <div style="display:flex; gap:0.6rem; margin-bottom:1rem; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+        <a href="<?= htmlspecialchars($homeUrl, ENT_QUOTES, 'UTF-8') ?>" class="pill-link" style="padding:0.65rem 0.95rem; border-radius:999px; background:#f3e5dd; color:#4a332b; text-decoration:none; font-weight:600; border:1px solid rgba(0,0,0,0.05);">← Volver al home</a>
+        <a href="<?= htmlspecialchars($switchRoleUrl, ENT_QUOTES, 'UTF-8') ?>" class="pill-link" style="padding:0.65rem 0.95rem; border-radius:999px; background:#A97155; color:#fff; text-decoration:none; font-weight:700; border:1px solid rgba(255,255,255,0.12);">
+          Cambiar a rol <?= $tipoUsuario === 'dueno' ? 'prestador' : 'dueño' ?>
+        </a>
+      </div>
       <h1 id="register-title">Crear cuenta</h1>
       <p>Guardalo todo en una sola cuenta. Gratis para duenos y prestadores.</p>
 
