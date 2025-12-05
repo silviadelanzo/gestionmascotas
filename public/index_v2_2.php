@@ -63,10 +63,10 @@ $loginUrl = $baseUrl . '/login.php';
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
-      padding: 0.55rem 0.95rem;
+      padding: 0.7rem 1.1rem;
       border-radius: 999px;
       font-weight: 600;
-      font-size: 0.95rem;
+      font-size: 1rem;
       border: 1px solid rgba(255, 255, 255, 0.15);
       transition: transform 0.15s ease, box-shadow 0.2s ease;
     }
@@ -80,16 +80,13 @@ $loginUrl = $baseUrl . '/login.php';
       background: rgba(255, 255, 255, 0.08);
       color: #f2e9e4;
     }
+    .btn-brown {
+      background: linear-gradient(135deg, var(--brand), #8d5f47);
+      color: #fff;
+      box-shadow: 0 15px 30px rgba(169, 113, 85, 0.45);
+    }
     .section {
       padding: clamp(2rem, 4vw, 3.5rem) 1rem;
-    }
-    .badge {
-      display: inline-block;
-      padding: 0.35rem 0.75rem;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.12);
-      font-size: 0.85rem;
-      letter-spacing: 0.02em;
     }
   </style>
 </head>
@@ -125,77 +122,23 @@ $loginUrl = $baseUrl . '/login.php';
     <!-- Hero -->
     <section class="section pt-10 md:pt-16">
       <div class="max-w-6xl mx-auto grid gap-8 md:grid-cols-[1.1fr,0.9fr] items-center">
-        <div class="glass rounded-3xl p-6 md:p-8 shadow-2xl">
-          <div class="badge mb-4">Video en vivo · Fondo natural</div>
+        <div class="glass rounded-3xl p-6 md:p-8 shadow-2xl text-center md:text-left">
           <h1 class="text-3xl md:text-4xl font-bold leading-tight mb-3">
             Un solo lugar para dueños y prestadores de mascotas.
           </h1>
           <p class="text-white/80 text-base md:text-lg mb-6">
             Gratis para dueños (agenda y recordatorios). Planes escalables para veterinarias y prestadores que quieren visibilidad y organización.
           </p>
-          <div class="flex flex-wrap gap-3">
+          <div class="flex flex-wrap gap-3 justify-center md:justify-start">
             <a class="pill btn-primary" href="<?= htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8') ?>">👤 Ingresar a mi cuenta</a>
-            <a class="pill btn-secondary" href="<?= htmlspecialchars($registroDueno, ENT_QUOTES, 'UTF-8') ?>">Crear cuenta dueño/a</a>
-            <a class="pill btn-secondary" href="<?= htmlspecialchars($registroPrestador, ENT_QUOTES, 'UTF-8') ?>">Crear cuenta prestador/a</a>
+            <a class="pill btn-brown" href="<?= htmlspecialchars($registroDueno, ENT_QUOTES, 'UTF-8') ?>">Crear cuenta dueño/a</a>
+            <a class="pill btn-brown" href="<?= htmlspecialchars($registroPrestador, ENT_QUOTES, 'UTF-8') ?>">Crear cuenta prestador/a</a>
             <?php if ($isLogged): ?>
               <a class="pill btn-secondary" href="<?= htmlspecialchars($launchUrl, ENT_QUOTES, 'UTF-8') ?>">Ir al launchpad</a>
             <?php endif; ?>
           </div>
         </div>
-        <div class="grid gap-3">
-          <div class="glass rounded-3xl p-4 md:p-5">
-            <div class="flex items-center justify-between mb-3">
-              <span class="text-white font-semibold">Accesos rápidos</span>
-              <span class="text-xs text-white/60"><?= $isLogged ? 'Según tu rol' : 'Primero ingresa o registrate' ?></span>
-            </div>
-            <?php if ($isLogged): ?>
-              <div id="accesos" class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-                <a class="glass rounded-2xl p-3 hover:bg-white/10 transition" href="<?= htmlspecialchars($launchUrl, ENT_QUOTES, 'UTF-8') ?>">
-                  <div class="font-semibold">Launchpad</div>
-                  <div class="text-white/70">Inicio rápido</div>
-                </a>
-                <?php if ($role === 'prestador'): ?>
-                  <a class="glass rounded-2xl p-3 hover:bg-white/10 transition" href="<?= htmlspecialchars($baseUrl . '/launchpad_prestador.php', ENT_QUOTES, 'UTF-8') ?>">
-                    <div class="font-semibold">Servicios</div>
-                    <div class="text-white/70">Publicar y gestionar</div>
-                  </a>
-                  <a class="glass rounded-2xl p-3 hover:bg-white/10 transition" href="<?= htmlspecialchars($baseUrl . '/mapa_prestadores.php', ENT_QUOTES, 'UTF-8') ?>">
-                    <div class="font-semibold">Mapa</div>
-                    <div class="text-white/70">Ver mi visibilidad</div>
-                  </a>
-                <?php else: ?>
-                  <a class="glass rounded-2xl p-3 hover:bg-white/10 transition" href="<?= htmlspecialchars($baseUrl . '/launchpad_dueno.php', ENT_QUOTES, 'UTF-8') ?>">
-                    <div class="font-semibold">Mis mascotas</div>
-                    <div class="text-white/70">Fichas y vacunas</div>
-                  </a>
-                  <a class="glass rounded-2xl p-3 hover:bg-white/10 transition" href="<?= htmlspecialchars($baseUrl . '/mapa_prestadores.php', ENT_QUOTES, 'UTF-8') ?>">
-                    <div class="font-semibold">Mapa</div>
-                    <div class="text-white/70">Prestadores cercanos</div>
-                  </a>
-                <?php endif; ?>
-                <a class="glass rounded-2xl p-3 hover:bg-white/10 transition" href="<?= htmlspecialchars($baseUrl . '/login.php', ENT_QUOTES, 'UTF-8') ?>">
-                  <div class="font-semibold">Salir / Cambiar</div>
-                  <div class="text-white/70">Volver a login</div>
-                </a>
-              </div>
-            <?php else: ?>
-              <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-                <a class="glass rounded-2xl p-3 hover:bg-white/10 transition" href="<?= htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8') ?>">
-                  <div class="font-semibold">Ingresar</div>
-                  <div class="text-white/70">Con mi cuenta</div>
-                </a>
-                <a class="glass rounded-2xl p-3 hover:bg-white/10 transition" href="<?= htmlspecialchars($registroDueno, ENT_QUOTES, 'UTF-8') ?>">
-                  <div class="font-semibold">Registrarme (dueño)</div>
-                  <div class="text-white/70">Agenda y recordatorios</div>
-                </a>
-                <a class="glass rounded-2xl p-3 hover:bg-white/10 transition" href="<?= htmlspecialchars($registroPrestador, ENT_QUOTES, 'UTF-8') ?>">
-                  <div class="font-semibold">Registrarme (prestador)</div>
-                  <div class="text-white/70">Ficha y visibilidad</div>
-                </a>
-              </div>
-            <?php endif; ?>
-          </div>
-        </div>
+        <!-- Se remueve accesos rápidos para evitar confusión sin login -->
       </div>
     </section>
 
