@@ -109,7 +109,6 @@ $loginUrl = $baseUrl . '/login.php';
         <a href="#duenos" class="hover:text-white">Dueños</a>
         <a href="#prestadores" class="hover:text-white">Prestadores</a>
         <a href="#como-funciona" class="hover:text-white">Cómo funciona</a>
-        <a href="#accesos" class="hover:text-white">Accesos rápidos</a>
       </nav>
       <div class="flex items-center gap-2">
         <a class="pill btn-secondary" href="<?= htmlspecialchars($isLogged ? $launchUrl : $loginUrl, ENT_QUOTES, 'UTF-8') ?>">Launchpad</a>
