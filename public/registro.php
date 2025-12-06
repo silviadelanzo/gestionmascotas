@@ -204,12 +204,12 @@ if ($successMessage && $shouldRedirect) {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      filter: brightness(0.75);
+      filter: brightness(1.2);
     }
     .overlay {
       position: fixed;
       inset: 0;
-      background: linear-gradient(135deg, rgba(15, 12, 12, 0.45), rgba(15, 12, 12, 0.35));
+      background: linear-gradient(135deg, rgba(15, 12, 12, 0.25), rgba(15, 12, 12, 0.15));
       z-index: -1;
     }
     <?php endif; ?>
@@ -253,11 +253,11 @@ if ($successMessage && $shouldRedirect) {
     .auth-card {
       width: 100%;
       max-width: 460px;
-      background: rgba(255,255,255,0.94);
-      backdrop-filter: blur(8px);
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(12px);
       border-radius: 30px;
       padding: 2.5rem 2.2rem;
-      box-shadow: 0 25px 70px rgba(80, 50, 35, 0.18);
+      box-shadow: 0 25px 70px rgba(80, 50, 35, 0.3);
     }
     .auth-card h1 {
       margin: 0 0 0.4rem;
