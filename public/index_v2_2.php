@@ -1,10 +1,13 @@
-﻿<?php
+<?php
 require __DIR__ . '/includes/bootstrap.php';
 
 $baseUrl = app_base_url();
 $isLogged = !empty($_SESSION['uid']);
-$role = $_SESSION['rol'] &#128100; null;
+$role = $_SESSION['rol'] ?? null;
 $launchUrl = $role === 'prestador'
+  ? $baseUrl . '/launchpad_prestador.php'
+  : $baseUrl . '/launchpad_dueno.php';
+$profileUrl = $launchUrl; // placeholder a perfil/launchpad actual
 $registroDueno = $baseUrl . '/registro.php?role=dueno';
 $registroPrestador = $baseUrl . '/registro.php?role=prestador';
 $loginUrl = $baseUrl . '/login.php';
@@ -14,7 +17,7 @@ $loginUrl = $baseUrl . '/login.php';
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mascotas y Mimos Â· Agenda digital</title>
+  <title>Mascotas y Mimos · Agenda digital</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
@@ -103,14 +106,14 @@ $loginUrl = $baseUrl . '/login.php';
         </div>
       </div>
       <nav class="hidden md:flex items-center gap-3 text-white/85 text-sm">
-        <a href="#duenos" class="hover:text-white">DueÃ±os</a>
+        <a href="#duenos" class="hover:text-white">Dueños</a>
         <a href="#prestadores" class="hover:text-white">Prestadores</a>
         <a href="#como-funciona" class="hover:text-white">Cómo funciona</a>
+        <a href="#accesos" class="hover:text-white">Accesos rápidos</a>
       </nav>
       <div class="flex items-center gap-2">
-        <a class="pill btn-secondary" aria-label="Ingresar a mi cuenta" title="Ingresar a mi cuenta" href="<?= htmlspecialchars($isLogged ? $launchUrl : $loginUrl, ENT_QUOTES, 'UTF-8') ?>">&#128100;</a>
-      </div>
-
+        <a class="pill btn-secondary" href="<?= htmlspecialchars($isLogged ? $launchUrl : $loginUrl, ENT_QUOTES, 'UTF-8') ?>">Launchpad</a>
+        <a class="pill btn-primary" href="<?= htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8') ?>">Ingresar a mi cuenta</a>
       </div>
     </div>
   </header>
@@ -118,48 +121,48 @@ $loginUrl = $baseUrl . '/login.php';
   <main class="text-white">
     <!-- Hero -->
     <section class="section pt-10 md:pt-16">
-      <div class="max-w-3xl mx-auto">
-        <div class="glass rounded-3xl p-6 md:p-8 shadow-2xl text-center">
+      <div class="max-w-6xl mx-auto grid gap-8 md:grid-cols-[1.1fr,0.9fr] items-center">
+        <div class="glass rounded-3xl p-6 md:p-8 shadow-2xl text-center md:text-left">
           <h1 class="text-3xl md:text-4xl font-bold leading-tight mb-3">
-            Un solo lugar para dueÃ±os y prestadores de mascotas.
+            Un solo lugar para dueños y prestadores de mascotas.
           </h1>
           <p class="text-white/80 text-base md:text-lg mb-6">
-            Gratis para dueÃ±os (agenda y recordatorios). Planes escalables para veterinarias y prestadores que quieren visibilidad y organizaciÃ³n.
+            Gratis para dueños (agenda y recordatorios). Planes escalables para veterinarias y prestadores que quieren visibilidad y organización.
           </p>
-          <div class="flex flex-wrap gap-3 justify-center">
-
-            <a class="pill btn-brown" href="<?= htmlspecialchars($registroDueno, ENT_QUOTES, 'UTF-8') ?>">Crear cuenta dueÃ±o/a</a>
+          <div class="flex flex-wrap gap-3 justify-center md:justify-start">
+            <a class="pill btn-primary" href="<?= htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8') ?>">👤 Ingresar a mi cuenta</a>
+            <a class="pill btn-brown" href="<?= htmlspecialchars($registroDueno, ENT_QUOTES, 'UTF-8') ?>">Crear cuenta dueño/a</a>
             <a class="pill btn-brown" href="<?= htmlspecialchars($registroPrestador, ENT_QUOTES, 'UTF-8') ?>">Crear cuenta prestador/a</a>
             <?php if ($isLogged): ?>
+              <a class="pill btn-secondary" href="<?= htmlspecialchars($launchUrl, ENT_QUOTES, 'UTF-8') ?>">Ir al launchpad</a>
             <?php endif; ?>
           </div>
         </div>
+        <!-- Se remueve accesos rápidos para evitar confusión sin login -->
       </div>
     </section>
 
-    <!-- DueÃ±os -->
+    <!-- Dueños -->
     <section id="duenos" class="section">
       <div class="max-w-6xl mx-auto glass rounded-3xl p-6 md:p-8">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
-          <div class="w-full text-center md:text-left">
-            <p class="badge mb-2">Para dueÃ±os</p>
+          <div>
+            <p class="badge mb-2">Para dueños</p>
             <h2 class="text-2xl md:text-3xl font-bold">Agenda y tranquilidad para tus mascotas</h2>
             <p class="text-white/75 mt-2">Recordatorios, documentos y contactos en un solo lugar.</p>
           </div>
+          <a class="pill btn-primary" href="<?= htmlspecialchars($registroDueno, ENT_QUOTES, 'UTF-8') ?>">Crear cuenta de dueño</a>
         </div>
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <?php
           $duenoFeatures = [
-            ['title' => 'Recordatorios automÃ¡ticos', 'desc' => 'Vacunas, turnos y tratamientos con alertas por email.', 'img' => 'assets/img/recordatorio_mail..webp'],
-            ['title' => 'Historial por mascota', 'desc' => 'Vacunas, cirugÃ­as, alergias y notas siempre accesibles.', 'img' => 'assets/img/agenda_vacunas.webp'],
-            ['title' => 'Documentos en la nube', 'desc' => 'Carnets, estudios y recetas en PDF sin perderlos.', 'img' => 'assets/img/veterinario_consultorio.webp'],
-            ['title' => 'Contactos de confianza', 'desc' => 'Veterinaria, paseador, guarderÃ­a y emergencias a un clic.', 'img' => 'assets/img/mapa_prestadores.webp'],
+            ['title' => 'Recordatorios automáticos', 'desc' => 'Vacunas, turnos y tratamientos con alertas por email.'],
+            ['title' => 'Historial por mascota', 'desc' => 'Vacunas, cirugías, alergias y notas siempre accesibles.'],
+            ['title' => 'Documentos en la nube', 'desc' => 'Carnets, estudios y recetas en PDF sin perderlos.'],
+            ['title' => 'Contactos de confianza', 'desc' => 'Veterinaria, paseador, guardería y emergencias a un clic.'],
           ];
           foreach ($duenoFeatures as $f): ?>
             <article class="glass rounded-2xl p-4">
-              <div class="mb-2">
-                <img src="<?= htmlspecialchars($f['img'], ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($f['title'], ENT_QUOTES, 'UTF-8') ?>" class="w-full aspect-[4/3] object-cover rounded-lg" onerror="this.src='assets/img/hero.png'">
-              </div>
               <h3 class="font-semibold mb-1"><?= htmlspecialchars($f['title'], ENT_QUOTES, 'UTF-8') ?></h3>
               <p class="text-white/75 text-sm"><?= htmlspecialchars($f['desc'], ENT_QUOTES, 'UTF-8') ?></p>
             </article>
@@ -172,24 +175,22 @@ $loginUrl = $baseUrl . '/login.php';
     <section id="prestadores" class="section">
       <div class="max-w-6xl mx-auto glass rounded-3xl p-6 md:p-8">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
-          <div class="w-full text-center md:text-left">
+          <div>
             <p class="badge mb-2">Para prestadores</p>
-            <h2 class="text-2xl md:text-3xl font-bold">Visibilidad y organizaciÃ³n en el mismo lugar</h2>
-            <p class="text-white/75 mt-2">Tu ficha, servicios y reservas listos para dueÃ±os que ya usan la agenda.</p>
+            <h2 class="text-2xl md:text-3xl font-bold">Visibilidad y organización en el mismo lugar</h2>
+            <p class="text-white/75 mt-2">Tu ficha, servicios y reservas listos para dueños que ya usan la agenda.</p>
           </div>
+          <a class="pill btn-secondary" href="<?= htmlspecialchars($registroPrestador, ENT_QUOTES, 'UTF-8') ?>">Crear cuenta de prestador</a>
         </div>
         <div class="grid gap-4 md:grid-cols-3">
           <?php
           $prestador = [
-            ['title' => 'Ficha visible en mapas/listados', 'desc' => 'Tus datos y servicios frente a dueÃ±os organizados.', 'img' => 'assets/img/mapa_prestadores.webp'],
-            ['title' => 'Recetas y reservas', 'desc' => 'Recetas PDF y prÃ³ximos turnos en un mismo flujo.', 'img' => 'assets/img/veterinario_consultorio.webp'],
-            ['title' => 'EstadÃ­sticas bÃ¡sicas', 'desc' => 'Vistas y clics a WhatsApp para medir resultados.', 'img' => 'assets/img/recordatorio_mail..webp'],
+            ['title' => 'Ficha visible en mapas/listados', 'desc' => 'Tus datos y servicios frente a dueños organizados.'],
+            ['title' => 'Recetas y reservas', 'desc' => 'Recetas PDF y próximos turnos en un mismo flujo.'],
+            ['title' => 'Estadísticas básicas', 'desc' => 'Vistas y clics a WhatsApp para medir resultados.'],
           ];
           foreach ($prestador as $f): ?>
             <article class="glass rounded-2xl p-4">
-              <div class="mb-2">
-                <img src="<?= htmlspecialchars($f['img'], ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($f['title'], ENT_QUOTES, 'UTF-8') ?>" class="w-full aspect-[4/3] object-cover rounded-lg" onerror="this.src='assets/img/hero.png'">
-              </div>
               <h3 class="font-semibold mb-1"><?= htmlspecialchars($f['title'], ENT_QUOTES, 'UTF-8') ?></h3>
               <p class="text-white/75 text-sm"><?= htmlspecialchars($f['desc'], ENT_QUOTES, 'UTF-8') ?></p>
             </article>
@@ -198,30 +199,31 @@ $loginUrl = $baseUrl . '/login.php';
       </div>
     </section>
 
-    <!-- CÃ³mo funciona -->
+    <!-- Cómo funciona -->
     <section id="como-funciona" class="section pb-16">
       <div class="max-w-6xl mx-auto glass rounded-3xl p-6 md:p-8">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
           <div>
             <p class="badge mb-2">Flujo simple</p>
-            <h2 class="text-2xl md:text-3xl font-bold">CÃ³mo funciona para cada rol</h2>
+            <h2 class="text-2xl md:text-3xl font-bold">Cómo funciona para cada rol</h2>
           </div>
+          <a class="pill btn-secondary" href="<?= htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8') ?>">Ingresar</a>
         </div>
         <div class="grid gap-4 md:grid-cols-2">
           <div class="glass rounded-2xl p-4">
-            <h3 class="font-semibold mb-2">Si sos dueÃ±o/a</h3>
+            <h3 class="font-semibold mb-2">Si sos dueño/a</h3>
             <ol class="list-decimal list-inside space-y-1 text-white/80 text-sm">
-              <li>Creamos tu cuenta como dueÃ±o y agregÃ¡s tus mascotas.</li>
-              <li>GuardÃ¡s historial, vacunas y documentos.</li>
-              <li>RecibÃ­s recordatorios y accedÃ©s a prestadores cercanos.</li>
+              <li>Creamos tu cuenta como dueño y agregás tus mascotas.</li>
+              <li>Guardás historial, vacunas y documentos.</li>
+              <li>Recibís recordatorios y accedés a prestadores cercanos.</li>
             </ol>
           </div>
           <div class="glass rounded-2xl p-4">
             <h3 class="font-semibold mb-2">Si sos prestador/a</h3>
             <ol class="list-decimal list-inside space-y-1 text-white/80 text-sm">
-              <li>CreÃ¡s tu ficha y cargÃ¡s tus servicios.</li>
-              <li>RecibÃ­s consultas y generÃ¡s recetas/turnos.</li>
-              <li>Ves mÃ©tricas bÃ¡sicas y mejoras visibilidad.</li>
+              <li>Creás tu ficha y cargás tus servicios.</li>
+              <li>Recibís consultas y generás recetas/turnos.</li>
+              <li>Ves métricas básicas y mejoras visibilidad.</li>
             </ol>
           </div>
         </div>
@@ -230,4 +232,3 @@ $loginUrl = $baseUrl . '/login.php';
   </main>
 </body>
 </html>
-
