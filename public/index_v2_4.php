@@ -191,6 +191,8 @@ $loginUrl = $baseUrl . '/login.php';
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       margin-bottom: 0.5rem;
     }
+    /* Ocultar URL en hover */
+    a[data-href] { cursor: pointer; }
   </style>
 </head>
 <body>
@@ -358,5 +360,14 @@ $loginUrl = $baseUrl . '/login.php';
       </div>
     </section>
   </main>
+  <script>
+    // Manejar links con data-href (oculta URL en hover)
+    document.querySelectorAll("a[data-href]").forEach(function(link) {
+      link.addEventListener("click", function(e) {
+        e.preventDefault();
+        window.location.href = link.getAttribute("data-href");
+      });
+    });
+  </script>
 </body>
 </html>
