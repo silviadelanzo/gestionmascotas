@@ -119,6 +119,78 @@ $loginUrl = $baseUrl . '/login.php';
       background: rgba(255, 255, 255, 0.1);
       color: #fff !important;
     }
+    /* Dropdown de usuario */
+    .user-menu {
+      position: relative;
+    }
+    .user-avatar {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--brand), #c78867);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.2s ease;
+    }
+    .user-avatar:hover {
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: scale(1.05);
+    }
+    .user-avatar svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      fill: white;
+    }
+    .dropdown {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      right: 0;
+      background: rgba(24, 18, 16, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 1rem;
+      padding: 0.75rem;
+      min-width: 200px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.2s ease;
+      z-index: 100;
+    }
+    .user-menu:hover .dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 0.75rem;
+      border-radius: 0.5rem;
+      color: #f8f7f4;
+      text-decoration: none;
+      transition: background 0.15s ease;
+      font-size: 0.9rem;
+    }
+    .dropdown-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .dropdown-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 0.5rem 0;
+    }
+    .user-name {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 0.5rem;
+    }
   </style>
 </head>
 <body>
@@ -144,8 +216,32 @@ $loginUrl = $baseUrl . '/login.php';
       <div class="flex items-center gap-2">
         <?php if ($isLogged): ?>
           <a class="pill btn-secondary" href="<?= htmlspecialchars($launchUrl, ENT_QUOTES, 'UTF-8') ?>">Launchpad</a>
+          <div class="user-menu">
+            <div class="user-avatar">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+              </svg>
+            </div>
+            <div class="dropdown">
+              <div class="user-name">Hola, <?= htmlspecialchars($_SESSION['nombre'] ?? 'Usuario', ENT_QUOTES, 'UTF-8') ?></div>
+              <a href="<?= htmlspecialchars($launchUrl, ENT_QUOTES, 'UTF-8') ?>" class="dropdown-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                Mi perfil
+              </a>
+              <div class="dropdown-divider"></div>
+              <a href="<?= htmlspecialchars($baseUrl, ENT_QUOTES, 'UTF-8') ?>/api/logout.php" class="dropdown-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                </svg>
+                Cerrar sesión
+              </a>
+            </div>
+          </div>
+        <?php else: ?>
+          <a class="pill btn-primary" href="<?= htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8') ?>">Ingresar a mi cuenta</a>
         <?php endif; ?>
-        <a class="pill btn-primary" href="<?= htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8') ?>">Ingresar a mi cuenta</a>
       </div>
     </div>
   </header>
@@ -162,10 +258,11 @@ $loginUrl = $baseUrl . '/login.php';
             Gratis para dueños (agenda y recordatorios). Planes escalables para veterinarias y prestadores que quieren visibilidad y organización.
           </p>
           <div class="flex flex-wrap gap-3 justify-center">
-            <a class="pill btn-brown" href="<?= htmlspecialchars($registroDueno, ENT_QUOTES, 'UTF-8') ?>">Crear cuenta dueño/a</a>
-            <a class="pill btn-brown" href="<?= htmlspecialchars($registroPrestador, ENT_QUOTES, 'UTF-8') ?>">Crear cuenta prestador/a</a>
-            <?php if ($isLogged): ?>
-              <a class="pill btn-secondary" href="<?= htmlspecialchars($launchUrl, ENT_QUOTES, 'UTF-8') ?>">Ir al launchpad</a>
+            <?php if (!$isLogged): ?>
+              <a class="pill btn-brown" href="<?= htmlspecialchars($registroDueno, ENT_QUOTES, 'UTF-8') ?>">Crear cuenta dueño/a</a>
+              <a class="pill btn-brown" href="<?= htmlspecialchars($registroPrestador, ENT_QUOTES, 'UTF-8') ?>">Crear cuenta prestador/a</a>
+            <?php else: ?>
+              <a class="pill btn-brown" href="<?= htmlspecialchars($launchUrl, ENT_QUOTES, 'UTF-8') ?>">Ir al launchpad</a>
             <?php endif; ?>
           </div>
         </div>
