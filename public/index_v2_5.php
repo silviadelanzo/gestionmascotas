@@ -192,7 +192,7 @@ $loginUrl = $baseUrl . '/login.php';
       margin-bottom: 0.5rem;
     }
     /* Ocultar URL en hover */
-    a[data-href] { cursor: pointer; }
+    a[data-href], a[data-scroll] { cursor: pointer; }
   </style>
 </head>
 <body>
@@ -211,9 +211,9 @@ $loginUrl = $baseUrl . '/login.php';
         </div>
       </div>
       <nav class="hidden md:flex items-center gap-2 text-white/85">
-        <a href="#duenos" class="nav-link">Dueños</a>
-        <a href="#prestadores" class="nav-link">Prestadores</a>
-        <a href="#como-funciona" class="nav-link">Cómo funciona</a>
+        <a data-scroll="duenos" class="nav-link">Dueños</a>
+        <a data-scroll="prestadores" class="nav-link">Prestadores</a>
+        <a data-scroll="como-funciona" class="nav-link">Cómo funciona</a>
       </nav>
       <div class="flex items-center gap-2">
         <?php if ($isLogged): ?>
@@ -366,6 +366,18 @@ $loginUrl = $baseUrl . '/login.php';
       link.addEventListener("click", function(e) {
         e.preventDefault();
         window.location.href = link.getAttribute("data-href");
+      });
+    });
+
+    // Manejar navegación interna con scroll suave
+    document.querySelectorAll("a[data-scroll]").forEach(function(link) {
+      link.addEventListener("click", function(e) {
+        e.preventDefault();
+        const targetId = link.getAttribute("data-scroll");
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
       });
     });
   </script>
