@@ -90,14 +90,15 @@ $loginUrl = $baseUrl . '/login.php';
     }
     .badge {
       display: inline-block;
-      font-size: 0.75rem;
+      font-size: 0.9rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--brand);
-      background: rgba(169, 113, 85, 0.15);
-      padding: 0.25rem 0.75rem;
+      letter-spacing: 0.08em;
+      color: #fff;
+      background: linear-gradient(135deg, var(--brand), #c78867);
+      padding: 0.5rem 1.25rem;
       border-radius: 999px;
-      font-weight: 600;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(169, 113, 85, 0.3);
     }
     .feature-img {
       width: 100%;
