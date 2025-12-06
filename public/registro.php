@@ -253,8 +253,8 @@ if ($successMessage && $shouldRedirect) {
     .auth-card {
       width: 100%;
       max-width: 460px;
-      background: rgba(255,255,255,0.75);
-      backdrop-filter: blur(12px);
+      background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(16px);
       border-radius: 30px;
       padding: 2.5rem 2.2rem;
       box-shadow: 0 25px 70px rgba(80, 50, 35, 0.3);
