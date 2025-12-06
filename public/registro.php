@@ -9,7 +9,7 @@ require_once __DIR__ . '/../lib/PHPMailer/SMTP.php';
 require_once __DIR__ . '/../lib/PHPMailer/Exception.php';
 
 $baseUrl = app_base_url();
-$homeUrl = $baseUrl . '/index_v2_2.php';
+$homeUrl = $baseUrl . '/index_v2_4.php';
 $loginUrl = (parse_url($baseUrl, PHP_URL_SCHEME) !== null) ? ($baseUrl . '/login.php') : 'login.php';
 
 $errors = [];
@@ -342,6 +342,8 @@ if ($successMessage && $shouldRedirect) {
       text-decoration: none;
     }
     .login-link a:hover { text-decoration: underline; }
+    /* Ocultar URL en hover */
+    a[data-href] { cursor: pointer; }
   </style>
 </head>
 <body>
@@ -453,10 +455,10 @@ if ($successMessage && $shouldRedirect) {
       </form>
 
       <div class="login-link">
-        ¿Ya tienes cuenta? <a href="<?= htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8') ?>">Inicia sesion</a>
+        ¿Ya tienes cuenta? <a data-href="<?= htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8') ?>">Inicia sesion</a>
       </div>
       <div class="login-link" style="margin-top:0.5rem;">
-        <a href="<?= htmlspecialchars($homeUrl, ENT_QUOTES, 'UTF-8') ?>">← Volver al home</a>
+        <a data-href="<?= htmlspecialchars($homeUrl, ENT_QUOTES, 'UTF-8') ?>">← Volver al home</a>
       </div>
     </section>
   </main>
