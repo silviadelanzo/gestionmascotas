@@ -62,3 +62,11 @@ function helpers_require_admin(): void {
     http_response_code(403); echo "Prohibido"; exit;
   }
 }
+
+/**
+ * Devuelve la URL completa a la landing page actual.
+ * Para cambiar de versión, solo modificar esta función.
+ */
+function home_url(): string {
+  return app_base_url() . '/index_v2_5.php';  // CAMBIAR AQUÍ al actualizar versión
+}

@@ -9,7 +9,7 @@ require_once __DIR__ . '/../lib/PHPMailer/SMTP.php';
 require_once __DIR__ . '/../lib/PHPMailer/Exception.php';
 
 $baseUrl = app_base_url();
-$homeUrl = $baseUrl . '/index_v2_5.php';
+$homeUrl = home_url();
 $loginUrl = (parse_url($baseUrl, PHP_URL_SCHEME) !== null) ? ($baseUrl . '/login.php') : 'login.php';
 
 $errors = [];

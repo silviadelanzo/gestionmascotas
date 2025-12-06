@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require __DIR__ . '/includes/bootstrap.php';
 $baseUrl = app_base_url();
 ?>
@@ -277,7 +277,7 @@ $baseUrl = app_base_url();
       <div class="links">
         <p><a href="olvide_password.php">¿Olvidaste tu contrasena?</a></p>
         <p><a href="registro.php">Crear cuenta</a></p>
-        <p><a data-href="<?= htmlspecialchars($baseUrl, ENT_QUOTES, 'UTF-8') ?>/index_v2_5.php">← Volver al home</a></p>
+        <p><a data-href="<?= htmlspecialchars($baseUrl, ENT_QUOTES, 'UTF-8') ?>' . home_url() . '">← Volver al home</a></p>
       </div>
     </section>
   </main>
