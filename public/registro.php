@@ -475,6 +475,14 @@ if ($successMessage && $shouldRedirect) {
         });
       });
     })();
-  </script>
+  
+      // Manejar links con data-href (oculta URL en hover)
+      document.querySelectorAll('a[data-href]').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          window.location.href = link.getAttribute('data-href');
+        });
+      });
+    </script>
 </body>
 </html>
