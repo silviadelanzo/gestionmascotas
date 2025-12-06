@@ -6,6 +6,7 @@ Alcance: estado actual, como correr localmente, deploy y pendientes inmediatos.
 - Que resuelve: agenda digital para familias con mascotas; prestadores ganan visibilidad en listados y recetas PDF futuras.
 - Estado: landing actual (`public/index.php`), home extendida de prueba (`public/index_v2_1.php`), nueva variante con video de fondo (`public/index_c2_2.php`), mapas demo con Leaflet (`public/mapa_prestadores*.php`), suscripcion por correo con PHPMailer sin Composer, registro/login basico en `public/registro.php` y `public/login.php`.
 - Proximo hito: maquetar `public/index_responsive.php` (mobile-first) y alinear registro con el esquema real de BD.
+- Variante activa en pruebas: `public/index_v2_2.php` (video de fondo, header con Launchpad + icono de cuenta, hero con CTAs de registro).
 
 ## 2) Uso local rapido
 - Requisitos: PHP 8+, MySQL, extensiones PDO MySQL habilitadas; servidor local tipo XAMPP.
@@ -15,6 +16,7 @@ Alcance: estado actual, como correr localmente, deploy y pendientes inmediatos.
 - Rutas de prueba:
   - Home actual: `http://localhost/gestionmascotas/public/index.php`
   - Home nueva (prueba): `http://localhost/gestionmascotas/public/index_v2_1.php`
+  - Home v2_2 (video, CTA registro): `http://localhost/gestionmascotas/public/index_v2_2.php`
   - Home con video de fondo: `http://localhost/gestionmascotas/public/index_c2_2.php`
   - Registro: `http://localhost/gestionmascotas/public/registro.php`
   - Login: `http://localhost/gestionmascotas/public/login.php`
@@ -37,6 +39,12 @@ Alcance: estado actual, como correr localmente, deploy y pendientes inmediatos.
 - Exclusiones para no pisar credenciales: `public/config/db.php`, `public/config/mail.php`.
 - Sincroniza solo cambios (usa `.ftp-deploy-sync-state.json` en el servidor).
 - Redireccion actual: 302 en `public_html/.htaccess` hacia `/gestionmascotas/public/`; cambiar a 301 o mover DocumentRoot cuando se apruebe.
+- Flujo local -> repo -> server:
+  - Editar en `D:\xampp\htdocs\gestionmascotas`.
+  - Probar local con Apache en `http://localhost/gestionmascotas/public/...` (asegurar que el puerto de Apache esté activo).
+  - Commits usando git (se usa MinGit portátil en `%TEMP%\mingit` si no hay git global).
+  - `git push origin main` dispara el workflow FTP que sube `public/` al server con los secretos `FTP_*`.
+  - Verificar en `https://mascotasymimos.com/gestionmascotas/public/...`.
 
 ## 5) Base de datos
 - Documento de referencia vigente: `docs/estructura_base_mascotasmimos.md` (version 2025-11-20). Tablas clave: `usuarios`, `mascotas`, `prestadores`, `prestador_fotos`, `servicios`, `recordatorios`, `reservas`, `bitacora`, `suscripciones`, tablas de ubicacion.
@@ -49,6 +57,8 @@ Alcance: estado actual, como correr localmente, deploy y pendientes inmediatos.
   - Valida nombre/email/password y rol (dueno/prestador); usa `?role=dueno|prestador` para preseleccionar la opcion en el select.
   - Inserta en `usuarios` y genera token en `email_verifications_app` + correo de verificacion.
   - Estilo alineado a login (fondo difuso + tarjeta central).
+  - Videos por rol: `dueno_ingresando.mp4` para dueños y `RegistroPrestador.mp4` para prestadores.
+  - Si el rol viene en la URL, el selector queda bloqueado; link “Volver al home” en el pie del formulario.
   - Pendientes: usa columnas no documentadas (`email_verified_at`, `estado`), no guarda telefono/provincia/localidad ni crea fila en `prestadores` cuando el rol es prestador. Definir esquema y tabla de verificaciones o ajustar codigo.
 - Login (`public/login.php`):
   - Rediseño completo con fondo difuso, tarjeta, toggle de contrasena; envia a `/api/login.php`.
