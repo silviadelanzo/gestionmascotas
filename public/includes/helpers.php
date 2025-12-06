@@ -65,8 +65,33 @@ function helpers_require_admin(): void {
 
 /**
  * Devuelve la URL completa a la landing page actual.
- * Para cambiar de versión, solo modificar esta función.
+ * Detecta automáticamente la versión más reciente de index_v2_*.php
  */
 function home_url(): string {
-  return app_base_url() . '/index_v2_5.php';  // CAMBIAR AQUÍ al actualizar versión
+  static $cachedUrl = null;
+  
+  if ($cachedUrl !== null) {
+    return $cachedUrl;
+  }
+  
+  $publicDir = __DIR__ . '/..';
+  $versions = [];
+  
+  // Buscar todos los archivos index_v2_*.php
+  foreach (glob($publicDir . '/index_v2_*.php') as $file) {
+    if (preg_match('/index_v2_(\d+)\.php$/', basename($file), $matches)) {
+      $versions[] = (int)$matches[1];
+    }
+  }
+  
+  if (empty($versions)) {
+    // Fallback si no hay versiones
+    return $cachedUrl = app_base_url() . '/index.php';
+  }
+  
+  // Obtener la versión más alta
+  $latestVersion = max($versions);
+  
+  return $cachedUrl = app_base_url() . '/index_v2_' . $latestVersion . '.php';
 }
+
