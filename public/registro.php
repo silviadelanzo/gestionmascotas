@@ -344,6 +344,54 @@ if ($successMessage && $shouldRedirect) {
     .login-link a:hover { text-decoration: underline; }
     /* Ocultar URL en hover */
     a[data-href] { cursor: pointer; }
+    
+    /* Responsive para mobile */
+    @media (max-width: 768px) {
+      body {
+        padding: 0;
+      }
+      main {
+        padding: 1rem 0.75rem;
+        min-height: 100vh;
+      }
+      .auth-card {
+        padding: 1.5rem 1.25rem;
+        border-radius: 20px;
+        max-width: 100%;
+      }
+      .auth-card h1 {
+        font-size: 1.5rem;
+        margin: 0 0 0.3rem;
+      }
+      .auth-card p {
+        font-size: 0.9rem;
+        margin: 0 0 1rem;
+      }
+      .form-field {
+        margin-bottom: 0.75rem;
+        gap: 0.25rem;
+      }
+      .form-field label {
+        font-size: 0.875rem;
+      }
+      .form-control {
+        padding: 0.7rem 0.85rem;
+        font-size: 0.95rem;
+      }
+      .alert {
+        padding: 0.75rem 0.9rem;
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+      }
+      .cta-button {
+        padding: 0.85rem;
+        font-size: 1rem;
+      }
+      .login-link {
+        font-size: 0.875rem;
+        margin-top: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
