@@ -508,3 +508,229 @@ function home_url(): string {
 **Problema**: Badges no se ven mejorados
 - **Causa**: CSS no aplicado, caché del navegador
 - **Solución**: Hard refresh (Ctrl+F5), limpiar caché, verificar archivo correcto (v2.4+)
+
+---
+
+## 11) Actualizaciones 06/12/2025 Noche - Mobile UX y Glass Morphism
+
+### 11.1) index_v2_6.php - Avatar de Login Mobile
+
+#### **Problema identificado**
+El usuario reportó que en mobile, el botón "Ingresar a mi cuenta" ocupaba mucho espacio y no era consistente con la UX cuando el usuario está logueado (que muestra un avatar circular).
+
+#### **Solución implementada**
+- **Ubicación**: `public/index_v2_6.php`
+- **Base**: Copia de `index_v2_5.php` con mejoras mobile
+
+**Cambios realizados**:
+
+1. **Reemplazo de botón por avatar circular**:
+   ```html
+   <!-- Antes (v2.5) -->
+   <a class="pill btn-primary" data-href="...">Ingresar a mi cuenta</a>
+   
+   <!-- Ahora (v2.6) -->
+   <div class="user-menu">
+     <div class="user-avatar" id="login-avatar">
+       <svg><!-- Ícono de usuario --></svg>
+     </div>
+     <div class="dropdown" id="login-dropdown">
+       <a data-href="..." class="dropdown-item">
+         Ingresar a mi cuenta
+       </a>
+     </div>
+   </div>
+   ```
+
+2. **CSS para toggle en mobile**:
+   ```css
+   /* Toggle manual para mobile */
+   .dropdown.active {
+     opacity: 1;
+     visibility: visible;
+     transform: translateY(0);
+   }
+   ```
+
+3. **JavaScript para interacción táctil**:
+   ```javascript
+   // Toggle dropdown para login en mobile (click/tap)
+   const loginAvatar = document.getElementById("login-avatar");
+   const loginDropdown = document.getElementById("login-dropdown");
+   
+   if (loginAvatar && loginDropdown) {
+     loginAvatar.addEventListener("click", function(e) {
+       e.stopPropagation();
+       loginDropdown.classList.toggle("active");
+     });
+     
+     // Cerrar al hacer click fuera
+     document.addEventListener("click", function(e) {
+       if (!loginAvatar.contains(e.target) && !loginDropdown.contains(e.target)) {
+         loginDropdown.classList.remove("active");
+       }
+     });
+   }
+   ```
+
+**Resultado**:
+- ✅ Avatar circular consistente (logueado y no logueado)
+- ✅ Dropdown tipo "cartelito" que aparece al tap/click
+- ✅ Cierre automático al tocar fuera
+- ✅ Funciona en desktop (hover) y mobile (tap)
+
+### 11.2) Formulario de Registro Responsive
+
+#### **Problema identificado**
+El formulario de registro (`registro.php`) era demasiado grande para pantallas de celular:
+- Padding excesivo (2.5rem)
+- Fuentes grandes que no cabían
+- Campos muy espaciados verticalmente
+- No se veía completo en pantalla sin scroll
+
+#### **Solución implementada**
+Agregado de media query `@media (max-width: 768px)` con ajustes específicos:
+
+```css
+@media (max-width: 768px) {
+  body {
+    padding: 0;
+  }
+  main {
+    padding: 1rem 0.75rem;
+    min-height: 100vh;
+  }
+  .auth-card {
+    padding: 1.5rem 1.25rem;      /* Reducido de 2.5rem */
+    border-radius: 20px;
+    max-width: 100%;
+  }
+  .auth-card h1 {
+    font-size: 1.5rem;            /* Reducido de 1.9rem */
+    margin: 0 0 0.3rem;
+  }
+  .auth-card p {
+    font-size: 0.9rem;            /* Reducido */
+    margin: 0 0 1rem;
+  }
+  .form-field {
+    margin-bottom: 0.75rem;       /* Reducido de 1rem */
+    gap: 0.25rem;
+  }
+  .form-field label {
+    font-size: 0.875rem;          /* Más pequeño */
+  }
+  .form-control {
+    padding: 0.7rem 0.85rem;      /* Reducido de 0.85rem 1rem */
+    font-size: 0.95rem;
+  }
+  .alert {
+    padding: 0.75rem 0.9rem;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+  }
+  .cta-button {
+    padding: 0.85rem;             /* Reducido de 1rem */
+    font-size: 1rem;
+  }
+  .login-link {
+    font-size: 0.875rem;
+    margin-top: 1rem;
+  }
+}
+```
+
+**Resultado**:
+- ✅ Formulario compacto que cabe en pantalla mobile
+- ✅ Texto legible pero optimizado para espacio
+- ✅ Mejor uso del espacio vertical
+- ✅ Experiencia mobile mejorada significativamente
+
+### 11.3) Glass Morphism Effect
+
+#### **Evolución del diseño**
+El usuario solicitó hacer el formulario más transparente para ver el video de fondo.
+
+**Iteraciones realizadas**:
+
+1. **Opción 2 - Moderada** (primera implementación):
+   ```css
+   .auth-card {
+     background: rgba(255,255,255,0.75);
+     backdrop-filter: blur(12px);
+   }
+   .video-bg video {
+     filter: brightness(1.2);      /* Aumentado de 0.75 */
+   }
+   .overlay {
+     background: linear-gradient(135deg, 
+       rgba(15, 12, 12, 0.25),     /* Reducido de 0.45 */
+       rgba(15, 12, 12, 0.15)      /* Reducido de 0.35 */
+     );
+   }
+   ```
+
+2. **Opción 3 - Fuerte** (implementación final):
+   ```css
+   .auth-card {
+     background: rgba(255,255,255,0.65);  /* Más transparente */
+     backdrop-filter: blur(16px);         /* Más blur para legibilidad */
+     box-shadow: 0 25px 70px rgba(80, 50, 35, 0.3);
+   }
+   ```
+
+**Características del efecto final**:
+- 🪟 **Transparencia**: 65% (35% opaco)
+- 🌫️ **Blur backdrop**: 16px (difumina el video detrás)
+- 💡 **Video brightness**: 1.2 (20% más brillante)
+- 🎨 **Overlay suave**: 25%/15% opacidad (antes 45%/35%)
+- ✨ **Sombra pronunciada**: Para dar profundidad al "vidrio"
+
+**Resultado**:
+- ✅ Efecto "vidrio esmerilado" elegante
+- ✅ Video de fondo visible y brillante
+- ✅ Texto perfectamente legible
+- ✅ Estética premium y moderna
+
+### 11.4) Commits y Deploy
+
+**Todos los cambios fueron desplegados automáticamente:**
+
+| Commit | Descripción | Archivos |
+|--------|-------------|----------|
+| `b05efd7` | feat: index v2.6 con avatar login mobile y form responsive | `index_v2_6.php` |
+| `5f863b9` | feat: formulario de registro responsive para mobile | `registro.php` |
+| `97a1039` | feat: glass morphism en formulario registro con video brillante | `registro.php` |
+| `7df89b9` | style: glass effect mas transparente (0.65) en registro | `registro.php` |
+
+### 11.5) URLs de Prueba Actualizadas
+
+**Local**:
+- Landing v2.6: `http://localhost/gestionmascotas/public/index_v2_6.php`
+- Registro dueño: `http://localhost/gestionmascotas/public/registro.php?role=dueno`
+- Registro prestador: `http://localhost/gestionmascotas/public/registro.php?role=prestador`
+
+**Producción**:
+- Landing v2.6: `https://mascotasymimos.com/gestionmascotas/public/index_v2_6.php`
+- Registro: `https://mascotasymimos.com/gestionmascotas/public/registro.php?role=dueno`
+
+**Nota**: Gracias a la función `home_url()` implementada anteriormente, todos los links internos apuntan automáticamente a la versión más reciente (v2.6).
+
+### 11.6) Próximos Pasos Sugeridos
+
+1. **Aplicar glass morphism a login.php**:
+   - Mismo efecto transparente que registro
+   - Consistencia visual en toda la autenticación
+
+2. **Optimizar launchpads para mobile**:
+   - Actualmente tienen diseño diferente (fondo claro, modal auto-abrible)
+   - Considerar aplicar mismo estilo glass + video de fondo
+
+3. **Testing cross-browser**:
+   - Verificar backdrop-filter en Safari
+   - Probar en diferentes tamaños de pantalla mobile
+
+4. **Performance**:
+   - Considerar lazy loading del video
+   - Optimizar peso del video de fondo
+
