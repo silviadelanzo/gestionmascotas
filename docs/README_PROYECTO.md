@@ -726,6 +726,201 @@ El usuario solicitó hacer el formulario más transparente para ver el video de 
 2. **Optimizar launchpads para mobile**:
    - Actualmente tienen diseño diferente (fondo claro, modal auto-abrible)
    - Considerar aplicar mismo estilo glass + video de fondo
+   <div class="user-menu">
+     <div class="user-avatar" id="login-avatar">
+       <svg><!-- Ícono de usuario --></svg>
+     </div>
+     <div class="dropdown" id="login-dropdown">
+       <a data-href="..." class="dropdown-item">
+         Ingresar a mi cuenta
+       </a>
+     </div>
+   </div>
+   ```
+
+2. **CSS para toggle en mobile**:
+   ```css
+   /* Toggle manual para mobile */
+   .dropdown.active {
+     opacity: 1;
+     visibility: visible;
+     transform: translateY(0);
+   }
+   ```
+
+3. **JavaScript para interacción táctil**:
+   ```javascript
+   // Toggle dropdown para login en mobile (click/tap)
+   const loginAvatar = document.getElementById("login-avatar");
+   const loginDropdown = document.getElementById("login-dropdown");
+   
+   if (loginAvatar && loginDropdown) {
+     loginAvatar.addEventListener("click", function(e) {
+       e.stopPropagation();
+       loginDropdown.classList.toggle("active");
+     });
+     
+     // Cerrar al hacer click fuera
+     document.addEventListener("click", function(e) {
+       if (!loginAvatar.contains(e.target) && !loginDropdown.contains(e.target)) {
+         loginDropdown.classList.remove("active");
+       }
+     });
+   }
+   ```
+
+**Resultado**:
+- ✅ Avatar circular consistente (logueado y no logueado)
+- ✅ Dropdown tipo "cartelito" que aparece al tap/click
+- ✅ Cierre automático al tocar fuera
+- ✅ Funciona en desktop (hover) y mobile (tap)
+
+### 11.2) Formulario de Registro Responsive
+
+#### **Problema identificado**
+El formulario de registro (`registro.php`) era demasiado grande para pantallas de celular:
+- Padding excesivo (2.5rem)
+- Fuentes grandes que no cabían
+- Campos muy espaciados verticalmente
+- No se veía completo en pantalla sin scroll
+
+#### **Solución implementada**
+Agregado de media query `@media (max-width: 768px)` con ajustes específicos:
+
+```css
+@media (max-width: 768px) {
+  body {
+    padding: 0;
+  }
+  main {
+    padding: 1rem 0.75rem;
+    min-height: 100vh;
+  }
+  .auth-card {
+    padding: 1.5rem 1.25rem;      /* Reducido de 2.5rem */
+    border-radius: 20px;
+    max-width: 100%;
+  }
+  .auth-card h1 {
+    font-size: 1.5rem;            /* Reducido de 1.9rem */
+    margin: 0 0 0.3rem;
+  }
+  .auth-card p {
+    font-size: 0.9rem;            /* Reducido */
+    margin: 0 0 1rem;
+  }
+  .form-field {
+    margin-bottom: 0.75rem;       /* Reducido de 1rem */
+    gap: 0.25rem;
+  }
+  .form-field label {
+    font-size: 0.875rem;          /* Más pequeño */
+  }
+  .form-control {
+    padding: 0.7rem 0.85rem;      /* Reducido de 0.85rem 1rem */
+    font-size: 0.95rem;
+  }
+  .alert {
+    padding: 0.75rem 0.9rem;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+  }
+  .cta-button {
+    padding: 0.85rem;             /* Reducido de 1rem */
+    font-size: 1rem;
+  }
+  .login-link {
+    font-size: 0.875rem;
+    margin-top: 1rem;
+  }
+}
+```
+
+**Resultado**:
+- ✅ Formulario compacto que cabe en pantalla mobile
+- ✅ Texto legible pero optimizado para espacio
+- ✅ Mejor uso del espacio vertical
+- ✅ Experiencia mobile mejorada significativamente
+
+### 11.3) Glass Morphism Effect
+
+#### **Evolución del diseño**
+El usuario solicitó hacer el formulario más transparente para ver el video de fondo.
+
+**Iteraciones realizadas**:
+
+1. **Opción 2 - Moderada** (primera implementación):
+   ```css
+   .auth-card {
+     background: rgba(255,255,255,0.75);
+     backdrop-filter: blur(12px);
+   }
+   .video-bg video {
+     filter: brightness(1.2);      /* Aumentado de 0.75 */
+   }
+   .overlay {
+     background: linear-gradient(135deg, 
+       rgba(15, 12, 12, 0.25),     /* Reducido de 0.45 */
+       rgba(15, 12, 12, 0.15)      /* Reducido de 0.35 */
+     );
+   }
+   ```
+
+2. **Opción 3 - Fuerte** (implementación final):
+   ```css
+   .auth-card {
+     background: rgba(255,255,255,0.65);  /* Más transparente */
+     backdrop-filter: blur(16px);         /* Más blur para legibilidad */
+     box-shadow: 0 25px 70px rgba(80, 50, 35, 0.3);
+   }
+   ```
+
+**Características del efecto final**:
+- 🪟 **Transparencia**: 65% (35% opaco)
+- 🌫️ **Blur backdrop**: 16px (difumina el video detrás)
+- 💡 **Video brightness**: 1.2 (20% más brillante)
+- 🎨 **Overlay suave**: 25%/15% opacidad (antes 45%/35%)
+- ✨ **Sombra pronunciada**: Para dar profundidad al "vidrio"
+
+**Resultado**:
+- ✅ Efecto "vidrio esmerilado" elegante
+- ✅ Video de fondo visible y brillante
+- ✅ Texto perfectamente legible
+- ✅ Estética premium y moderna
+
+### 11.4) Commits y Deploy
+
+**Todos los cambios fueron desplegados automáticamente:**
+
+| Commit | Descripción | Archivos |
+|--------|-------------|----------|
+| `b05efd7` | feat: index v2.6 con avatar login mobile y form responsive | `index_v2_6.php` |
+| `5f863b9` | feat: formulario de registro responsive para mobile | `registro.php` |
+| `97a1039` | feat: glass morphism en formulario registro con video brillante | `registro.php` |
+| `7df89b9` | style: glass effect mas transparente (0.65) en registro | `registro.php` |
+
+### 11.5) URLs de Prueba Actualizadas
+
+**Local**:
+- Landing v2.6: `http://localhost/gestionmascotas/public/index_v2_6.php`
+- Registro dueño: `http://localhost/gestionmascotas/public/registro.php?role=dueno`
+- Registro prestador: `http://localhost/gestionmascotas/public/registro.php?role=prestador`
+
+**Producción**:
+- Landing v2.6: `https://mascotasymimos.com/gestionmascotas/public/index_v2_6.php`
+- Registro: `https://mascotasymimos.com/gestionmascotas/public/registro.php?role=dueno`
+
+**Nota**: Gracias a la función `home_url()` implementada anteriormente, todos los links internos apuntan automáticamente a la versión más reciente (v2.6).
+
+### 11.6) Próximos Pasos Sugeridos
+
+1. **Aplicar glass morphism a login.php**:
+   - Mismo efecto transparente que registro
+   - Consistencia visual en toda la autenticación
+
+2. **Optimizar launchpads para mobile**:
+   - Actualmente tienen diseño diferente (fondo claro, modal auto-abrible)
+   - Considerar aplicar mismo estilo glass + video de fondo
 
 3. **Testing cross-browser**:
    - Verificar backdrop-filter en Safari
@@ -735,3 +930,233 @@ El usuario solicitó hacer el formulario más transparente para ver el video de 
    - Considerar lazy loading del video
    - Optimizar peso del video de fondo
 
+---
+
+## 12) Troubleshooting Login - 08/12/2025
+
+### 12.1) Problema Reportado
+
+**Síntoma**: Después del login, el usuario es redirigido al `index_v2_6.php` pero **NO queda logueado**. La sesión no persiste y el usuario aparece como no autenticado.
+
+**Contexto**: 
+- El redirect funciona correctamente (llega al index)
+- No hay errores `ERR_TOO_MANY_REDIRECTS`
+- El problema es específico de **persistencia de sesión**
+
+### 12.2) Investigación Realizada
+
+#### **Fase 1: Diagnóstico de Redirects**
+
+**Problema inicial identificado**: `ERR_TOO_MANY_REDIRECTS` en producción
+
+**Intentos de solución**:
+
+1. **Rutas relativas** (Commit `2cbc002`):
+   ```php
+   // Cambio de:
+   header('Location: ' . $baseUrl . '/index_v2_6.php');
+   // A:
+   header('Location: ../index_v2_6.php');
+   ```
+   - ❌ **Resultado**: Loop persiste porque error redirects seguían usando `$baseUrl`
+
+2. **Todas las rutas relativas** (Commit `9c277a1`):
+   ```php
+   // Cambio de TODOS los redirects:
+   header('Location: ../login.php?err=credenciales');
+   header('Location: ../index_v2_6.php');
+   ```
+   - ✅ **Local**: Funciona perfectamente
+   - ❌ **Producción**: Loop persiste con `404.shtml`
+
+3. **URLs absolutas con detección de entorno** (Commit `28f0a2e`):
+   ```php
+   $isProduction = ($_SERVER['HTTP_HOST'] ?? '') === 'mascotasymimos.com';
+   $baseUrl = $isProduction 
+     ? 'https://mascotasymimos.com/gestionmascotas/public'
+     : 'http://localhost/gestionmascotas/public';
+   
+   header('Location: ' . $baseUrl . '/index_v2_6.php');
+   ```
+   - ✅ **Local**: Funciona
+   - ❌ **Producción**: Loop persiste
+
+**Conclusión Fase 1**: El servidor de producción está **bloqueando los redirects con `header('Location:')`** a nivel de configuración (posiblemente `.htaccess` o configuración de hosting).
+
+#### **Fase 2: Solución con JavaScript Redirects**
+
+**Implementación** (Commit `e34cdc3`):
+
+```php
+function redirectTo(string $url): void {
+  echo '<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0;url=' . htmlspecialchars($url, ENT_QUOTES) . '">
+  <script>window.location.href="' . htmlspecialchars($url, ENT_QUOTES) . '";</script>
+</head>
+<body>
+  <p>Redirigiendo...</p>
+</body>
+</html>';
+  exit;
+}
+
+// Uso:
+redirectTo($baseUrl . '/index_v2_6.php');
+```
+
+**Resultado**:
+- ✅ Redirects funcionan sin loops
+- ❌ **Sesión NO persiste** después del redirect
+
+#### **Fase 3: Archivo Faltante en Servidor**
+
+**Descubrimiento**: El archivo `index_v2_6.php` **NO estaba en el servidor de producción** a pesar de estar en el repositorio.
+
+**Evidencia**:
+- Acceso directo a `https://mascotasymimos.com/gestionmascotas/public/index_v2_6.php` retornaba "page not found"
+- `git ls-tree` confirmó que el archivo SÍ estaba en el repositorio
+
+**Solución**: Deployment manual forzado via GitHub Actions (Run #58)
+
+**Resultado**:
+- ✅ Archivo `index_v2_6.php` ahora accesible en servidor
+- ❌ Sesión sigue sin persistir
+
+#### **Fase 4: Persistencia de Sesión**
+
+**Problema identificado**: Al usar `exit` inmediatamente después de setear variables de sesión, PHP no garantiza que los datos se escriban a disco antes de terminar el script.
+
+**Solución** (Commit `c73da5e`):
+
+```php
+$_SESSION['uid'] = (int)$user['id'];
+$_SESSION['nombre'] = $user['nombre'] ?? '';
+$_SESSION['rol'] = $user['rol'] ?? 'dueno';
+$_SESSION['is_admin'] = ($_SESSION['rol'] === 'admin');
+
+// ⭐ CRÍTICO: Forzar escritura de sesión antes del redirect
+session_write_close();
+
+// Redirigir al index
+redirectTo($baseUrl . '/index_v2_6.php');
+```
+
+**Resultado**:
+- ✅ **Local**: Sesión persiste correctamente
+- ❌ **Producción**: Sesión sigue sin persistir
+
+### 12.3) Estado Actual del Código
+
+#### **Archivo**: `public/api/login.php`
+
+**Cambios implementados**:
+1. ✅ JavaScript redirect en lugar de `header('Location:')`
+2. ✅ `session_write_close()` antes del redirect
+3. ✅ Detección de entorno (producción vs local)
+4. ✅ Manejo de errores con redirects JavaScript
+
+### 12.4) Problemas Pendientes de Resolver
+
+#### **🔴 CRÍTICO: Sesión no persiste en producción**
+
+**Síntomas**:
+- Login redirige correctamente a `index_v2_6.php`
+- Usuario aparece como NO logueado en el index
+- `$_SESSION['uid']` está vacío después del redirect
+
+**Posibles causas**:
+
+1. **Configuración de sesiones del servidor**:
+   - `session.save_path` no tiene permisos de escritura
+   - `session.cookie_domain` mal configurado
+   - `session.cookie_secure` requiere HTTPS pero no está configurado
+
+2. **Problema con `session_write_close()`**:
+   - La sesión se cierra pero no se vuelve a abrir en la siguiente página
+   - Posible conflicto con `session_start()` en `bootstrap.php`
+
+3. **Cookies bloqueadas**:
+   - SameSite policy bloqueando cookies
+   - Dominio de cookie no coincide
+
+4. **Credenciales incorrectas**:
+   - Usuario `carlos.lanzo@gmail.com` no existe en BD de producción
+   - Password `gorila` no es correcta
+   - Login falla con `err=credenciales` antes de llegar al código de sesión
+
+#### **🟡 Deployment automático no funciona**
+
+**Síntoma**: Archivos nuevos no se suben automáticamente al servidor
+
+**Evidencia**:
+- `index_v2_6.php` no estaba en servidor hasta deployment manual
+- `debug_users.php` tampoco se desplegó automáticamente
+
+**Causa probable**: GitHub Actions workflow no se dispara o falla silenciosamente
+
+**Workaround actual**: Deployment manual via GitHub Actions UI
+
+### 12.5) Archivos de Debug Creados
+
+#### **`public/debug_users.php`** (Commit `80f8d39`)
+
+Script temporal para listar usuarios en la base de datos.
+
+**⚠️ IMPORTANTE**: Eliminar este archivo antes de ir a producción final (expone información sensible)
+
+### 12.6) Commits Relacionados
+
+| Commit | Fecha | Descripción | Estado |
+|--------|-------|-------------|--------|
+| `2cbc002` | 08/12 | fix: usar ruta relativa en redirect de login | ❌ Falló |
+| `9c277a1` | 08/12 | fix: cambiar TODOS los redirects de login a rutas relativas | ❌ Falló |
+| `28f0a2e` | 08/12 | fix: usar URLs absolutas con deteccion de entorno | ❌ Falló |
+| `e34cdc3` | 08/12 | fix: usar JavaScript redirect en lugar de header() | ✅ Redirects OK |
+| `c73da5e` | 08/12 | fix: forzar escritura de sesion antes de redirect | ❌ Sesión no persiste |
+| `80f8d39` | 08/12 | add: script debug para verificar usuarios en BD | ⏳ Pendiente deploy |
+
+### 12.7) Próximos Pasos para Resolver
+
+#### **Acción Inmediata**:
+
+1. **Verificar credenciales en producción**:
+   - Acceder a `debug_users.php` en producción (después de deployment manual)
+   - Confirmar que usuario `carlos.lanzo@gmail.com` existe
+   - Verificar que el password hash es correcto
+
+2. **Revisar configuración de sesiones PHP**:
+   - Verificar `session.save_path`, `session.cookie_domain`, `session.cookie_secure`
+   - Agregar logging detallado en `api/login.php` y `index_v2_6.php`
+
+3. **Probar sin `session_write_close()`**:
+   - Comentar temporalmente la línea `session_write_close()`
+   - Ver si la sesión persiste sin forzar el cierre
+
+#### **Soluciones Alternativas**:
+
+1. **Volver a `header()` redirect y arreglar configuración del servidor**:
+   - Contactar soporte de hosting
+   - Revisar `.htaccess` en directorios superiores
+   - Verificar configuración de ErrorDocument
+
+2. **Usar cookies manuales** (última opción):
+   - Implementar sistema de autenticación con cookies personalizadas
+   - Requiere más código pero bypasea problemas de sesión PHP
+
+### 12.8) Notas Técnicas
+
+#### **Por qué `session_write_close()` es necesario**:
+
+Cuando se usa `exit` después de setear variables de sesión, PHP puede no tener tiempo de escribir los datos al archivo de sesión en disco. `session_write_close()` fuerza la escritura inmediata.
+
+#### **Por qué JavaScript redirect en lugar de `header()`**:
+
+Algunos servidores (especialmente hosting compartido) tienen configuraciones de `.htaccess` o mod_security que interfieren con redirects PHP usando `header('Location:')`. JavaScript redirects bypasean estas restricciones.
+
+#### **Diferencia entre local y producción**:
+
+- **Local (XAMPP)**: Configuración permisiva, todo funciona
+- **Producción (hosting compartido)**: Restricciones de seguridad, configuraciones específicas del proveedor
