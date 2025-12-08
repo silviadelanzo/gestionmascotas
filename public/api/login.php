@@ -6,11 +6,17 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   exit('Metodo no permitido');
 }
 
+// Detectar si estamos en producción o local
+$isProduction = ($_SERVER['HTTP_HOST'] ?? '') === 'mascotasymimos.com';
+$baseUrl = $isProduction 
+  ? 'https://mascotasymimos.com/gestionmascotas/public'
+  : 'http://localhost/gestionmascotas/public';
+
 $email = strtolower(trim($_POST['email'] ?? ''));
 $pass  = $_POST['password'] ?? '';
 
 if ($email === '' || $pass === '') {
-  header('Location: ../login.php?err=datos');
+  header('Location: ' . $baseUrl . '/login.php?err=datos');
   exit;
 }
 
@@ -21,7 +27,7 @@ try {
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
   if (!$user || !password_verify($pass, (string)$user['password'])) {
-    header('Location: ../login.php?err=credenciales');
+    header('Location: ' . $baseUrl . '/login.php?err=credenciales');
     exit;
   }
 
@@ -30,11 +36,10 @@ try {
   $_SESSION['rol'] = $user['rol'] ?? 'dueno';
   $_SESSION['is_admin'] = ($_SESSION['rol'] === 'admin');
 
-  // Redirigir al index usando ruta relativa desde /api/
-  // Esto evita problemas de cálculo de base_url en producción
-  header('Location: ../index_v2_6.php');
+  // Redirigir al index con URL absoluta
+  header('Location: ' . $baseUrl . '/index_v2_6.php');
   exit;
 } catch (Throwable $e) {
-  header('Location: ../login.php?err=server');
+  header('Location: ' . $baseUrl . '/login.php?err=server');
   exit;
 }
