@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require __DIR__ . '/../includes/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -32,8 +32,13 @@ try {
   $_SESSION['rol'] = $user['rol'] ?? 'dueno';
   $_SESSION['is_admin'] = ($_SESSION['rol'] === 'admin');
 
-  // Volver siempre a la landing (index_v2_* m·s reciente); desde all¡ se accede al launchpad seg£n rol.
-  header('Location: ' . home_url());
+  // Redirigir directo al launchpad segun rol
+  $role = $_SESSION['rol'];
+  $launchUrl = $role === 'prestador'
+    ? $baseUrl . '/launchpad_prestador.php'
+    : $baseUrl . '/launchpad_dueno_v2.php';
+
+  header('Location: ' . $launchUrl);
   exit;
 } catch (Throwable $e) {
   header('Location: ' . $baseUrl . '/login.php?err=server');
