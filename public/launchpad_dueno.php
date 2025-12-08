@@ -111,47 +111,26 @@ $limiteMascotas = ($plan === 'pro') ? 999 : 2;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
-    .plan-badge {
-      padding: 0.5rem 1rem;
+    .exit-btn {
+      padding: 0.65rem 1.25rem;
       border-radius: 20px;
-      font-size: 0.875rem;
+      font-size: 0.9rem;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .plan-badge.gratis {
-      background: rgba(100, 100, 100, 0.3);
+      background: rgba(255, 255, 255, 0.25);
       color: white;
-    }
-
-    .plan-badge.pro {
-      background: linear-gradient(135deg, #FFD700, #FFA500);
-      color: #000;
-      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
-    }
-
-    .close-btn {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      color: white;
-      font-size: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.3);
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
-    .close-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: scale(1.1);
+    .exit-btn:hover {
+      background: rgba(255, 255, 255, 0.35);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
     /* Búsqueda */
@@ -394,10 +373,10 @@ $limiteMascotas = ($plan === 'pro') ? 999 : 2;
       <!-- Header -->
       <div class="launchpad-header">
         <h1 class="launchpad-title">🐾 Hola, <?= htmlspecialchars($nombre) ?></h1>
-        <span class="plan-badge <?= $plan ?>"><?= $plan === 'pro' ? '👑 PRO' : 'Gratis' ?></span>
+        <a href="<?= home_url() ?>" class="exit-btn">
+          ← Salir
+        </a>
       </div>
-
-      <button class="close-btn" onclick="window.location.href='<?= home_url() ?>'" title="Cerrar">×</button>
 
       <!-- Búsqueda -->
       <div class="search-container" style="position: relative;">
