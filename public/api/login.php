@@ -6,13 +6,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   exit('Metodo no permitido');
 }
 
-$baseUrl = app_base_url();
-
 $email = strtolower(trim($_POST['email'] ?? ''));
 $pass  = $_POST['password'] ?? '';
 
 if ($email === '' || $pass === '') {
-  header('Location: ' . $baseUrl . '/login.php?err=datos');
+  header('Location: ../login.php?err=datos');
   exit;
 }
 
@@ -23,7 +21,7 @@ try {
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
   if (!$user || !password_verify($pass, (string)$user['password'])) {
-    header('Location: ' . $baseUrl . '/login.php?err=credenciales');
+    header('Location: ../login.php?err=credenciales');
     exit;
   }
 
@@ -37,6 +35,6 @@ try {
   header('Location: ../index_v2_6.php');
   exit;
 } catch (Throwable $e) {
-  header('Location: ' . $baseUrl . '/login.php?err=server');
+  header('Location: ../login.php?err=server');
   exit;
 }
