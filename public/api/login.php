@@ -32,9 +32,9 @@ try {
   $_SESSION['rol'] = $user['rol'] ?? 'dueno';
   $_SESSION['is_admin'] = ($_SESSION['rol'] === 'admin');
 
-  // Volver al home (versión v2_6 fijada para evitar issues de glob en prod)
-  $redirect = $baseUrl . '/index_v2_6.php';
-  header('Location: ' . $redirect);
+  // Redirigir al index usando ruta relativa desde /api/
+  // Esto evita problemas de cálculo de base_url en producción
+  header('Location: ../index_v2_6.php');
   exit;
 } catch (Throwable $e) {
   header('Location: ' . $baseUrl . '/login.php?err=server');
