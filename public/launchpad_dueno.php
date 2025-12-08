@@ -77,18 +77,18 @@ $limiteMascotas = ($plan === 'pro') ? 999 : 2;
       background-position: center;
     }
 
-    /* Overlay con blur REDUCIDO y gradiente */
+    /* Overlay con blur REDUCIDO y gradiente MÁS CLARO */
     .launchpad-container::before {
       content: '';
       position: absolute;
       inset: 0;
       background: linear-gradient(
         135deg,
-        rgba(165, 115, 85, 0.65),
-        rgba(210, 180, 140, 0.55)
+        rgba(165, 115, 85, 0.45),
+        rgba(210, 180, 140, 0.35)
       );
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
       z-index: 0;
     }
 
