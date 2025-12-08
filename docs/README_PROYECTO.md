@@ -36,6 +36,7 @@ Alcance: estado actual, como correr localmente, deploy y pendientes inmediatos.
   - `app`: sube `public/` -> `public_html/gestionmascotas/public/`.
   - `root`: sube portada (`index.html`, `.htaccess`) -> `public_html/`.
 - Inputs al ejecutar: `target`, `protocol` (ftp/ftps), `serverDirApp`, `serverDirRoot`.
+- Flujo automātico habitual: trabajar en local → `git add/commit/push` a `main` → el workflow se dispara solo (push a `public/**` o `index.html`) y sube `public/` por FTP al `serverDirApp` configurado. Si falla, re‑ejecutar manualmente el workflow con `target=app` y rutas por defecto.
 - Exclusiones para no pisar credenciales: `public/config/db.php`, `public/config/mail.php`.
 - Sincroniza solo cambios (usa `.ftp-deploy-sync-state.json` en el servidor).
 - Redireccion actual: 302 en `public_html/.htaccess` hacia `/gestionmascotas/public/`; cambiar a 301 o mover DocumentRoot cuando se apruebe.
