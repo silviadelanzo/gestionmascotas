@@ -1,115 +1,640 @@
 <?php
-require __DIR__ . '/includes/bootstrap.php';
+session_start();
+require_once __DIR__ . '/includes/helpers.php';
 
-$rol = $_SESSION['rol'] ?? '';
-if ($rol !== 'dueno' && $rol !== 'admin') {
-  header('Location: login.php');
-  exit;
+// Verificar que el usuario esté logueado y sea dueño
+if (!isset($_SESSION['uid']) || $_SESSION['rol'] !== 'dueno') {
+    header('Location: ' . home_url());
+    exit;
 }
-$nombre = $_SESSION['nombre'] ?? 'tu cuenta';
+
+$nombre = $_SESSION['nombre'] ?? 'Usuario';
+$plan = $_SESSION['plan'] ?? 'gratis'; // 'gratis' o 'pro'
+
+// Simular contador de consultas IA (en producción vendría de BD)
+$consultasIA = $_SESSION['consultas_ia_mes'] ?? 0;
+$limiteConsultasIA = ($plan === 'pro') ? 999 : 3;
+
+// Simular cantidad de mascotas (en producción vendría de BD)
+$cantidadMascotas = $_SESSION['cantidad_mascotas'] ?? 0;
+$limiteMascotas = ($plan === 'pro') ? 999 : 2;
 ?>
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Launchpad dueno - Mascotas y Mimos</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Launchpad - Mascotas y Mimos</title>
   <style>
-    :root { --brand:#A97155; --brand-dark:#8d5f47; --text:#3b2c26; }
-    * { box-sizing:border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      margin:0; min-height:100vh; font-family:'Poppins',system-ui,-apple-system,'Segoe UI',sans-serif;
-      color:var(--text);
-      background: radial-gradient(circle at 20% 20%, rgba(255,214,165,0.6), transparent 35%),
-                  radial-gradient(circle at 80% 0%, rgba(250,224,195,0.6), transparent 30%),
-                  linear-gradient(135deg,#fff4ec,#f9e4d5);
-      position:relative; overflow:hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      overflow: hidden;
     }
-    body::before {
-      content:''; position:absolute; inset:0; background:url('/assets/img/hero.webp') center/cover no-repeat;
-      filter:blur(20px) brightness(0.9); opacity:0.28; z-index:0;
+
+    /* Fondo con imagen de mascotas */
+    .launchpad-overlay {
+      position: fixed;
+      inset: 0;
+      background-image: url('<?= app_base_url() ?>/assets/img/launchpad_bg.png');
+      background-size: cover;
+      background-position: center;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease;
     }
-    main { position:relative; z-index:1; max-width:960px; margin:0 auto; padding:3rem 1.25rem 4rem; }
-    .card {
-      background:rgba(255,255,255,0.94); backdrop-filter:blur(8px); border-radius:28px;
-      padding:2.2rem; box-shadow:0 24px 60px rgba(80,50,35,0.16);
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
-    h1 { margin:0 0 0.4rem; font-size:2rem; }
-    p.lead { margin:0 0 1.4rem; color:#6b4e43; }
-    .cta {
-      display:inline-flex; align-items:center; gap:0.5rem; padding:0.95rem 1.3rem;
-      border-radius:16px; border:1px solid #e6d8cf; background:#fffaf7; color:var(--text);
-      cursor:pointer; font-weight:700; transition:transform 0.15s ease, box-shadow 0.2s ease;
+
+    /* Overlay con blur y gradiente */
+    .launchpad-overlay::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(165, 115, 85, 0.75),
+        rgba(210, 180, 140, 0.65)
+      );
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
     }
-    .cta:hover { transform:translateY(-1px); box-shadow:0 14px 24px rgba(169,113,85,0.2); }
-    .pill {
-      display:inline-flex; align-items:center; padding:0.45rem 0.9rem; border-radius:999px;
-      background:rgba(169,113,85,0.12); color:var(--brand-dark); font-size:0.9rem; font-weight:600;
+
+    /* Contenedor principal */
+    .launchpad-container {
+      position: relative;
+      width: 95%;
+      max-width: 1200px;
+      max-height: 90vh;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
-    .modal {
-      position:fixed; inset:0; display:none; align-items:center; justify-content:center; padding:1.5rem;
-      background:rgba(0,0,0,0.55); backdrop-filter:blur(6px); z-index:10;
+
+    /* Header */
+    .launchpad-header {
+      padding: 1.5rem 2rem;
+      background: rgba(255, 255, 255, 0.2);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    .modal.active { display:flex; }
-    .modal-card {
-      width:100%; max-width:620px; background:#fff; border-radius:24px; padding:1.8rem 1.6rem;
-      box-shadow:0 24px 60px rgba(0,0,0,0.2);
+
+    .launchpad-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
-    .actions { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:0.8rem; margin-top:1rem; }
-    .action {
-      padding:1rem 1rem; border-radius:16px; border:1px solid #e6d8cf; background:#fffaf7;
-      font-weight:600; color:var(--text); text-decoration:none; display:block;
+
+    .plan-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    .action small { display:block; margin-top:0.2rem; color:#6b4e43; font-weight:400; }
-    .close { float:right; border:none; background:transparent; font-size:1.2rem; cursor:pointer; color:#6b4e43; }
+
+    .plan-badge.gratis {
+      background: rgba(100, 100, 100, 0.3);
+      color: white;
+    }
+
+    .plan-badge.pro {
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      color: #000;
+      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .close-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+
+    /* Búsqueda */
+    .search-container {
+      padding: 1.5rem 2rem;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.875rem 1.25rem 0.875rem 3rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      background: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 3.25rem;
+      top: 2.375rem;
+      font-size: 1.25rem;
+      color: #666;
+    }
+
+    /* Contenido scrollable */
+    .launchpad-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem 2rem;
+    }
+
+    .launchpad-content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .launchpad-content::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    .launchpad-content::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+    }
+
+    /* Categorías */
+    .category {
+      margin-bottom: 2.5rem;
+    }
+
+    .category-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: white;
+      margin-bottom: 1rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Grid de botones */
+    .buttons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    /* Botón base */
+    .launch-button {
+      position: relative;
+      padding: 1.5rem;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .launch-button:hover {
+      background: rgba(255, 255, 255, 0.95);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Botón PRO */
+    .launch-button.pro {
+      background: linear-gradient(
+        135deg,
+        rgba(255, 215, 0, 0.25),
+        rgba(218, 165, 32, 0.2)
+      );
+      border: 2px solid rgba(255, 215, 0, 0.5);
+    }
+
+    .launch-button.pro:hover {
+      background: linear-gradient(
+        135deg,
+        rgba(255, 215, 0, 0.35),
+        rgba(218, 165, 32, 0.3)
+      );
+      border-color: rgba(255, 215, 0, 0.7);
+    }
+
+    /* Botón destacado (Mejorar a PRO) */
+    .launch-button.featured {
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      border: none;
+      color: #000;
+      font-weight: 700;
+      box-shadow: 0 12px 32px rgba(255, 215, 0, 0.5);
+      grid-column: span 2;
+    }
+
+    .launch-button.featured:hover {
+      background: linear-gradient(135deg, #FFC700, #FF9500);
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(255, 215, 0, 0.6);
+    }
+
+    /* Icono del botón */
+    .button-icon {
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    /* Título del botón */
+    .button-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #333;
+      line-height: 1.3;
+    }
+
+    .launch-button.featured .button-title {
+      color: #000;
+      font-size: 1.1rem;
+    }
+
+    /* Descripción del botón */
+    .button-desc {
+      font-size: 0.8rem;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .launch-button.featured .button-desc {
+      color: rgba(0, 0, 0, 0.7);
+    }
+
+    /* Badge PRO (corona) */
+    .pro-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      font-size: 1.75rem;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    /* Contador (para consultas IA) */
+    .button-counter {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .launchpad-container {
+        width: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+      }
+
+      .buttons-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 0.75rem;
+      }
+
+      .launch-button {
+        padding: 1.25rem;
+      }
+
+      .launch-button.featured {
+        grid-column: span 1;
+      }
+
+      .button-icon {
+        font-size: 1.75rem;
+      }
+
+      .button-title {
+        font-size: 0.875rem;
+      }
+
+      .button-desc {
+        font-size: 0.75rem;
+      }
+    }
+
+    /* Ocultar elementos cuando se busca */
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <main>
-    <div class="card">
-      <div class="pill">Launchpad dueno</div>
-      <h1>Hola, <?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8') ?></h1>
-      <p class="lead">Elige que quieres hacer con tus mascotas. Abrimos un panel rapido con las acciones principales.</p>
-      <button class="cta" id="open-modal">Abrir acciones</button>
-    </div>
-  </main>
+  <div class="launchpad-overlay">
+    <div class="launchpad-container">
+      <!-- Header -->
+      <div class="launchpad-header">
+        <h1 class="launchpad-title">🐾 Hola, <?= htmlspecialchars($nombre) ?></h1>
+        <span class="plan-badge <?= $plan ?>"><?= $plan === 'pro' ? '👑 PRO' : 'Gratis' ?></span>
+      </div>
 
-  <div class="modal" id="actions-modal" aria-hidden="true">
-    <div class="modal-card">
-      <button class="close" id="close-modal" aria-label="Cerrar">×</button>
-      <h2>Acciones rapidas</h2>
-      <div class="actions">
-        <a class="action" href="/mascotas/mis_mascotas.php">Ver mis mascotas<small>Ficha, datos y edicion rapida.</small></a>
-        <a class="action" href="/mascotas/crear_mascota.php">Agregar mascota<small>Nuevo perfil con datos basicos.</small></a>
-        <a class="action" href="/recordatorios/lista.php">Recordatorios<small>Vacunas, tratamientos y proximas fechas.</small></a>
-        <a class="action" href="/documentos/index.php">Documentos<small>Sube carnets, estudios y recetas.</small></a>
-        <a class="action" href="/contactos/index.php">Contactos de confianza<small>Vet principal, paseador, peluqueria, emergencias.</small></a>
-        <a class="action" href="/mapa_prestadores.php">Mapa de prestadores<small>Ver prestadores cercanos en el mapa.</small></a>
+      <button class="close-btn" onclick="window.location.href='<?= home_url() ?>'" title="Cerrar">×</button>
+
+      <!-- Búsqueda -->
+      <div class="search-container" style="position: relative;">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          class="search-input" 
+          id="searchInput"
+          placeholder="Buscar funcionalidad..."
+          autocomplete="off"
+        >
+      </div>
+
+      <!-- Contenido -->
+      <div class="launchpad-content">
+        
+        <!-- CATEGORÍA: MIS MASCOTAS -->
+        <div class="category" data-category="mascotas">
+          <h2 class="category-title">Mis Mascotas</h2>
+          <div class="buttons-grid">
+            
+            <a href="<?= app_base_url() ?>/mascotas/mis_mascotas.php" class="launch-button" data-search="ver mis mascotas lista">
+              <span class="button-icon">🐕</span>
+              <span class="button-title">Ver mis mascotas</span>
+              <span class="button-desc">Lista completa de tus mascotas</span>
+            </a>
+
+            <?php if ($cantidadMascotas >= $limiteMascotas && $plan === 'gratis'): ?>
+              <a href="<?= app_base_url() ?>/planes.php?feature=mascotas_ilimitadas" class="launch-button pro" data-search="agregar mascota nueva">
+                <span class="pro-badge">👑</span>
+                <span class="button-icon">➕</span>
+                <span class="button-title">Agregar mascota</span>
+                <span class="button-desc">Límite alcanzado (<?= $cantidadMascotas ?>/<?= $limiteMascotas ?>)</span>
+              </a>
+            <?php else: ?>
+              <a href="<?= app_base_url() ?>/mascotas/agregar.php" class="launch-button" data-search="agregar mascota nueva">
+                <span class="button-icon">➕</span>
+                <span class="button-title">Agregar mascota</span>
+                <span class="button-desc">Registra una nueva mascota</span>
+              </a>
+            <?php endif; ?>
+
+            <a href="<?= app_base_url() ?>/planes.php?feature=analisis_salud" class="launch-button pro" data-search="analisis salud graficos">
+              <span class="pro-badge">👑</span>
+              <span class="button-icon">📊</span>
+              <span class="button-title">Análisis de salud</span>
+              <span class="button-desc">Gráficos y tendencias</span>
+            </a>
+
+          </div>
+        </div>
+
+        <!-- CATEGORÍA: SALUD Y RECORDATORIOS -->
+        <div class="category" data-category="salud">
+          <h2 class="category-title">Salud y Recordatorios</h2>
+          <div class="buttons-grid">
+            
+            <a href="<?= app_base_url() ?>/recordatorios/vacunas.php" class="launch-button" data-search="calendario vacunas proximas">
+              <span class="button-icon">💉</span>
+              <span class="button-title">Calendario de vacunas</span>
+              <span class="button-desc">Próximas vacunas y desparasitaciones</span>
+            </a>
+
+            <a href="<?= app_base_url() ?>/recordatorios/index.php" class="launch-button" data-search="recordatorios alertas notificaciones">
+              <span class="button-icon">🔔</span>
+              <span class="button-title">Mis recordatorios</span>
+              <span class="button-desc">Gestiona alertas y notificaciones</span>
+            </a>
+
+            <a href="<?= app_base_url() ?>/planes.php?feature=whatsapp_ilimitado" class="launch-button pro" data-search="whatsapp recordatorios ilimitados">
+              <span class="pro-badge">👑</span>
+              <span class="button-icon">📱</span>
+              <span class="button-title">WhatsApp ilimitado</span>
+              <span class="button-desc">Alertas sin límites por WhatsApp</span>
+            </a>
+
+            <?php if ($consultasIA >= $limiteConsultasIA && $plan === 'gratis'): ?>
+              <a href="<?= app_base_url() ?>/planes.php?feature=ia_ilimitado" class="launch-button pro" data-search="consultar ia chatbot sintomas">
+                <span class="pro-badge">👑</span>
+                <span class="button-counter"><?= $consultasIA ?>/<?= $limiteConsultasIA ?></span>
+                <span class="button-icon">🤖</span>
+                <span class="button-title">Consultar IA</span>
+                <span class="button-desc">Límite alcanzado este mes</span>
+              </a>
+            <?php else: ?>
+              <a href="<?= app_base_url() ?>/ia/chatbot.php" class="launch-button" data-search="consultar ia chatbot sintomas">
+                <?php if ($plan === 'gratis'): ?>
+                  <span class="button-counter"><?= $consultasIA ?>/<?= $limiteConsultasIA ?></span>
+                <?php endif; ?>
+                <span class="button-icon">🤖</span>
+                <span class="button-title">Consultar IA</span>
+                <span class="button-desc">Pregunta sobre síntomas y cuidados</span>
+              </a>
+            <?php endif; ?>
+
+          </div>
+        </div>
+
+        <!-- CATEGORÍA: DOCUMENTOS Y HISTORIAL -->
+        <div class="category" data-category="documentos">
+          <h2 class="category-title">Documentos y Historial</h2>
+          <div class="buttons-grid">
+            
+            <a href="<?= app_base_url() ?>/documentos/index.php" class="launch-button" data-search="documentos carnets recetas">
+              <span class="button-icon">📄</span>
+              <span class="button-title">Mis documentos</span>
+              <span class="button-desc">Carnets, recetas y estudios</span>
+            </a>
+
+            <a href="<?= app_base_url() ?>/historial/index.php" class="launch-button" data-search="historial medico vacunas">
+              <span class="button-icon">📋</span>
+              <span class="button-title">Historial médico</span>
+              <span class="button-desc">Registro de vacunas y tratamientos</span>
+            </a>
+
+            <a href="<?= app_base_url() ?>/planes.php?feature=historial_completo" class="launch-button pro" data-search="historial completo medicaciones cirugias">
+              <span class="pro-badge">👑</span>
+              <span class="button-icon">📊</span>
+              <span class="button-title">Historial completo</span>
+              <span class="button-desc">Medicaciones, cirugías y más</span>
+            </a>
+
+            <a href="<?= app_base_url() ?>/planes.php?feature=exportar_pdf" class="launch-button pro" data-search="exportar pdf descargar">
+              <span class="pro-badge">👑</span>
+              <span class="button-icon">📥</span>
+              <span class="button-title">Exportar PDF</span>
+              <span class="button-desc">Descarga historial completo</span>
+            </a>
+
+          </div>
+        </div>
+
+        <!-- CATEGORÍA: PRESTADORES -->
+        <div class="category" data-category="prestadores">
+          <h2 class="category-title">Prestadores</h2>
+          <div class="buttons-grid">
+            
+            <a href="<?= app_base_url() ?>/mapa_prestadores.php" class="launch-button" data-search="buscar veterinarias mapa cerca">
+              <span class="button-icon">🗺️</span>
+              <span class="button-title">Buscar veterinarias</span>
+              <span class="button-desc">Encuentra prestadores cerca tuyo</span>
+            </a>
+
+            <a href="<?= app_base_url() ?>/prestadores/favoritos.php" class="launch-button" data-search="favoritos guardados">
+              <span class="button-icon">⭐</span>
+              <span class="button-title">Mis favoritos</span>
+              <span class="button-desc">Prestadores guardados</span>
+            </a>
+
+            <a href="<?= app_base_url() ?>/reservas/nueva.php" class="launch-button" data-search="reservar turno agendar">
+              <span class="button-icon">📅</span>
+              <span class="button-title">Reservar turno</span>
+              <span class="button-desc">Agenda citas con prestadores</span>
+            </a>
+
+          </div>
+        </div>
+
+        <!-- CATEGORÍA: CUENTA -->
+        <div class="category" data-category="cuenta">
+          <h2 class="category-title">Cuenta</h2>
+          <div class="buttons-grid">
+            
+            <a href="<?= app_base_url() ?>/perfil/editar.php" class="launch-button" data-search="perfil datos personales editar">
+              <span class="button-icon">👤</span>
+              <span class="button-title">Mi perfil</span>
+              <span class="button-desc">Edita tus datos personales</span>
+            </a>
+
+            <a href="<?= app_base_url() ?>/planes.php?feature=compartir_acceso" class="launch-button pro" data-search="compartir acceso familia">
+              <span class="pro-badge">👑</span>
+              <span class="button-icon">👨‍👩‍👧</span>
+              <span class="button-title">Compartir acceso</span>
+              <span class="button-desc">Familia y cuidadores</span>
+            </a>
+
+            <?php if ($plan === 'gratis'): ?>
+              <a href="<?= app_base_url() ?>/planes.php" class="launch-button featured" data-search="mejorar pro premium suscripcion">
+                <span class="button-icon">💎</span>
+                <span class="button-title">Mejorar a PRO</span>
+                <span class="button-desc">Desbloquea todas las funcionalidades por $3.99/mes</span>
+              </a>
+            <?php endif; ?>
+
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 
   <script>
-    (function () {
-      const modal = document.getElementById('actions-modal');
-      const openBtn = document.getElementById('open-modal');
-      const closeBtn = document.getElementById('close-modal');
-      if (!modal || !openBtn || !closeBtn) return;
+    // Búsqueda en tiempo real
+    const searchInput = document.getElementById('searchInput');
+    const categories = document.querySelectorAll('.category');
+    const buttons = document.querySelectorAll('.launch-button');
 
-      const open = () => { modal.classList.add('active'); modal.setAttribute('aria-hidden','false'); };
-      const close = () => { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); };
+    searchInput.addEventListener('input', function() {
+      const query = this.value.toLowerCase().trim();
 
-      openBtn.addEventListener('click', open);
-      closeBtn.addEventListener('click', close);
-      modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
-      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+      if (query === '') {
+        // Mostrar todo
+        categories.forEach(cat => cat.classList.remove('hidden'));
+        buttons.forEach(btn => btn.classList.remove('hidden'));
+        return;
+      }
 
-      // Abrir por defecto al entrar
-      open();
-    })();
+      // Filtrar botones
+      let hasVisibleButtons = {};
+      
+      buttons.forEach(btn => {
+        const searchText = btn.getAttribute('data-search') || '';
+        const titleText = btn.querySelector('.button-title')?.textContent.toLowerCase() || '';
+        const descText = btn.querySelector('.button-desc')?.textContent.toLowerCase() || '';
+        
+        const matches = searchText.includes(query) || 
+                       titleText.includes(query) || 
+                       descText.includes(query);
+
+        if (matches) {
+          btn.classList.remove('hidden');
+          const category = btn.closest('.category');
+          if (category) {
+            hasVisibleButtons[category.dataset.category] = true;
+          }
+        } else {
+          btn.classList.add('hidden');
+        }
+      });
+
+      // Ocultar categorías sin botones visibles
+      categories.forEach(cat => {
+        if (hasVisibleButtons[cat.dataset.category]) {
+          cat.classList.remove('hidden');
+        } else {
+          cat.classList.add('hidden');
+        }
+      });
+    });
+
+    // Focus automático en búsqueda
+    searchInput.focus();
+
+    // Cerrar con ESC
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        window.location.href = '<?= home_url() ?>';
+      }
+    });
   </script>
 </body>
 </html>
