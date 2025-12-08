@@ -72,7 +72,7 @@ $limiteMascotas = ($plan === 'pro') ? 999 : 2;
       display: flex;
       flex-direction: column;
       /* Imagen de fondo SOLO en el contenedor */
-      background-image: url('../assets/img/launchpad_bg.png');
+      background-image: url('/gestionmascotas/public/assets/img/launchpad_bg.png');
       background-size: cover;
       background-position: center;
     }
