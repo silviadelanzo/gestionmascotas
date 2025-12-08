@@ -32,12 +32,8 @@ try {
   $_SESSION['rol'] = $user['rol'] ?? 'dueno';
   $_SESSION['is_admin'] = ($_SESSION['rol'] === 'admin');
 
-  $role = $_SESSION['rol'];
-  if ($role === 'prestador') {
-    header('Location: ' . $baseUrl . '/launchpad_prestador.php');
-  } else {
-    header('Location: ' . $baseUrl . '/launchpad_dueno.php');
-  }
+  // Volver siempre a la landing (index_v2_* m·s reciente); desde all¡ se accede al launchpad seg£n rol.
+  header('Location: ' . home_url());
   exit;
 } catch (Throwable $e) {
   header('Location: ' . $baseUrl . '/login.php?err=server');
