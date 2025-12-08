@@ -35,20 +35,23 @@ $limiteMascotas = ($plan === 'pro') ? 999 : 2;
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       overflow: hidden;
+      /* Fondo igual al index */
+      background: radial-gradient(circle at 20% 20%, rgba(255,214,165,0.6), transparent 35%),
+                  radial-gradient(circle at 80% 0%, rgba(250,224,195,0.6), transparent 30%),
+                  linear-gradient(135deg,#fff4ec,#f9e4d5);
     }
 
     /* Fondo con imagen de mascotas */
     .launchpad-overlay {
       position: fixed;
       inset: 0;
-      background-image: url('<?= app_base_url() ?>/assets/img/launchpad_bg.png');
-      background-size: cover;
-      background-position: center;
       z-index: 9999;
       display: flex;
       align-items: center;
       justify-content: center;
       animation: fadeIn 0.3s ease;
+      /* Fondo semi-transparente para oscurecer el fondo del index */
+      background: rgba(0, 0, 0, 0.3);
     }
 
     @keyframes fadeIn {
@@ -56,38 +59,43 @@ $limiteMascotas = ($plan === 'pro') ? 999 : 2;
       to { opacity: 1; }
     }
 
-    /* Overlay con blur y gradiente */
-    .launchpad-overlay::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        135deg,
-        rgba(165, 115, 85, 0.75),
-        rgba(210, 180, 140, 0.65)
-      );
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
-    }
-
-    /* Contenedor principal */
+    /* Contenedor principal con imagen de fondo */
     .launchpad-container {
       position: relative;
       width: 95%;
       max-width: 1200px;
       max-height: 90vh;
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(20px);
       border-radius: 24px;
       border: 1px solid rgba(255, 255, 255, 0.3);
       box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      /* Imagen de fondo SOLO en el contenedor */
+      background-image: url('<?= app_base_url() ?>/assets/img/launchpad_bg.png');
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* Overlay con blur REDUCIDO y gradiente */
+    .launchpad-container::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(165, 115, 85, 0.65),
+        rgba(210, 180, 140, 0.55)
+      );
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 0;
     }
 
     /* Header */
     .launchpad-header {
+      position: relative;
+      z-index: 1;
       padding: 1.5rem 2rem;
       background: rgba(255, 255, 255, 0.2);
       border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -148,6 +156,8 @@ $limiteMascotas = ($plan === 'pro') ? 999 : 2;
 
     /* Búsqueda */
     .search-container {
+      position: relative;
+      z-index: 1;
       padding: 1.5rem 2rem;
     }
 
@@ -177,6 +187,8 @@ $limiteMascotas = ($plan === 'pro') ? 999 : 2;
 
     /* Contenido scrollable */
     .launchpad-content {
+      position: relative;
+      z-index: 1;
       flex: 1;
       overflow-y: auto;
       padding: 1.5rem 2rem 2rem;
