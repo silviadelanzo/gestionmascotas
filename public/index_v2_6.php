@@ -7,6 +7,7 @@ $role = $_SESSION['rol'] ?? null;
 $launchUrl = $role === 'prestador'
   ? $baseUrl . '/launchpad_prestador.php'
   : $baseUrl . '/launchpad_dueno.php';
+$launchLink = $isLogged ? $launchUrl : $baseUrl . '/login.php';
 $profileUrl = $launchUrl;
 $registroDueno = $baseUrl . '/registro.php?role=dueno';
 $registroPrestador = $baseUrl . '/registro.php?role=prestador';
@@ -222,15 +223,15 @@ $loginUrl = $baseUrl . '/login.php';
         <a data-scroll="como-funciona" class="nav-link">Cómo funciona</a>
       </nav>
       <div class="flex items-center gap-2">
+        <a class="pill btn-secondary" data-href="<?= htmlspecialchars($launchLink, ENT_QUOTES, 'UTF-8') ?>">Launchpad</a>
         <?php if ($isLogged): ?>
-          <a class="pill btn-secondary" data-href="<?= htmlspecialchars($launchUrl, ENT_QUOTES, 'UTF-8') ?>">Launchpad</a>
           <div class="user-menu">
-            <div class="user-avatar">
+            <div class="user-avatar" id="user-avatar">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
               </svg>
             </div>
-            <div class="dropdown">
+            <div class="dropdown" id="user-dropdown">
               <div class="user-name">Hola, <?= htmlspecialchars($_SESSION['nombre'] ?? 'Usuario', ENT_QUOTES, 'UTF-8') ?></div>
               <a data-href="<?= htmlspecialchars($launchUrl, ENT_QUOTES, 'UTF-8') ?>" class="dropdown-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -248,39 +249,21 @@ $loginUrl = $baseUrl . '/login.php';
             </div>
           </div>
         <?php else: ?>
-
-          <!-- Avatar para no logueados -->
-
           <div class="user-menu">
-
             <div class="user-avatar" id="login-avatar">
-
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-
               </svg>
-
             </div>
-
             <div class="dropdown" id="login-dropdown">
-
               <a data-href="<?= htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8') ?>" class="dropdown-item">
-
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-
                   <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-
                 </svg>
-
                 Ingresar a mi cuenta
-
               </a>
-
             </div>
-
           </div>
-
         <?php endif; ?>
       </div>
     </div>
@@ -418,6 +401,36 @@ $loginUrl = $baseUrl . '/login.php';
         }
       });
     });
+
+    // Dropdown login (usuarios no logueados) - click/tap
+    const loginAvatar = document.getElementById("login-avatar");
+    const loginDropdown = document.getElementById("login-dropdown");
+    if (loginAvatar && loginDropdown) {
+      loginAvatar.addEventListener("click", function(e) {
+        e.stopPropagation();
+        loginDropdown.classList.toggle("active");
+      });
+      document.addEventListener("click", function(e) {
+        if (!loginAvatar.contains(e.target) && !loginDropdown.contains(e.target)) {
+          loginDropdown.classList.remove("active");
+        }
+      });
+    }
+
+    // Dropdown usuario logueado - click/tap además del hover
+    const userAvatar = document.getElementById("user-avatar");
+    const userDropdown = document.getElementById("user-dropdown");
+    if (userAvatar && userDropdown) {
+      userAvatar.addEventListener("click", function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle("active");
+      });
+      document.addEventListener("click", function(e) {
+        if (!userAvatar.contains(e.target) && !userDropdown.contains(e.target)) {
+          userDropdown.classList.remove("active");
+        }
+      });
+    }
   </script>
 </body>
 </html>
