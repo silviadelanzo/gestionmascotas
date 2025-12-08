@@ -34,6 +34,9 @@ try {
   $_SESSION['rol'] = $user['rol'] ?? 'dueno';
   $_SESSION['is_admin'] = ($_SESSION['rol'] === 'admin');
 
+  // Forzar escritura de sesión antes del redirect
+  session_write_close();
+
   // Redirigir al index
   redirectTo($baseUrl . '/index_v2_6.php');
 } catch (Throwable $e) {
