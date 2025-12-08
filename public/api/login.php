@@ -16,8 +16,7 @@ $email = strtolower(trim($_POST['email'] ?? ''));
 $pass  = $_POST['password'] ?? '';
 
 if ($email === '' || $pass === '') {
-  header('Location: ' . $baseUrl . '/login.php?err=datos');
-  exit;
+  redirectTo($baseUrl . '/login.php?err=datos');
 }
 
 try {
@@ -27,8 +26,7 @@ try {
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
   if (!$user || !password_verify($pass, (string)$user['password'])) {
-    header('Location: ' . $baseUrl . '/login.php?err=credenciales');
-    exit;
+    redirectTo($baseUrl . '/login.php?err=credenciales');
   }
 
   $_SESSION['uid'] = (int)$user['id'];
@@ -36,10 +34,27 @@ try {
   $_SESSION['rol'] = $user['rol'] ?? 'dueno';
   $_SESSION['is_admin'] = ($_SESSION['rol'] === 'admin');
 
-  // Redirigir al index con URL absoluta
-  header('Location: ' . $baseUrl . '/index_v2_6.php');
-  exit;
+  // Redirigir al index
+  redirectTo($baseUrl . '/index_v2_6.php');
 } catch (Throwable $e) {
-  header('Location: ' . $baseUrl . '/login.php?err=server');
+  redirectTo($baseUrl . '/login.php?err=server');
+}
+
+/**
+ * Función helper para redirigir usando JavaScript en lugar de header()
+ * Esto evita problemas con configuraciones de servidor que bloquean header redirects
+ */
+function redirectTo(string $url): void {
+  echo '<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0;url=' . htmlspecialchars($url, ENT_QUOTES) . '">
+  <script>window.location.href="' . htmlspecialchars($url, ENT_QUOTES) . '";</script>
+</head>
+<body>
+  <p>Redirigiendo...</p>
+</body>
+</html>';
   exit;
 }
