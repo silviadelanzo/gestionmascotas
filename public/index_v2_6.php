@@ -6,7 +6,7 @@ $isLogged = !empty($_SESSION['uid']);
 $role = $_SESSION['rol'] ?? null;
 $launchUrl = $role === 'prestador'
   ? $baseUrl . '/launchpad_prestador.php'
-  : $baseUrl . '/launchpad_dueno.php';
+  : $baseUrl . '/launchpad_dueno_v2.php';
 $launchLink = $isLogged ? $launchUrl : $baseUrl . '/login.php';
 $profileUrl = $launchUrl;
 $registroDueno = $baseUrl . '/registro.php?role=dueno';
