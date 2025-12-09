@@ -30,7 +30,7 @@ try {
     exit;
   }
 
-  // ⭐ NUEVO: Crear token de autenticación
+  // Crear token de autenticación
   $token = auth_create_token($user);
   auth_set_cookie($token);
   
@@ -40,8 +40,59 @@ try {
   $_SESSION['rol'] = $user['rol'] ?? 'dueno';
   $_SESSION['is_admin'] = ($_SESSION['rol'] === 'admin');
 
-  // Redirigir al index
-  header('Location: ' . $baseUrl . '/index_v2_6.php');
+  // ⭐ FIX DEFINITIVO: Pantalla intermedia explícita con JS Redirect
+  $redirectUrl = $baseUrl . '/index_v2_6.php';
+  ?>
+  <!DOCTYPE html>
+  <html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciando sesión...</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        background-color: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .box {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        text-align: center;
+      }
+      .btn {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 20px;
+        background: #e74c3c;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+    </style>
+    <script>
+      // Redirigir después de 500ms para asegurar que la cookie se guarde
+      setTimeout(function() {
+        window.location.href = "<?= htmlspecialchars($redirectUrl, ENT_QUOTES) ?>";
+      }, 500);
+    </script>
+  </head>
+  <body>
+    <div class="box">
+      <h2>¡Login Correcto!</h2>
+      <p>Redirigiendo a la plataforma...</p>
+      <p>Si no te redirige automáticamente, click aquí:</p>
+      <a href="<?= htmlspecialchars($redirectUrl, ENT_QUOTES) ?>" class="btn">Continuar</a>
+    </div>
+  </body>
+  </html>
+  <?php
   exit;
   
 } catch (Throwable $e) {
