@@ -29,23 +29,26 @@ try {
     redirectTo($baseUrl . '/login.php?err=credenciales');
   }
 
+  // ⭐ SOLUCIÓN: Regenerar ID de sesión para evitar problemas
+  session_regenerate_id(true);
+  
   $_SESSION['uid'] = (int)$user['id'];
   $_SESSION['nombre'] = $user['nombre'] ?? '';
   $_SESSION['rol'] = $user['rol'] ?? 'dueno';
   $_SESSION['is_admin'] = ($_SESSION['rol'] === 'admin');
 
-  // Forzar escritura de sesión antes del redirect
-  session_write_close();
-
-  // Redirigir al index
-  redirectTo($baseUrl . '/index_v2_6.php');
+  // ⭐ CRÍTICO: Usar header() tradicional en lugar de JavaScript
+  // Si el servidor lo bloquea, al menos sabemos que es un problema de configuración
+  header('Location: ' . $baseUrl . '/index_v2_6.php');
+  exit;
+  
 } catch (Throwable $e) {
   redirectTo($baseUrl . '/login.php?err=server');
 }
 
 /**
  * Función helper para redirigir usando JavaScript en lugar de header()
- * Esto evita problemas con configuraciones de servidor que bloquean header redirects
+ * Solo se usa para errores, no para login exitoso
  */
 function redirectTo(string $url): void {
   echo '<!DOCTYPE html>
