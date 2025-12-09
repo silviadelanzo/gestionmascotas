@@ -2,20 +2,30 @@
 require __DIR__ . '/../config/env.php';
 require __DIR__ . '/../config/db.php';
 require __DIR__ . '/helpers.php';
+require __DIR__ . '/auth.php';  // Sistema de autenticación con tokens
 
-// Configurar sesiones de manera robusta
+// Mantener sesiones PHP solo para compatibilidad con código existente
+// pero el login usará el nuevo sistema de tokens
 if (session_status() === PHP_SESSION_NONE) {
-  // Detectar entorno
   $isProduction = ($_SERVER['HTTP_HOST'] ?? '') === 'mascotasymimos.com';
   
   session_set_cookie_params([
-    'lifetime' => 0,  // Hasta que se cierre el navegador
-    'path' => $isProduction ? '/gestionmascotas/public' : '/',  // ⭐ FIX: path correcto para cada entorno
+    'lifetime' => 0,
+    'path' => $isProduction ? '/gestionmascotas/public' : '/',
     'domain' => $isProduction ? 'mascotasymimos.com' : '',
-    'secure' => $isProduction,  // Solo HTTPS en producción
-    'httponly' => true,  // No accesible desde JavaScript
-    'samesite' => 'Lax'  // Protección CSRF
+    'secure' => $isProduction,
+    'httponly' => true,
+    'samesite' => 'Lax'
   ]);
   
   session_start();
+}
+
+// Sincronizar token con sesión PHP para compatibilidad
+$user = auth_get_user();
+if ($user) {
+  $_SESSION['uid'] = $user['uid'];
+  $_SESSION['nombre'] = $user['nombre'];
+  $_SESSION['rol'] = $user['rol'];
+  $_SESSION['is_admin'] = ($user['rol'] === 'admin');
 }
