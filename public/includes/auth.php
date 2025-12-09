@@ -61,12 +61,13 @@ function auth_verify_token(string $token): ?array {
  * Guardar token en cookie
  */
 function auth_set_cookie(string $token): void {
-  $isProduction = ($_SERVER['HTTP_HOST'] ?? '') === 'mascotasymimos.com';
+  $isProduction = ($_SERVER['HTTP_HOST'] ?? '') === 'mascotasymimos.com' 
+                  || ($_SERVER['HTTP_HOST'] ?? '') === 'www.mascotasymimos.com';
   
   setcookie('auth_token', $token, [
     'expires' => time() + 3600, // 1 hora
-    'path' => $isProduction ? '/gestionmascotas/public' : '/',
-    'domain' => $isProduction ? 'mascotasymimos.com' : '',
+    'path' => '/',  // Simplificado: usar root path siempre
+    'domain' => '',  // Dejar vacío para autodetectar
     'secure' => $isProduction,
     'httponly' => true,
     'samesite' => 'Lax'
@@ -95,12 +96,13 @@ function auth_is_logged(): bool {
  * Cerrar sesión (borrar cookie)
  */
 function auth_logout(): void {
-  $isProduction = ($_SERVER['HTTP_HOST'] ?? '') === 'mascotasymimos.com';
+  $isProduction = ($_SERVER['HTTP_HOST'] ?? '') === 'mascotasymimos.com'
+                  || ($_SERVER['HTTP_HOST'] ?? '') === 'www.mascotasymimos.com';
   
   setcookie('auth_token', '', [
     'expires' => time() - 3600,
-    'path' => $isProduction ? '/gestionmascotas/public' : '/',
-    'domain' => $isProduction ? 'mascotasymimos.com' : '',
+    'path' => '/',  // Debe coincidir con auth_set_cookie
+    'domain' => '',  // Debe coincidir con auth_set_cookie
     'secure' => $isProduction,
     'httponly' => true,
     'samesite' => 'Lax'

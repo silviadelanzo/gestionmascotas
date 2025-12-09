@@ -7,12 +7,13 @@ require __DIR__ . '/auth.php';  // Sistema de autenticación con tokens
 // Mantener sesiones PHP solo para compatibilidad con código existente
 // pero el login usará el nuevo sistema de tokens
 if (session_status() === PHP_SESSION_NONE) {
-  $isProduction = ($_SERVER['HTTP_HOST'] ?? '') === 'mascotasymimos.com';
+  $isProduction = ($_SERVER['HTTP_HOST'] ?? '') === 'mascotasymimos.com'
+                  || ($_SERVER['HTTP_HOST'] ?? '') === 'www.mascotasymimos.com';
   
   session_set_cookie_params([
     'lifetime' => 0,
-    'path' => $isProduction ? '/gestionmascotas/public' : '/',
-    'domain' => $isProduction ? 'mascotasymimos.com' : '',
+    'path' => '/',  // Simplificado para coincidir con auth cookies
+    'domain' => '',  // Simplificado para coincidir con auth cookies
     'secure' => $isProduction,
     'httponly' => true,
     'samesite' => 'Lax'
