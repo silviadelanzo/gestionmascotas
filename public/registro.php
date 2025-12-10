@@ -137,16 +137,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       $newUserId = (int)$pdo->lastInsertId();
 
-      $token = bin2hex(random_bytes(32));
-      $exp = (new DateTimeImmutable('+2 days'))->format('Y-m-d H:i:s');
-      $stmtToken = $pdo->prepare(
-        'INSERT INTO email_verifications_app (user_id, token, expires_at) VALUES (:user_id, :token, :expires_at)'
-      );
-      $stmtToken->execute([
-        'user_id' => $newUserId,
-        'token' => $token,
-        'expires_at' => $exp,
-      ]);
+      // Generar token de verificacion (si la tabla existe). Si falla, no bloquea el alta.
+      $token = null;
+      try {
+        $token = bin2hex(random_bytes(32));
+        $exp = (new DateTimeImmutable('+2 days'))->format('Y-m-d H:i:s');
+        $stmtToken = $pdo->prepare(
+          'INSERT INTO email_verifications_app (user_id, token, expires_at) VALUES (:user_id, :token, :expires_at)'
+        );
+        $stmtToken->execute([
+          'user_id' => $newUserId,
+          'token' => $token,
+          'expires_at' => $exp,
+        ]);
+      } catch (PDOException $tokenError) {
+        // Ignorar: tabla puede no existir en servidor antiguo.
+        $token = null;
+      }
 
       try {
         $mailCfg = require __DIR__ . '/../config/mail.php';
@@ -154,16 +161,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mailer->addAddress($email, $nombre);
         $mailer->isHTML(true);
         $mailer->Subject = 'Verificacion de cuenta - Mascotas y Mimos';
-        $verifyUrl = $baseUrl . '/verificar.php?token=' . urlencode($token);
-        $mailer->Body = '<p>Hola ' . htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8') . ',</p>'
-          . '<p>Gracias por registrarte. Haz clic en el siguiente enlace para activar tu cuenta:</p>'
-          . '<p><a href="' . $verifyUrl . '">' . $verifyUrl . '</a></p>'
-          . '<p>Si no te registraste, ignora este correo.</p>';
-        $mailer->AltBody = "Hola {$nombre},\n\n"
-          . "Gracias por registrarte. Activa tu cuenta aqui: {$verifyUrl}\n\n"
-          . "Si no te registraste, ignora este correo.";
+        if ($token) {
+          $verifyUrl = $baseUrl . '/verificar.php?token=' . urlencode($token);
+          $mailer->Body = '<p>Hola ' . htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8') . ',</p>'
+            . '<p>Gracias por registrarte. Haz clic en el siguiente enlace para activar tu cuenta:</p>'
+            . '<p><a href="' . $verifyUrl . '">' . $verifyUrl . '</a></p>'
+            . '<p>Si no te registraste, ignora este correo.</p>';
+          $mailer->AltBody = "Hola {$nombre},\n\n"
+            . "Gracias por registrarte. Activa tu cuenta aqui: {$verifyUrl}\n\n"
+            . "Si no te registraste, ignora este correo.";
+        } else {
+          $mailer->Body = '<p>Hola ' . htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8') . ',</p>'
+            . '<p>Gracias por registrarte en Mascotas y Mimos.</p>';
+          $mailer->AltBody = "Hola {$nombre},\n\nGracias por registrarte en Mascotas y Mimos.\n";
+        }
         $mailer->send();
-        $successMessage = 'Te enviamos un correo para verificar tu cuenta. Revisa tu bandeja.';
+        $successMessage = $token
+          ? 'Te enviamos un correo para verificar tu cuenta. Revisa tu bandeja.'
+          : 'Tu cuenta fue creada. El correo de verificacion no esta disponible en este servidor.';
       } catch (MailException $mailError) {
         $successMessage = 'Tu cuenta fue creada. No pudimos enviar el correo de verificacion, pero puedes volver a solicitarlo mas tarde.';
       }
