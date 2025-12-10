@@ -123,8 +123,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
       $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
       $stmt = $pdo->prepare(
-        'INSERT INTO usuarios (nombre, email, password, rol, email_verified_at, estado, created_at, updated_at)
-         VALUES (:nombre, :email, :password, :rol, NULL, :estado, NOW(), NOW())'
+        'INSERT INTO usuarios (nombre, email, password, rol, estado, created_at, updated_at)
+         VALUES (:nombre, :email, :password, :rol, :estado, NOW(), NOW())'
       );
 
       $stmt->execute([
