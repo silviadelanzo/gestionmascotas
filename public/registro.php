@@ -122,9 +122,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo = db();
       }
       $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+      // Insert minimal (compatibilidad con esquemas sin columnas estado/email_verified_at)
       $stmt = $pdo->prepare(
-        'INSERT INTO usuarios (nombre, email, password, rol, estado, created_at, updated_at)
-         VALUES (:nombre, :email, :password, :rol, :estado, NOW(), NOW())'
+        'INSERT INTO usuarios (nombre, email, password, rol, created_at, updated_at)
+         VALUES (:nombre, :email, :password, :rol, NOW(), NOW())'
       );
 
       $stmt->execute([
@@ -132,7 +133,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'email' => $email,
         'password' => $hashedPassword,
         'rol' => $tipoUsuario,
-        'estado' => 'pendiente',
       ]);
 
       $newUserId = (int)$pdo->lastInsertId();
