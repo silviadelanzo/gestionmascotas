@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require __DIR__ . '/../includes/bootstrap.php';
 require __DIR__ . '/../includes/auth.php';
 
@@ -28,7 +28,7 @@ try {
     exit;
   }
 
-  // Token y sesion
+  // Token y sesión
   $token = auth_create_token($user);
   auth_set_cookie($token);
 
@@ -39,7 +39,12 @@ try {
 
   $redirect = $baseUrl . '/index_v2_6.php';
   header('Location: ' . $redirect);
-  echo '<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=' . htmlspecialchars($redirect, ENT_QUOTES, 'UTF-8') . '"></head><body><script>window.location.replace("' . addslashes($redirect) . '");</script></body></html>';
+  // Fallback de redirección por si el header Location se bloquea
+  echo '<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url='
+    . htmlspecialchars($redirect, ENT_QUOTES, 'UTF-8')
+    . '"></head><body><script>window.location.replace("'
+    . addslashes($redirect)
+    . '");</script></body></html>';
   exit;
 } catch (Throwable $e) {
   header('Location: ' . $baseUrl . '/login.php?err=server');
