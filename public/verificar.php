@@ -9,6 +9,18 @@ $message = '';
 $isSuccess = false;
 $pdo = null;
 
+function verificar_table_columns(PDO $pdo, string $table): array {
+  $cols = [];
+  $stmt = $pdo->query('SHOW COLUMNS FROM `' . str_replace('`', '``', $table) . '`');
+  foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+    $name = strtolower((string)($row['Field'] ?? ''));
+    if ($name !== '') {
+      $cols[$name] = true;
+    }
+  }
+  return $cols;
+}
+
 if ($token === '') {
   $message = 'Token invalido.';
 } else {
@@ -33,11 +45,22 @@ if ($token === '') {
       } else {
         $pdo->beginTransaction();
 
-        $update = $pdo->prepare('UPDATE usuarios SET estado = :estado, email_verified_at = NOW() WHERE id = :id');
-        $update->execute([
-          'estado' => 'activo',
-          'id' => $userId,
-        ]);
+        $cols = verificar_table_columns($pdo, 'usuarios');
+        $set = [];
+        $params = ['id' => $userId];
+
+        if (isset($cols['estado'])) {
+          $set[] = 'estado = :estado';
+          $params['estado'] = 'activo';
+        }
+        if (isset($cols['email_verified_at'])) {
+          $set[] = 'email_verified_at = NOW()';
+        }
+
+        if (!empty($set)) {
+          $update = $pdo->prepare('UPDATE usuarios SET ' . implode(', ', $set) . ' WHERE id = :id');
+          $update->execute($params);
+        }
 
         $markUsed = $pdo->prepare('UPDATE email_verifications_app SET used_at = NOW(), expires_at = NOW() WHERE token = :token');
         $markUsed->execute(['token' => $token]);

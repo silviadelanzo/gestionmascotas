@@ -16,6 +16,42 @@ $errors = [];
 $successMessage = '';
 $shouldRedirect = false;
 
+function db_table_columns(PDO $pdo, string $table): array {
+  $cols = [];
+  $stmt = $pdo->query('SHOW COLUMNS FROM `' . str_replace('`', '``', $table) . '`');
+  foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+    $name = strtolower((string)($row['Field'] ?? ''));
+    if ($name !== '') {
+      $cols[$name] = $row;
+    }
+  }
+  return $cols;
+}
+
+function db_resolve_role(PDO $pdo, string $tipoUsuario): string {
+  $tipoUsuario = strtolower($tipoUsuario);
+  if ($tipoUsuario !== 'dueno' && $tipoUsuario !== 'prestador') {
+    return $tipoUsuario;
+  }
+
+  try {
+    $stmt = $pdo->query("SHOW COLUMNS FROM `usuarios` LIKE 'rol'");
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $type = strtolower((string)($row['Type'] ?? ''));
+    if ($type !== '' && str_starts_with($type, 'enum(')) {
+      preg_match_all("/'([^']*)'/", $type, $m);
+      $values = array_map('strtolower', $m[1] ?? []);
+      if ($tipoUsuario === 'dueno' && !in_array('dueno', $values, true) && in_array('usuario', $values, true)) {
+        return 'usuario';
+      }
+    }
+  } catch (Throwable $e) {
+    // Ignorar: fallback al valor original.
+  }
+
+  return $tipoUsuario;
+}
+
 function createMailerFromConfig(array $mailCfg): PHPMailer {
   $mailer = new PHPMailer(true);
   $mailer->isSMTP();
@@ -121,19 +157,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if (!isset($pdo)) {
         $pdo = db();
       }
-      $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-      // Insert minimal (compatibilidad con esquemas sin columnas estado/email_verified_at)
-      $stmt = $pdo->prepare(
-        'INSERT INTO usuarios (nombre, email, password, rol, created_at, updated_at)
-         VALUES (:nombre, :email, :password, :rol, NOW(), NOW())'
-      );
 
-      $stmt->execute([
-        'nombre' => $nombre,
-        'email' => $email,
-        'password' => $hashedPassword,
-        'rol' => $tipoUsuario,
-      ]);
+      $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+      $cols = db_table_columns($pdo, 'usuarios');
+
+      $insertCols = [];
+      $insertVals = [];
+      $params = [];
+
+      $colNombre = isset($cols['nombre']) ? 'nombre' : (isset($cols['name']) ? 'name' : null);
+      $colEmail = isset($cols['email']) ? 'email' : null;
+      $colPass = isset($cols['password']) ? 'password' : (isset($cols['clave']) ? 'clave' : null);
+
+      if (!$colNombre || !$colEmail || !$colPass) {
+        throw new PDOException('La tabla usuarios no tiene columnas esperadas (nombre/email/password).');
+      }
+
+      $insertCols[] = $colNombre;
+      $insertVals[] = ':nombre';
+      $params['nombre'] = $nombre;
+
+      $insertCols[] = $colEmail;
+      $insertVals[] = ':email';
+      $params['email'] = $email;
+
+      $insertCols[] = $colPass;
+      $insertVals[] = ':password';
+      $params['password'] = $hashedPassword;
+
+      if (isset($cols['rol'])) {
+        $insertCols[] = 'rol';
+        $insertVals[] = ':rol';
+        $params['rol'] = db_resolve_role($pdo, $tipoUsuario);
+      }
+
+      if (isset($cols['estado'])) {
+        $insertCols[] = 'estado';
+        $insertVals[] = ':estado';
+        $params['estado'] = 'pendiente';
+      }
+
+      // Timestamps: soportar diferentes nombres según esquema.
+      if (isset($cols['created_at'])) {
+        $insertCols[] = 'created_at';
+        $insertVals[] = 'NOW()';
+      } elseif (isset($cols['fecha_alta'])) {
+        $insertCols[] = 'fecha_alta';
+        $insertVals[] = 'NOW()';
+      } elseif (isset($cols['fecha_creacion'])) {
+        $insertCols[] = 'fecha_creacion';
+        $insertVals[] = 'NOW()';
+      }
+
+      if (isset($cols['updated_at'])) {
+        $insertCols[] = 'updated_at';
+        $insertVals[] = 'NOW()';
+      }
+
+      $sql = 'INSERT INTO usuarios (' . implode(', ', $insertCols) . ') VALUES (' . implode(', ', $insertVals) . ')';
+      $stmt = $pdo->prepare($sql);
+      $stmt->execute($params);
 
       $newUserId = (int)$pdo->lastInsertId();
 
