@@ -279,8 +279,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $password = '';
       $tipoUsuario = 'dueno';
     } catch (PDOException $e) {
-      // Log temporal para depurar errores en prod (se puede borrar luego)
-      error_log('REGISTRO_ERROR: ' . $e->getMessage(), 3, __DIR__ . '/registro_error.log');
+      error_log('REGISTRO_ERROR: ' . $e->getMessage() . ' (code ' . (string)$e->getCode() . ')');
       $errors[] = 'No pudimos crear tu cuenta. Intenta nuevamente.';
     }
   }

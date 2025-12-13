@@ -1,5 +1,5 @@
 <?php
-if (!headers_sent() && ob_get_level() === 0) {
+if (ob_get_level() === 0) {
   ob_start();
 }
 
@@ -10,6 +10,11 @@ require_once __DIR__ . '/auth.php';  // Sistema de autenticación con tokens
 // Mantener sesiones PHP solo para compatibilidad con código existente,
 // pero el login usa el sistema de tokens (ver auth.php).
 if (session_status() === PHP_SESSION_NONE) {
+  $hsFile = null;
+  $hsLine = null;
+  if (headers_sent($hsFile, $hsLine)) {
+    error_log('SESSION_HEADERS_SENT: output started at ' . (string)$hsFile . ':' . (string)$hsLine);
+  } else {
   $isProduction = ($_SERVER['HTTP_HOST'] ?? '') === 'mascotasymimos.com'
     || ($_SERVER['HTTP_HOST'] ?? '') === 'www.mascotasymimos.com';
 
@@ -23,6 +28,7 @@ if (session_status() === PHP_SESSION_NONE) {
   ]);
 
   session_start();
+  }
 }
 
 // Sincronizar token con sesión PHP para compatibilidad.
