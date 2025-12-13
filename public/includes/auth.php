@@ -5,7 +5,9 @@
  */
 
 // Clave secreta para firmar tokens (cambiar en producción)
-define('AUTH_SECRET_KEY', 'mascotas_y_mimos_secret_2025_change_in_production');
+if (!defined('AUTH_SECRET_KEY')) {
+  define('AUTH_SECRET_KEY', 'mascotas_y_mimos_secret_2025_change_in_production');
+}
 
 /**
  * Crear token de autenticación

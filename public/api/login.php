@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require __DIR__ . '/../includes/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -32,6 +32,8 @@ try {
   $_SESSION['nombre'] = $user['nombre'] ?? '';
   $_SESSION['rol'] = $user['rol'] ?? 'dueno';
   $_SESSION['is_admin'] = ($_SESSION['rol'] === 'admin');
+  session_regenerate_id(true);
+  session_write_close();
 
   $redirect = $baseUrl . '/index_v2_6.php';
   header('Location: ' . $redirect);

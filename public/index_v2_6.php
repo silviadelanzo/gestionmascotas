@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require __DIR__ . '/includes/bootstrap.php';
 
 $baseUrl = app_base_url();

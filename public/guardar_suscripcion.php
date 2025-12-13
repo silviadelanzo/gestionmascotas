@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 
 require_once __DIR__ . '/includes/helpers.php';
@@ -122,7 +122,12 @@ try {
     }
 
     // Enviar correo de agradecimiento (solo para nuevas suscripciones)
-    $mailCfg = require __DIR__ . '/../config/mail.php';
+    $mailCfgPath = __DIR__ . '/../config/mail.php';
+    $mailCfg = is_file($mailCfgPath) ? (require $mailCfgPath) : null;
+    if (!is_array($mailCfg) || empty($mailCfg['host'])) {
+        $mailCfg = null;
+    }
+    if ($mailCfg) {
     $m = createMailer($mailCfg);
     try {
         $m->addAddress($email, $nombre ?: '');
@@ -188,6 +193,7 @@ try {
                 respond('Notificación no enviada', 'Detalle: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'), false);
             }
         }
+    }
     }
 
     respond('¡Gracias por suscribirte!', 'Te avisaremos cuando el sitio esté disponible.');

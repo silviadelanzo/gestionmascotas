@@ -1,23 +1,31 @@
 <?php
-// Auto-detectar entorno: LOCAL vs PRODUCCIÓN
-$isProduction = ($_SERVER['HTTP_HOST'] ?? '') === 'mascotasymimos.com';
+/**
+ * Config de DB (local por defecto).
+ *
+ * En producción, editá este archivo directamente en el servidor y evitá que el deploy lo pise.
+ *
+ * Si tu hosting permite variables de entorno, también podés definir:
+ * DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS
+ */
 
-if ($isProduction) {
-  // CONFIGURACIÓN SERVIDOR PRODUCCIÓN
+$envHost = getenv('DB_HOST') ?: '';
+$envName = getenv('DB_NAME') ?: '';
+$envUser = getenv('DB_USER') ?: '';
+
+if ($envHost !== '' && $envName !== '' && $envUser !== '') {
   return [
-    'host' => '45.143.162.54',
-    'port' => 3306,
-    'name' => 'sistemasia_inventpro',
-    'user' => 'sistemasia_inventpro',
-    'pass' => 'Santiago2980%%',
-  ];
-} else {
-  // CONFIGURACIÓN LOCAL
-  return [
-    'host' => 'localhost',
-    'port' => 3306,
-    'name' => 'petcare_saas',
-    'user' => 'root',
-    'pass' => '',
+    'host' => $envHost,
+    'port' => (int)(getenv('DB_PORT') ?: 3306),
+    'name' => $envName,
+    'user' => $envUser,
+    'pass' => (string)(getenv('DB_PASS') ?: ''),
   ];
 }
+
+return [
+  'host' => 'localhost',
+  'port' => 3306,
+  'name' => 'petcare_saas',
+  'user' => 'root',
+  'pass' => '',
+];

@@ -156,7 +156,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
 
       try {
-        $mailCfg = require __DIR__ . '/../config/mail.php';
+        $mailCfgPath = __DIR__ . '/../config/mail.php';
+        if (!is_file($mailCfgPath)) {
+          throw new RuntimeException('Falta config/mail.php');
+        }
+        $mailCfg = require $mailCfgPath;
+        if (!is_array($mailCfg)) {
+          throw new RuntimeException('Config mail invalida');
+        }
         $mailer = createMailerFromConfig($mailCfg);
         $mailer->addAddress($email, $nombre);
         $mailer->isHTML(true);
@@ -179,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $successMessage = $token
           ? 'Te enviamos un correo para verificar tu cuenta. Revisa tu bandeja.'
           : 'Tu cuenta fue creada. El correo de verificacion no esta disponible en este servidor.';
-      } catch (MailException $mailError) {
+      } catch (Throwable $mailError) {
         $successMessage = 'Tu cuenta fue creada. No pudimos enviar el correo de verificacion, pero puedes volver a solicitarlo mas tarde.';
       }
 

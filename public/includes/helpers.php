@@ -1,8 +1,24 @@
 <?php
+if (!function_exists('str_contains')) {
+  function str_contains(string $haystack, string $needle): bool {
+    if ($needle === '') {
+      return true;
+    }
+    return strpos($haystack, $needle) !== false;
+  }
+}
+
 function db(): PDO {
   static $pdo = null;
   if (!$pdo) {
-    $cfg = require __DIR__ . '/../config/db.php';
+    $cfgPath = __DIR__ . '/../config/db.php';
+    if (!is_file($cfgPath)) {
+      throw new PDOException('Falta configurar public/config/db.php en el servidor.');
+    }
+    $cfg = require $cfgPath;
+    if (!is_array($cfg)) {
+      throw new PDOException('Config inválida en public/config/db.php (debe devolver un array).');
+    }
     $host = $cfg['host'] ?? 'localhost';
     $name = $cfg['name'] ?? '';
     $port = $cfg['port'] ?? null;
@@ -30,7 +46,11 @@ function app_base_url(): string {
     return $baseUrl;
   }
 
-  $envCfg = require __DIR__ . '/../config/env.php';
+  $envCfgPath = __DIR__ . '/../config/env.php';
+  $envCfg = is_file($envCfgPath) ? (require $envCfgPath) : [];
+  if (!is_array($envCfg)) {
+    $envCfg = [];
+  }
   $configured = rtrim((string)($envCfg['base_url'] ?? ''), '/');
   $requestHost = $_SERVER['HTTP_HOST'] ?? '';
 
@@ -94,4 +114,3 @@ function home_url(): string {
   
   return $cachedUrl = app_base_url() . '/index_v2_' . $latestVersion . '.php';
 }
-

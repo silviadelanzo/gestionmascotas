@@ -1,5 +1,8 @@
 # Ignore server-specific config (kept only on each environment)
 /public/includes/config.php
+/public/config/db.php
+/public/config/mail.php
+/config/mail.php
 
 # Common OS/editor noise
 .DS_Store

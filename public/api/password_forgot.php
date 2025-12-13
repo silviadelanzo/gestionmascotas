@@ -83,7 +83,14 @@ try {
     ]);
 
     try {
-      $mailCfg = require __DIR__ . '/../../config/mail.php';
+      $mailCfgPath = __DIR__ . '/../../config/mail.php';
+      if (!is_file($mailCfgPath)) {
+        throw new RuntimeException('Falta config/mail.php');
+      }
+      $mailCfg = require $mailCfgPath;
+      if (!is_array($mailCfg)) {
+        throw new RuntimeException('Config mail invalida');
+      }
       $mailer = createMailerFromConfig($mailCfg);
       $mailer->addAddress($email);
       $mailer->isHTML(true);
@@ -97,7 +104,7 @@ try {
         . "Enlace (vence en 2 horas): {$resetUrl}\n\n"
         . "Si no solicitaste este cambio, ignora este mensaje.";
       $mailer->send();
-    } catch (MailException $mailError) {
+    } catch (Throwable $mailError) {
       // No romper el flujo aunque falle el mail; se sigue mostrando mensaje generico.
     }
   }

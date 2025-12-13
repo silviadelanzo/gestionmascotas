@@ -23,6 +23,10 @@ on:
         description: "Ruta servidor APP (relativa al login)"
         required: true
         default: "public_html/gestionmascotas/public/"
+      serverDirLib:
+        description: "Ruta servidor LIB (PHPMailer) (relativa al login)"
+        required: true
+        default: "public_html/gestionmascotas/lib/PHPMailer/"
       serverDirRoot:
         description: "Ruta servidor ROOT (relativa al login)"
         required: true
@@ -65,9 +69,26 @@ jobs:
             **/scripts/**
             config/db.php
             config/mail.php
+            test_email.php
+            test_mail_server.php
             **/*.map
             **/*.psd
             **/*.ai
+
+      - name: Deploy lib/PHPMailer to server
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ${{ github.event_name == 'workflow_dispatch' && inputs.protocol || 'ftps' }}
+          port: 21
+          server-dir: ${{ github.event_name == 'workflow_dispatch' && inputs.serverDirLib || 'public_html/gestionmascotas/lib/PHPMailer/' }}
+          local-dir: "lib/PHPMailer/"
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/*.map
 
   deploy-root:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'root' }}

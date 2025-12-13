@@ -7,22 +7,30 @@ deployment:
     - 'echo "[cpanel] HEAD=$(git rev-parse HEAD 2>/dev/null || echo unknown)"'
 
     # Destination directory
-    - 'DEPLOY_DIR="${HOME}/public_html"; mkdir -p "$DEPLOY_DIR/includes"'
+    - 'DEPLOY_DIR="${HOME}/public_html"; mkdir -p "$DEPLOY_DIR/includes" "$DEPLOY_DIR/config"'
 
     # BACKUP config.php si existe (para protegerlo del rsync --delete)
     - 'if [ -f "$DEPLOY_DIR/includes/config.php" ]; then cp "$DEPLOY_DIR/includes/config.php" "$DEPLOY_DIR/includes/config.php.backup"; echo "[cpanel] Backup config.php creado"; fi'
+    # BACKUP configs sensibles (para protegerlos del rsync/cp)
+    - 'if [ -f "$DEPLOY_DIR/config/db.php" ]; then cp "$DEPLOY_DIR/config/db.php" "$DEPLOY_DIR/config/db.php.backup"; echo "[cpanel] Backup db.php creado"; fi'
+    - 'if [ -f "$DEPLOY_DIR/config/mail.php" ]; then cp "$DEPLOY_DIR/config/mail.php" "$DEPLOY_DIR/config/mail.php.backup"; echo "[cpanel] Backup mail.php creado"; fi'
 
     # Sync public/ (SIN includes/ para evitar borrar config.php)
-    - 'if command -v rsync >/dev/null 2>&1; then rsync -rlD --delete --exclude "includes/" --exclude "db_test.php" --exclude "diag_servicios.php" public/ "$DEPLOY_DIR"/; else /bin/cp -Rf public/* "$DEPLOY_DIR"/; fi'
+    - 'if command -v rsync >/dev/null 2>&1; then rsync -rlD --delete --exclude "includes/" --exclude "config/db.php" --exclude "config/mail.php" --exclude "db_test.php" --exclude "diag_servicios.php" public/ "$DEPLOY_DIR"/; else /bin/cp -Rf public/* "$DEPLOY_DIR"/; fi'
 
     # Sync SOLO includes/*.php EXCEPTO config.php (sin --delete para preservar)
     - 'if command -v rsync >/dev/null 2>&1; then rsync -rlD --exclude "config.php" public/includes/ "$DEPLOY_DIR/includes/"; else for f in public/includes/*.php; do [ "$(basename "$f")" != "config.php" ] && /bin/cp -f "$f" "$DEPLOY_DIR/includes/"; done; fi'
 
     # RESTAURAR config.php desde backup
     - 'if [ -f "$DEPLOY_DIR/includes/config.php.backup" ]; then cp "$DEPLOY_DIR/includes/config.php.backup" "$DEPLOY_DIR/includes/config.php"; rm "$DEPLOY_DIR/includes/config.php.backup"; echo "[cpanel] config.php restaurado"; fi'
+    # RESTAURAR configs sensibles desde backup
+    - 'if [ -f "$DEPLOY_DIR/config/db.php.backup" ]; then cp "$DEPLOY_DIR/config/db.php.backup" "$DEPLOY_DIR/config/db.php"; rm "$DEPLOY_DIR/config/db.php.backup"; echo "[cpanel] db.php restaurado"; fi'
+    - 'if [ -f "$DEPLOY_DIR/config/mail.php.backup" ]; then cp "$DEPLOY_DIR/config/mail.php.backup" "$DEPLOY_DIR/config/mail.php"; rm "$DEPLOY_DIR/config/mail.php.backup"; echo "[cpanel] mail.php restaurado"; fi'
 
     # Si NO existe config.php, avisar (pero NO crear vacío)
     - 'if [ ! -f "$DEPLOY_DIR/includes/config.php" ]; then echo "[cpanel] WARNING: config.php no existe, debe crearse manualmente"; fi'
+    - 'if [ ! -f "$DEPLOY_DIR/config/db.php" ]; then echo "[cpanel] WARNING: config/db.php no existe, debe crearse manualmente"; fi'
+    - 'if [ ! -f "$DEPLOY_DIR/config/mail.php" ]; then echo "[cpanel] WARNING: config/mail.php no existe, debe crearse manualmente"; fi'
 
     # Write deployment timestamp
     - 'date "+%F %T %z" > "$DEPLOY_DIR/.deploy-timestamp"'
